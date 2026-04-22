@@ -1,0 +1,33 @@
+{
+  "name": "app",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "dev:native": "turbo -F native dev",
+    "dev:web": "turbo -F web dev",
+    "dev:server": "turbo -F @app/server dev",
+    "db:push": "turbo -F @app/server db:push",
+    "db:studio": "turbo -F @app/server db:studio",
+    "db:generate": "turbo -F @app/server db:generate",
+    "db:migrate": "turbo -F @app/server db:migrate",
+    "db:local": "turbo -F @app/server db:local",
+    "deploy": "turbo deploy",
+    "deploy:server": "turbo -F @app/server deploy",
+    "deploy:web": "turbo -F web deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "@app/config": "workspace:*",
+    "@types/node": "^22.13.14",
+    "turbo": "^2.8.12",
+    "typescript": "^5"
+  },
+  "packageManager": "pnpm@10.15.0"
+}

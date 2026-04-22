@@ -1,0 +1,205 @@
+{
+  "version": 1,
+  "skills": {
+    "agents-sdk": {
+      "source": "cloudflare/skills",
+      "sourceType": "github",
+      "computedHash": "921f2a43c0f58851a8bf9faaeb3641fa3108f3a94e787ca8e948626342988658"
+    },
+    "async-io-model": {
+      "source": "tursodatabase/turso",
+      "sourceType": "github",
+      "computedHash": "84c34110a84c7380a572567a931fe62c06ed6aa1c4e9ddc1347f2c1c03ec301a"
+    },
+    "better-auth-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "computedHash": "a4c830509e85557b59339d8d93a4e243e9e59c686e7678854d39230e12c2a6dc"
+    },
+    "better-auth-security-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "computedHash": "5717187bba9c22030c7174c74012f01c359f21e2ce87e0eb80e24244d8b8c915"
+    },
+    "building-ai-agent-on-cloudflare": {
+      "source": "cloudflare/skills",
+      "sourceType": "github",
+      "computedHash": "e1d8051a52bd96c307a7781fc045a9155f86750e25f151675c19709c88d78468"
+    },
+    "building-native-ui": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "computedHash": "342df93f481a0dba919f372d6c7b40d2b4bf5b51dd24363aea2e5d0bae27a6fa"
+    },
+    "cdc": {
+      "source": "tursodatabase/turso",
+      "sourceType": "github",
+      "computedHash": "7b3db5a77c31ff312f4ed062c76d14beba3a56206477c4fa86f2449fea7e6d02"
+    },
+    "cloudflare": {
+      "source": "cloudflare/skills",
+      "sourceType": "github",
+      "computedHash": "02ef72b4906d295d03da15d52357babdef06a762f0374b85c89c73c9b22a7bad"
+    },
+    "code-quality": {
+      "source": "tursodatabase/turso",
+      "sourceType": "github",
+      "computedHash": "4bd34c624734d588f607750ab1c5aa2de6f8255bb1dd572529d5a1906f6ea155"
+    },
+    "create-auth-skill": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "computedHash": "31c027d02dbf1faa37f58191f574b9443143042fb2b684fe32df53ab0270487c"
+    },
+    "debugging": {
+      "source": "tursodatabase/turso",
+      "sourceType": "github",
+      "computedHash": "bfad506025171d04a381a58043f63f8ad571f6fea03eed64a9fb6621e4445392"
+    },
+    "differential-fuzzer": {
+      "source": "tursodatabase/turso",
+      "sourceType": "github",
+      "computedHash": "0c5cb20a81c2daea91110614eff53d38e8643f5e2a3150e26ff1c6b9fac73cd7"
+    },
+    "drizzle-orm": {
+      "source": "bobmatnyc/claude-mpm-skills",
+      "sourceType": "github",
+      "computedHash": "9aea7469d696c9b5fa54a84b7a92ea692872fb624fb028f866ab0f3deac84867"
+    },
+    "durable-objects": {
+      "source": "cloudflare/skills",
+      "sourceType": "github",
+      "computedHash": "72efa2277fea08f43b393c74abaacc9fa575e20bc63bdc9d46829b8a39352852"
+    },
+    "email-and-password-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "computedHash": "747d7f73bd9e2ec5317b8ef88dc70f97df716d00e3d02de4051feebaa48b062d"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "computedHash": "d31e234f0c90694a670222cdd1dafa853e051d7066beda389f1097c22dadd461"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+    },
+    "heroui-native": {
+      "source": "heroui-inc/heroui",
+      "sourceType": "github",
+      "computedHash": "183b321e308ba32b2e015c68ac50a9ce0bf65e8d31610614d7f80ea565714432"
+    },
+    "index-knowledge": {
+      "source": "tursodatabase/turso",
+      "sourceType": "github",
+      "computedHash": "0882b222a89c593250c5f494a73f3c35147451f1447846cf25bc181d748094f1"
+    },
+    "mvcc": {
+      "source": "tursodatabase/turso",
+      "sourceType": "github",
+      "computedHash": "08d2af6640d29405598754d0302672e287186d626056916545a699435af4f724"
+    },
+    "organization-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "computedHash": "79a5a85b43d10e9fe37582b3506b051a33a991817b938f349099baa5ddba21aa"
+    },
+    "pr-workflow": {
+      "source": "tursodatabase/turso",
+      "sourceType": "github",
+      "computedHash": "6d0f546eb7b5fda41dd1f99a1d6bdfb52b9865e181b2071f94513d8a3b91a6b6"
+    },
+    "revenuecat": {
+      "source": "revenuecat/revenuecat-skill",
+      "sourceType": "github",
+      "computedHash": "90a025d8344f61891348e4dd20e73b228b5b87db3cc0270f2b83388373f98ba7"
+    },
+    "seo-audit": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "computedHash": "ec3109d213dde1747614ad1112ef0e498e04b24e464538968e156dfbfadb2121"
+    },
+    "shadcn": {
+      "source": "shadcn/ui",
+      "sourceType": "github",
+      "computedHash": "507f011a70e8b3ae242bdc0bb5b39fd91a1d4049a0f3c281991ccf84973d591c"
+    },
+    "storage-format": {
+      "source": "tursodatabase/turso",
+      "sourceType": "github",
+      "computedHash": "8488348d21eb6cac971bf3df4732fcad17d7a99d3fe1895933d13c2359f56255"
+    },
+    "tailwind-design-system": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "computedHash": "7ff2f4650597e98ca4cd8f01231fb432ab4d187d6b12e641485aa871a04448cc"
+    },
+    "tanstack-form": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "computedHash": "1eb9f9fc43ab2777f586f916b2234c5340ed98f296a98b22c75cbbafcbd29b86"
+    },
+    "tanstack-query": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "computedHash": "b8a0477cd4d7bf8fa54d27f8e64d82388402f0d502591db50a357df5b9995c75"
+    },
+    "tanstack-router": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "computedHash": "24beccc4016f91bab65547209cfd849ea5e66f3d5d92820683a9dd84669ced56"
+    },
+    "tanstack-start": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "computedHash": "e9d8355fe3e47b118e739081f1123c52aa0ecde57da840722177e1ad5caf9908"
+    },
+    "tanstack-table": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "computedHash": "d5ac71bd795696cd3310165c3ea0e435c310a0ac3c4e9dd45b39ed91b8dbcbb1"
+    },
+    "testing": {
+      "source": "tursodatabase/turso",
+      "sourceType": "github",
+      "computedHash": "8a56f437a837f6900f931ac5de481fc3d99b40b88df4cc787c63fcb9d1a83758"
+    },
+    "transaction-correctness": {
+      "source": "tursodatabase/turso",
+      "sourceType": "github",
+      "computedHash": "83f138a0c62057efcf9cf3a888006a6d62540a56065c53f599d10c6e98e9980f"
+    },
+    "two-factor-authentication-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "computedHash": "7e297aaf887e11fdc03e52bdbf44974e161e8f7c393170ced7dc66cace4f6d46"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "c858d2d9023e73edb4e5504868cb0e36313e58fd56af12ef888b43c5634a3c17"
+    },
+    "vercel-react-native-skills": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "2e9088a7333666d8c2833b8ff58bd51b955501c42b4c7244f72b4cbf22dafcc4"
+    },
+    "web-perf": {
+      "source": "cloudflare/skills",
+      "sourceType": "github",
+      "computedHash": "520d36ee93779146266dcdeec31d5e42341c3a40cc35007c1b5e02d6824ff86b"
+    },
+    "workers-best-practices": {
+      "source": "cloudflare/skills",
+      "sourceType": "github",
+      "computedHash": "420e1ad3eaeb8ed2016e6b34fff3757de6aa39899ec2bd6e9784a29c38e70f9a"
+    },
+    "wrangler": {
+      "source": "cloudflare/skills",
+      "sourceType": "github",
+      "computedHash": "cd0ac8f97a2f54d19166acfd380fca8236db5e9f37d3b2066f713967e2673d36"
+    }
+  }
+}

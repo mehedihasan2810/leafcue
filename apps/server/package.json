@@ -1,0 +1,46 @@
+{
+  "name": "@app/server",
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {
+    "dev": "wrangler dev --port 3000",
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "check-types": "tsc -b",
+    "deploy": "wrangler deploy",
+    "cf-typegen": "wrangler types",
+    "compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
+    "db:local": "turso dev --db-file local.db",
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate",
+    "db:studio": "drizzle-kit studio",
+    "db:migrate": "drizzle-kit migrate"
+  },
+  "dependencies": {
+    "@better-auth/expo": "catalog:",
+    "@hono/trpc-server": "^0.4.0",
+    "@libsql/client": "catalog:",
+    "@trpc/client": "catalog:",
+    "@trpc/server": "catalog:",
+    "better-auth": "catalog:",
+    "drizzle-orm": "^0.45.1",
+    "hono": "catalog:",
+    "libsql": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "@app/config": "workspace:*",
+    "@types/node": "^22.13.14",
+    "dotenv": "catalog:",
+    "drizzle-kit": "^0.31.8",
+    "typescript": "^5",
+    "wrangler": "catalog:"
+  }
+}
