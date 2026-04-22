@@ -1,17 +1,38 @@
 {
   "expo": {
-    "scheme": "app",
+    "scheme": "adhd",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
     "web": {
       "bundler": "metro"
     },
-    "name": "app",
-    "slug": "app",
-    "plugins": ["expo-font"],
+    "name": "adhd",
+    "slug": "adhd",
+    "plugins": [
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "packagingOptions": {
+              "pickFirst": [
+                "**/libc++_shared.so"
+              ]
+            }
+          }
+        }
+      ],
+      "./plugins/with-watermelondb"
+    ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "ios": {
+      "bundleIdentifier": "com.mehedihasan007.adhd"
+    },
+    "android": {
+      "package": "com.mehedihasan007.adhd"
     }
   }
 }

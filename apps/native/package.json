@@ -13,11 +13,12 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@app/server": "workspace:*",
     "@better-auth/expo": "catalog:",
     "@expo/metro-runtime": "~55.0.6",
     "@expo/vector-icons": "^15.0.3",
-    "@app/server": "workspace:*",
     "@gorhom/bottom-sheet": "^5",
+    "@nozbe/watermelondb": "^0.28.0",
     "@react-navigation/drawer": "^7.3.9",
     "@react-navigation/elements": "^2.8.1",
     "@tanstack/react-form": "catalog:",
@@ -27,6 +28,7 @@
     "@trpc/tanstack-react-query": "catalog:",
     "better-auth": "catalog:",
     "expo": "^55.0.0",
+    "expo-build-properties": "~55.0.13",
     "expo-constants": "~55.0.7",
     "expo-font": "~55.0.4",
     "expo-haptics": "~55.0.8",
@@ -56,6 +58,7 @@
   },
   "devDependencies": {
     "@app/config": "workspace:*",
+    "@babel/plugin-proposal-decorators": "^7.29.0",
     "@types/node": "^24.10.0",
     "@types/react": "~19.2.10",
     "typescript": "^5"
