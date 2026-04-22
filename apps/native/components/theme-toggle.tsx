@@ -4,12 +4,13 @@ import { Platform, Pressable } from "react-native";
 import Animated, { FadeOut, ZoomIn } from "react-native-reanimated";
 import { withUniwind } from "uniwind";
 
-import { useAppTheme } from "@/contexts/app-theme-context";
+import { selectIsLightTheme, useThemeStore } from "@/stores/use-theme-store";
 
 const StyledIonicons = withUniwind(Ionicons);
 
 export function ThemeToggle() {
-  const { toggleTheme, isLight } = useAppTheme();
+  const isLight = useThemeStore(selectIsLightTheme);
+  const toggleTheme = useThemeStore((state) => state.toggleTheme);
 
   return (
     <Pressable

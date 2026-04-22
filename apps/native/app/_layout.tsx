@@ -6,7 +6,7 @@ import { HeroUINativeProvider } from "heroui-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
-import { AppThemeProvider } from "@/contexts/app-theme-context";
+import { ThemeStoreSync } from "@/components/theme-store-sync";
 import { database } from "@/lib/watermelon";
 import { queryClient } from "@/utils/trpc";
 
@@ -29,11 +29,10 @@ export default function Layout() {
       <DatabaseProvider database={database}>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <KeyboardProvider>
-            <AppThemeProvider>
-              <HeroUINativeProvider>
-                <StackLayout />
-              </HeroUINativeProvider>
-            </AppThemeProvider>
+            <ThemeStoreSync />
+            <HeroUINativeProvider>
+              <StackLayout />
+            </HeroUINativeProvider>
           </KeyboardProvider>
         </GestureHandlerRootView>
       </DatabaseProvider>

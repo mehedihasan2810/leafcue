@@ -25,6 +25,10 @@
 - For `apps/native`, prefer local WatermelonDB model/schema types and app-owned types. Do not import server router types into native unless native is intentionally being connected to the backend.
 - Keep UI primitives shared in `packages/ui/src/components/*` when they are web-focused and reusable across screens; app-specific web composition belongs in `apps/web/src/components/*`.
 - Native UI does **not** use `packages/ui`; it uses Expo/React Native + `heroui-native` components and `uniwind`/Tailwind-style classes.
+- Forms in `apps/native` must use TanStack Form (`@tanstack/react-form`) + Zod validation + HeroUI Native form UI components from `heroui-native`. Do not build native forms with raw `TextInput`/`Pressable` UI when a HeroUI Native form/control component fits.
+- Forms in `apps/web` must use TanStack Form (`@tanstack/react-form`) + Zod validation + shadcn form UI components from the existing shadcn setup, primarily `packages/ui/src/components/*`. Do not build web forms with raw input/layout markup when shadcn form components fit.
+- Native app state must use Zustand stores instead of React Context. Put stores in `apps/native/stores/use-*.ts`, expose typed selector-friendly hooks, and select the smallest state slice a component needs.
+- Do not create React Context providers for native app state. React Context is only acceptable when a third-party library requires its provider or when doing explicit dependency injection that cannot be represented as a Zustand store.
 - Native dependencies with native code must be listed in `apps/native/package.json` so Expo/React Native autolinking can find them in this monorepo.
 - Utility class merging uses `cn()` from `packages/ui/src/lib/utils.ts` for web shared components.
 - Environment access is done through local `env.ts` modules in each app. Follow the existing per-app env wrapper pattern instead of reading `process.env` directly throughout feature code.
@@ -65,8 +69,13 @@
 - When adding native data access, start with WatermelonDB schema, migrations, and models in `apps/native/lib/watermelon/*`. Keep reads/writes local unless the task explicitly introduces sync or backend integration.
 - Do not add native sign-in/sign-up screens, Better Auth clients, tRPC clients, cookie forwarding, or `@app/server` imports for native local-first features.
 - Treat any existing native auth/tRPC files as legacy template leftovers unless a task explicitly revives backend integration. Do not expand those paths for local-first native work.
+- When adding or editing forms in `apps/native`, use TanStack Form for form state/submission, Zod for validation schemas, and HeroUI Native controls such as `TextField`, `Label`, `Input`, `FieldError`, `Button`, and `Spinner`. Keep schemas close to the form unless they are genuinely shared.
+- When adding or editing forms in `apps/web`, use TanStack Form for form state/submission, Zod for validation schemas, and shadcn components such as `FieldGroup`, `Field`, `FieldLabel`, `FieldDescription`, `FieldError`, `Input`, `Textarea`, `Select`, `Checkbox`, `RadioGroup`, `Button`, and `Spinner` from the existing UI component paths.
+- For all forms, show validation through the platform UI components, wire disabled/pending states from TanStack Form state, and keep submit handlers typed from the Zod schema instead of using `any`.
+- When adding native app state, create or extend a Zustand store under `apps/native/stores`. Prefer separate small stores by domain, keep actions in the store, derive booleans/labels in selectors, and avoid subscribing components to whole-store objects.
+- Do not add React Context for native state management. If a library provider must remain in `apps/native/app/_layout.tsx`, keep it as integration wiring and keep app-owned mutable state in Zustand.
 - When changing route structure on web, remember TanStack Start route files in `apps/web/src/routes/*` work with generated route types in `apps/web/src/routeTree.gen.ts`.
-- Keep root providers intact: web wires React Query + tRPC in `apps/web/src/router.tsx`; native wires WatermelonDB and app providers in `apps/native/app/_layout.tsx`.
+- Keep root providers intact: web wires React Query + tRPC in `apps/web/src/router.tsx`; native wires WatermelonDB, Zustand sync components, and required third-party providers in `apps/native/app/_layout.tsx`.
 - Prefer small, type-safe changes that preserve the existing split: Worker/server logic in `apps/server`, browser UI in `apps/web`, local-first device UX in `apps/native`.
 
 ## Good reference files
@@ -76,11 +85,22 @@
 - `apps/server/src/auth/index.ts` - Better Auth, trusted origins, cookie strategy
 - `apps/web/src/router.tsx` - web tRPC client + React Query wiring
 - `apps/web/src/routes/dashboard.tsx` - protected route pattern
+- `packages/ui/src/components/field.tsx` - shadcn field/form layout primitives for web
+- `packages/ui/src/components/input.tsx` - shadcn input primitive for web forms
 - `apps/native/lib/watermelon/schema.ts` - native local WatermelonDB schema
 - `apps/native/lib/watermelon/migrations.ts` - native WatermelonDB migrations
 - `apps/native/lib/watermelon/database.ts` - native WatermelonDB adapter/database setup
 - `apps/native/plugins/with-watermelondb.js` - Expo prebuild plugin for WatermelonDB native wiring
+- `apps/native/stores/use-theme-store.ts` - native Zustand store pattern
 - `apps/native/app/_layout.tsx` - native root providers, including WatermelonDB
+
+**Using Zustand in native (`apps/native`):**
+
+- Use Zustand for app-owned global or shared state. Do not use React Context for this.
+- Create typed stores with `create<State>()(...)` from `zustand`.
+- Store only the minimal source of truth; derive values through selectors such as `selectIsLightTheme`.
+- Components should subscribe with selectors like `useThemeStore((state) => state.toggleTheme)` instead of reading the entire store.
+- Keep side-effectful integration sync, such as syncing Uniwind theme into a store, in small components like `apps/native/components/theme-store-sync.tsx`.
 
 **Using WatermelonDB in native (`apps/native`):**
 
@@ -88,6 +108,13 @@
 - Add matching migration steps in `apps/native/lib/watermelon/migrations.ts` for every schema version bump after data has shipped.
 - Add WatermelonDB `Model` classes under native-owned folders, then register them in `apps/native/lib/watermelon/database.ts`.
 - Keep WatermelonDB writes inside `database.write(...)` and keep database access behind small hooks/helpers when screens need derived data.
+
+**Using Forms:**
+
+- Native forms: TanStack Form + Zod + HeroUI Native components. Fetch HeroUI Native component docs before composing unfamiliar form controls.
+- Web forms: TanStack Form + Zod + shadcn components. Follow the shadcn form rules: use `FieldGroup`/`Field` composition, `data-invalid` on fields, `aria-invalid` on controls, and existing UI primitives before custom markup.
+- Zod schemas should be the validation source of truth. Use `z.infer` or TanStack Form inference where helpful so submitted values stay typed.
+- Prefer field-level subscriptions/selectors from TanStack Form so forms do not rerender wholesale on every keystroke.
 
 **Using tRPC in server-backed web code (`apps/web`):**
 
