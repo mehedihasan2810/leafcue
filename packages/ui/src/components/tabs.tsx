@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@leafcue/ui/lib/utils";
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
+import { cn } from "@leafcue/ui/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
 function Tabs({

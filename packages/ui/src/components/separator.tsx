@@ -1,5 +1,5 @@
-import { cn } from "@leafcue/ui/lib/utils";
 import { Separator as SeparatorPrimitive } from "@base-ui/react/separator";
+import { cn } from "@leafcue/ui/lib/utils";
 
 function Separator({
   className,

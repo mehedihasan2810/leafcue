@@ -1,3 +1,5 @@
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { Button } from "@leafcue/ui/components/button";
 import { Input } from "@leafcue/ui/components/input";
 import { Separator } from "@leafcue/ui/components/separator";
@@ -16,8 +18,6 @@ import {
 } from "@leafcue/ui/components/tooltip";
 import { useIsMobile } from "@leafcue/ui/hooks/use-mobile";
 import { cn } from "@leafcue/ui/lib/utils";
-import { mergeProps } from "@base-ui/react/merge-props";
-import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 import { PanelLeftIcon } from "lucide-react";
 import * as React from "react";

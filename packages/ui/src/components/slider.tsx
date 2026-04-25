@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@leafcue/ui/lib/utils";
 import { Slider as SliderPrimitive } from "@base-ui/react/slider";
+import { cn } from "@leafcue/ui/lib/utils";
 import * as React from "react";
 
 function Slider({

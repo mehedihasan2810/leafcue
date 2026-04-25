@@ -1,6 +1,6 @@
+import { Dialog as SheetPrimitive } from "@base-ui/react/dialog";
 import { Button } from "@leafcue/ui/components/button";
 import { cn } from "@leafcue/ui/lib/utils";
-import { Dialog as SheetPrimitive } from "@base-ui/react/dialog";
 import { XIcon } from "lucide-react";
 import type * as React from "react";
 

@@ -1,7 +1,3 @@
-import type { AppRouter } from "@leafcue/server/api/routers/index";
-import { Toaster } from "@leafcue/ui/components/sonner";
-import type { QueryClient } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   HeadContent,
@@ -9,15 +5,11 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 
 import Header from "../components/header";
 
 import appCss from "../index.css?url";
-export interface RouterAppContext {
-  trpc: TRPCOptionsProxy<AppRouter>;
-  queryClient: QueryClient;
-}
+export type RouterAppContext = Record<string, never>;
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   head: () => ({
@@ -30,7 +22,12 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "My App",
+        title: "LeafCue | Offline plant care tracker",
+      },
+      {
+        name: "description",
+        content:
+          "LeafCue is a private, local-first plant care tracker for remembering watering, feeding, pruning, and plant notes offline.",
       },
     ],
     links: [
@@ -46,18 +43,16 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 
 function RootDocument() {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body>
-        <div className="grid h-svh grid-rows-[auto_1fr]">
+        <div className="min-h-svh bg-background text-foreground">
           <Header />
           <Outlet />
         </div>
-        <Toaster richColors />
         <TanStackRouterDevtools position="bottom-left" />
-        <ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
         <Scripts />
       </body>
     </html>

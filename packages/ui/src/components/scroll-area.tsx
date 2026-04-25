@@ -1,6 +1,5 @@
-import { cn } from "@leafcue/ui/lib/utils";
 import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area";
-import * as React from "react";
+import { cn } from "@leafcue/ui/lib/utils";
 
 function ScrollArea({
   className,

@@ -1,124 +1,60 @@
-# app
+# LeafCue
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines React, TanStack Start, Hono, TRPC, and more.
+LeafCue is a local-first, privacy-first, offline-first plant care tracker.
 
-## Features
+The mobile app in `apps/native` is the product app. It stores plant care data locally with WatermelonDB and does not require auth or an external backend. The web app in `apps/web` is the public marketing site. The Worker in `apps/server` is kept for possible future backend, sync, or auth work.
 
-- **TypeScript** - For type safety and improved developer experience
-- **TanStack Start** - SSR framework with TanStack Router
-- **React Native** - Build mobile apps using React
-- **Expo** - Tools for React Native development
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **Shared UI package** - shadcn/ui primitives live in `packages/ui`
-- **Hono** - Lightweight, performant server framework
-- **tRPC** - End-to-end type-safe APIs
-- **workers** - Runtime environment
-- **Drizzle** - TypeScript-first ORM
-- **SQLite/Turso** - Database engine
-- **Authentication** - Better-Auth
-- **Turborepo** - Optimized monorepo build system
+## Stack
+
+- `pnpm` + Turborepo monorepo
+- Expo Router + React Native in `apps/native`
+- WatermelonDB for local native persistence
+- HeroUI Native + Uniwind for native UI
+- TanStack Router/Start in `apps/web`
+- shadcn UI primitives in `packages/ui`
+- Hono, Better Auth, tRPC, Drizzle, and libsql/Turso in the parked server
 
 ## Getting Started
 
-First, install the dependencies:
-
 ```bash
 pnpm install
+pnpm dev:native
+pnpm dev:web
 ```
 
-## Database Setup
-
-This project uses SQLite with Drizzle ORM.
-
-1. Start the local SQLite database (optional):
-
-```bash
-pnpm run db:local
-```
-
-2. Update your `.env` file in the `apps/server` directory with the appropriate connection details if needed.
-
-3. Apply the schema to your database:
-
-```bash
-pnpm run db:push
-```
-
-Then, run the development server:
-
-```bash
-pnpm run dev
-```
-
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
-Use the Expo Go app to run the mobile application.
-The API is running at [http://localhost:3000](http://localhost:3000).
-
-## UI Customization
-
-React web apps in this stack share shadcn/ui primitives through `packages/ui`.
-
-- Change design tokens and global styles in `packages/ui/src/styles/globals.css`
-- Update shared primitives in `packages/ui/src/components/*`
-- Adjust shadcn aliases or style config in `packages/ui/components.json` and `apps/web/components.json`
-
-### Add more shared components
-
-Run this from the project root to add more primitives to the shared UI package:
-
-```bash
-npx shadcn@latest add accordion dialog popover sheet table -c packages/ui
-```
-
-Import shared components like this:
-
-```tsx
-import { Button } from "@leafcue/ui/components/button";
-```
-
-### Add app-specific blocks
-
-If you want to add app-specific blocks instead of shared primitives, run the shadcn CLI from `apps/web`.
-
-## Deployment (Cloudflare via Wrangler)
-
-- Local dev: `pnpm run dev`
-- Deploy server: `pnpm run deploy:server`
-- Deploy web: `pnpm run deploy:web`
-- Deploy both apps: `pnpm run deploy`
-
-Wrangler now owns the Cloudflare setup directly:
-
-- `apps/server/wrangler.json` configures the API Worker
-- `apps/web/wrangler.json` configures the TanStack Start app
-- local server env values come from `apps/server/.env` during `wrangler dev`
-- deployed Worker secrets should be set with Wrangler CLI, for example `wrangler secret put BETTER_AUTH_SECRET`
+Native WatermelonDB requires an Expo prebuild/custom development build or EAS build. Expo Go will not include the WatermelonDB native module.
 
 ## Project Structure
 
-```
-app/
+```text
+leafcue/
 ├── apps/
-│   ├── web/         # Frontend application (React + TanStack Start)
-│   ├── native/      # Mobile application (React Native, Expo)
-│   └── server/      # Backend API, auth, db, and shared TRPC types
+│   ├── native/      # LeafCue mobile app
+│   ├── web/         # LeafCue marketing site
+│   └── server/      # Parked future backend
 ├── packages/
-│   ├── ui/          # Shared shadcn/ui components and styles
+│   ├── ui/          # Web-only shadcn components and styles
 │   └── config/      # Shared TypeScript config
 ```
 
-## Available Scripts
+## Scripts
 
-- `pnpm run dev`: Start all applications in development mode
-- `pnpm run build`: Build all applications
-- `pnpm run dev:web`: Start only the web application
-- `pnpm run dev:server`: Start only the server
-- `pnpm run check-types`: Check TypeScript types across all apps
-- `pnpm run dev:native`: Start the React Native/Expo development server
-- `pnpm run deploy:server`: Deploy only the server Worker with Wrangler
-- `pnpm run deploy:web`: Deploy only the web Worker with Wrangler
-- `pnpm run db:push`: Push schema changes to database
-- `pnpm run db:generate`: Generate database client/types
-- `pnpm run db:migrate`: Run database migrations
-- `pnpm run db:studio`: Open database studio UI
-- `pnpm run db:local`: Start the local SQLite database
+- `pnpm dev`: run the full Turbo dev graph
+- `pnpm dev:native`: start the Expo app
+- `pnpm dev:web`: start the marketing site
+- `pnpm dev:server`: start the parked Worker
+- `pnpm check-types`: run TypeScript checks across the monorepo
+- `pnpm build`: build all packages
+- `pnpm deploy:web`: deploy the web Worker
+- `pnpm deploy:server`: deploy the parked server Worker
+
+Server database scripts are still available for future backend work: `pnpm db:push`, `pnpm db:generate`, `pnpm db:migrate`, `pnpm db:studio`, and `pnpm db:local`.
+
+## UI Notes
+
+- Native UI uses HeroUI Native components and default light/dark themes.
+- Native images should use `Image` from `expo-image`.
+- Native input screens should use `react-native-keyboard-controller`.
+- Web UI uses shadcn components from `@leafcue/ui`.
+- All forms use TanStack Form + Zod with platform UI primitives.
+- All validation should use Zod.

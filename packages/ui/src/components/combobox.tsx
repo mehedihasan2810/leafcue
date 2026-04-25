@@ -1,5 +1,6 @@
 "use client";
 
+import { Combobox as ComboboxPrimitive } from "@base-ui/react";
 import { Button } from "@leafcue/ui/components/button";
 import {
   InputGroup,
@@ -7,9 +8,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@leafcue/ui/components/input-group";
-
 import { cn } from "@leafcue/ui/lib/utils";
-import { Combobox as ComboboxPrimitive } from "@base-ui/react";
 import { CheckIcon, ChevronDownIcon, XIcon } from "lucide-react";
 import * as React from "react";
 

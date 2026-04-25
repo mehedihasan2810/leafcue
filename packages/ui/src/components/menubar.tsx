@@ -1,3 +1,5 @@
+import { Menu as MenuPrimitive } from "@base-ui/react/menu";
+import { Menubar as MenubarPrimitive } from "@base-ui/react/menubar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,8 +16,6 @@ import {
   DropdownMenuTrigger,
 } from "@leafcue/ui/components/dropdown-menu";
 import { cn } from "@leafcue/ui/lib/utils";
-import { Menu as MenuPrimitive } from "@base-ui/react/menu";
-import { Menubar as MenubarPrimitive } from "@base-ui/react/menubar";
 import { CheckIcon } from "lucide-react";
 import type * as React from "react";
 

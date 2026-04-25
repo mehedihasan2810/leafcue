@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@leafcue/ui/lib/utils";
 import { Switch as SwitchPrimitive } from "@base-ui/react/switch";
+import { cn } from "@leafcue/ui/lib/utils";
 
 function Switch({
   className,

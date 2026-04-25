@@ -5,7 +5,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@leafcue/ui/components/dialog";
-import { InputGroup, InputGroupAddon } from "@leafcue/ui/components/input-group";
+import {
+  InputGroup,
+  InputGroupAddon,
+} from "@leafcue/ui/components/input-group";
 
 import { cn } from "@leafcue/ui/lib/utils";
 import { Command as CommandPrimitive } from "cmdk";
