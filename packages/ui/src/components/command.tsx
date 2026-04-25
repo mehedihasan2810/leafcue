@@ -4,10 +4,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@app/ui/components/dialog";
-import { InputGroup, InputGroupAddon } from "@app/ui/components/input-group";
+} from "@leafcue/ui/components/dialog";
+import { InputGroup, InputGroupAddon } from "@leafcue/ui/components/input-group";
 
-import { cn } from "@app/ui/lib/utils";
+import { cn } from "@leafcue/ui/lib/utils";
 import { Command as CommandPrimitive } from "cmdk";
 import { CheckIcon, SearchIcon } from "lucide-react";
 import type * as React from "react";

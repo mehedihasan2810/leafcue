@@ -1,9 +1,9 @@
 "use client";
 
-import { Label } from "@app/ui/components/label";
-import { Separator } from "@app/ui/components/separator";
+import { Label } from "@leafcue/ui/components/label";
+import { Separator } from "@leafcue/ui/components/separator";
 
-import { cn } from "@app/ui/lib/utils";
+import { cn } from "@leafcue/ui/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { useMemo } from "react";
 

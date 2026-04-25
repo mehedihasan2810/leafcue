@@ -1,4 +1,4 @@
-import { cn } from "@app/ui/lib/utils";
+import { cn } from "@leafcue/ui/lib/utils";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
 

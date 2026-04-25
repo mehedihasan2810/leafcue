@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@app/ui/lib/utils";
+import { cn } from "@leafcue/ui/lib/utils";
 import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox";
 import { CheckIcon } from "lucide-react";
 

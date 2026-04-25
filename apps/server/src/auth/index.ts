@@ -18,7 +18,7 @@ export const auth = betterAuth({
   }),
   trustedOrigins: [
     env.CORS_ORIGIN,
-    "app://",
+    "leafcue://",
     ...(env.NODE_ENV === "development"
       ? [
           "exp://",

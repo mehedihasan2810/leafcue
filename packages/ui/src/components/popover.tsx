@@ -1,4 +1,4 @@
-import { cn } from "@app/ui/lib/utils";
+import { cn } from "@leafcue/ui/lib/utils";
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
 import type * as React from "react";
 

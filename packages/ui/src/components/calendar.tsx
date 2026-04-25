@@ -1,7 +1,7 @@
 "use client";
 
-import { Button, buttonVariants } from "@app/ui/components/button";
-import { cn } from "@app/ui/lib/utils";
+import { Button, buttonVariants } from "@leafcue/ui/components/button";
+import { cn } from "@leafcue/ui/lib/utils";
 import {
   ChevronDownIcon,
   ChevronLeftIcon,

@@ -1,21 +1,21 @@
-import { Button } from "@app/ui/components/button";
-import { Input } from "@app/ui/components/input";
-import { Separator } from "@app/ui/components/separator";
+import { Button } from "@leafcue/ui/components/button";
+import { Input } from "@leafcue/ui/components/input";
+import { Separator } from "@leafcue/ui/components/separator";
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "@app/ui/components/sheet";
-import { Skeleton } from "@app/ui/components/skeleton";
+} from "@leafcue/ui/components/sheet";
+import { Skeleton } from "@leafcue/ui/components/skeleton";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@app/ui/components/tooltip";
-import { useIsMobile } from "@app/ui/hooks/use-mobile";
-import { cn } from "@app/ui/lib/utils";
+} from "@leafcue/ui/components/tooltip";
+import { useIsMobile } from "@leafcue/ui/hooks/use-mobile";
+import { cn } from "@leafcue/ui/lib/utils";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";

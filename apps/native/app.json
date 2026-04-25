@@ -1,13 +1,13 @@
 {
   "expo": {
-    "scheme": "adhd",
+    "scheme": "leafcue",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
     "web": {
       "bundler": "metro"
     },
-    "name": "adhd",
-    "slug": "adhd",
+    "name": "LeafCue",
+    "slug": "leafcue",
     "plugins": [
       "expo-font",
       [
@@ -27,10 +27,10 @@
       "reactCompiler": true
     },
     "ios": {
-      "bundleIdentifier": "com.mehedihasan007.adhd"
+      "bundleIdentifier": "com.galaxywayai.leafcue"
     },
     "android": {
-      "package": "com.mehedihasan007.adhd"
+      "package": "com.galaxywayai.leafcue"
     }
   }
 }

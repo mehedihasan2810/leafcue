@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@app/ui/lib/utils";
+import { cn } from "@leafcue/ui/lib/utils";
 import { PreviewCard as PreviewCardPrimitive } from "@base-ui/react/preview-card";
 
 function HoverCard({ ...props }: PreviewCardPrimitive.Root.Props) {

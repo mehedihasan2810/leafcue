@@ -1,7 +1,7 @@
-import { Button } from "@app/ui/components/button";
-import { Input } from "@app/ui/components/input";
-import { Textarea } from "@app/ui/components/textarea";
-import { cn } from "@app/ui/lib/utils";
+import { Button } from "@leafcue/ui/components/button";
+import { Input } from "@leafcue/ui/components/input";
+import { Textarea } from "@leafcue/ui/components/textarea";
+import { cn } from "@leafcue/ui/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
 

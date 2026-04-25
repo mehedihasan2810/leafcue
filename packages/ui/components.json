@@ -12,11 +12,11 @@
   },
   "iconLibrary": "lucide",
   "aliases": {
-    "components": "@app/ui/components",
-    "utils": "@app/ui/lib/utils",
-    "hooks": "@app/ui/hooks",
-    "lib": "@app/ui/lib",
-    "ui": "@app/ui/components"
+    "components": "@leafcue/ui/components",
+    "utils": "@leafcue/ui/lib/utils",
+    "hooks": "@leafcue/ui/hooks",
+    "lib": "@leafcue/ui/lib",
+    "ui": "@leafcue/ui/components"
   },
   "menuColor": "default",
   "menuAccent": "subtle",

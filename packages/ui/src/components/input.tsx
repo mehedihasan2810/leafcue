@@ -1,4 +1,4 @@
-import { cn } from "@app/ui/lib/utils";
+import { cn } from "@leafcue/ui/lib/utils";
 import { Input as InputPrimitive } from "@base-ui/react/input";
 import type * as React from "react";
 

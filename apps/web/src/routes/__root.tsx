@@ -1,5 +1,5 @@
-import type { AppRouter } from "@app/server/api/routers/index";
-import { Toaster } from "@app/ui/components/sonner";
+import type { AppRouter } from "@leafcue/server/api/routers/index";
+import { Toaster } from "@leafcue/ui/components/sonner";
 import type { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {

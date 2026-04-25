@@ -1,5 +1,5 @@
 {
-  "name": "@app/config",
+  "name": "@leafcue/config",
   "version": "0.0.0",
   "private": true
 }

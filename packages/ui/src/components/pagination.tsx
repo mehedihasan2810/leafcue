@@ -1,6 +1,6 @@
-import { Button } from "@app/ui/components/button";
+import { Button } from "@leafcue/ui/components/button";
 
-import { cn } from "@app/ui/lib/utils";
+import { cn } from "@leafcue/ui/lib/utils";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,

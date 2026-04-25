@@ -23,7 +23,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@app/ui/*": ["../../packages/ui/src/*"]
+      "@leafcue/ui/*": ["../../packages/ui/src/*"]
     }
   }
 }

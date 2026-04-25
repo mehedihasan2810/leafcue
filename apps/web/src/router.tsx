@@ -1,4 +1,4 @@
-import type { AppRouter } from "@app/server/api/routers/index";
+import type { AppRouter } from "@leafcue/server/api/routers/index";
 
 import "./index.css";
 import {

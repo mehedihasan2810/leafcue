@@ -1,5 +1,5 @@
 {
-  "name": "@app/server",
+  "name": "@leafcue/server",
   "type": "module",
   "main": "src/index.ts",
   "exports": {
@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
-    "@app/config": "workspace:*",
+    "@leafcue/config": "workspace:*",
     "@types/node": "^22.13.14",
     "dotenv": "catalog:",
     "drizzle-kit": "^0.31.8",

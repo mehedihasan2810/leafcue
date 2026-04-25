@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@app/ui/lib/utils";
+import { cn } from "@leafcue/ui/lib/utils";
 import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
 
 function Progress({

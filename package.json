@@ -1,5 +1,5 @@
 {
-  "name": "app",
+  "name": "leafcue",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -12,22 +12,22 @@
     "check": "biome check --write .",
     "check:ci": "biome check .",
     "check-types": "turbo check-types",
-    "dev:native": "turbo -F native dev",
-    "dev:web": "turbo -F web dev",
-    "dev:server": "turbo -F @app/server dev",
-    "db:push": "turbo -F @app/server db:push",
-    "db:studio": "turbo -F @app/server db:studio",
-    "db:generate": "turbo -F @app/server db:generate",
-    "db:migrate": "turbo -F @app/server db:migrate",
-    "db:local": "turbo -F @app/server db:local",
+    "dev:native": "turbo -F @leafcue/native dev",
+    "dev:web": "turbo -F @leafcue/web dev",
+    "dev:server": "turbo -F @leafcue/server dev",
+    "db:push": "turbo -F @leafcue/server db:push",
+    "db:studio": "turbo -F @leafcue/server db:studio",
+    "db:generate": "turbo -F @leafcue/server db:generate",
+    "db:migrate": "turbo -F @leafcue/server db:migrate",
+    "db:local": "turbo -F @leafcue/server db:local",
     "deploy": "turbo deploy",
-    "deploy:server": "turbo -F @app/server deploy",
-    "deploy:web": "turbo -F web deploy"
+    "deploy:server": "turbo -F @leafcue/server deploy",
+    "deploy:web": "turbo -F @leafcue/web deploy"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.0",
     "@cloudflare/workers-types": "catalog:",
-    "@app/config": "workspace:*",
+    "@leafcue/config": "workspace:*",
     "@types/node": "^22.13.14",
     "turbo": "^2.8.12",
     "typescript": "^5"
