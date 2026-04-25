@@ -1,12 +1,11 @@
 import "@/global.css";
-import DatabaseProvider from "@nozbe/watermelondb/react/DatabaseProvider";
 import { Stack } from "expo-router";
 import { HeroUINativeProvider } from "heroui-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import { ThemeStoreSync } from "@/components/theme-store-sync";
-import { database } from "@/lib/watermelon";
+import { DatabaseProvider } from "@/lib/db/provider";
 
 export const unstable_settings = {
   initialRouteName: "(drawer)",
@@ -26,15 +25,15 @@ function StackLayout() {
 
 export default function Layout() {
   return (
-    <DatabaseProvider database={database}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <KeyboardProvider>
-          <ThemeStoreSync />
-          <HeroUINativeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <KeyboardProvider>
+        <ThemeStoreSync />
+        <HeroUINativeProvider>
+          <DatabaseProvider>
             <StackLayout />
-          </HeroUINativeProvider>
-        </KeyboardProvider>
-      </GestureHandlerRootView>
-    </DatabaseProvider>
+          </DatabaseProvider>
+        </HeroUINativeProvider>
+      </KeyboardProvider>
+    </GestureHandlerRootView>
   );
 }

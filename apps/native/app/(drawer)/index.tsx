@@ -36,9 +36,7 @@ export default function Home() {
           <Card.Header className="flex-row items-center justify-between">
             <View>
               <Card.Title>Today&apos;s care</Card.Title>
-              <Card.Description>
-                WatermelonDB-backed local queue
-              </Card.Description>
+              <Card.Description>SQLite-backed local queue</Card.Description>
             </View>
             <Ionicons name="leaf-outline" size={24} color={successColor} />
           </Card.Header>

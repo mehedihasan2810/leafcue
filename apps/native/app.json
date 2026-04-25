@@ -8,20 +8,7 @@
     },
     "name": "LeafCue",
     "slug": "leafcue",
-    "plugins": [
-      "expo-font",
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "packagingOptions": {
-              "pickFirst": ["**/libc++_shared.so"]
-            }
-          }
-        }
-      ],
-      "./plugins/with-watermelondb"
-    ],
+    "plugins": ["expo-font", "expo-sqlite"],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true

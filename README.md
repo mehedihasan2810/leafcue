@@ -2,13 +2,13 @@
 
 LeafCue is a local-first, privacy-first, offline-first plant care tracker.
 
-The mobile app in `apps/native` is the product app. It stores plant care data locally with WatermelonDB and does not require auth or an external backend. The web app in `apps/web` is the public marketing site. The Worker in `apps/server` is kept for possible future backend, sync, or auth work.
+The mobile app in `apps/native` is the product app. It stores plant care data locally with Expo SQLite and Drizzle and does not require auth or an external backend. The web app in `apps/web` is the public marketing site. The Worker in `apps/server` is kept for possible future backend, sync, or auth work.
 
 ## Stack
 
 - `pnpm` + Turborepo monorepo
 - Expo Router + React Native in `apps/native`
-- WatermelonDB for local native persistence
+- Expo SQLite + Drizzle for local native persistence
 - HeroUI Native + Uniwind for native UI
 - TanStack Router/Start in `apps/web`
 - shadcn UI primitives in `packages/ui`
@@ -22,7 +22,7 @@ pnpm dev:native
 pnpm dev:web
 ```
 
-Native WatermelonDB requires an Expo prebuild/custom development build or EAS build. Expo Go will not include the WatermelonDB native module.
+Native SQLite config changes require an Expo prebuild/custom development build or EAS build before testing in a development build.
 
 ## Project Structure
 

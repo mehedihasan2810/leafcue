@@ -11,7 +11,7 @@
 ## Monorepo Map
 
 - Root: `pnpm` + Turborepo.
-- `apps/native`: Expo Router React Native app, WatermelonDB local data, HeroUI Native UI.
+- `apps/native`: Expo Router React Native app, Expo SQLite + Drizzle local data, HeroUI Native UI.
 - `apps/web`: TanStack Router/Start marketing site, shadcn UI from `packages/ui`.
 - `apps/server`: Cloudflare Worker with Hono, Better Auth, tRPC, Drizzle, and libsql/Turso for future server-backed features.
 - `packages/ui`: shared web-only shadcn components and CSS.
@@ -19,8 +19,9 @@
 
 ## Native Rules
 
-- Treat WatermelonDB as the native source of truth. Change `apps/native/lib/watermelon/schema.ts`, `migrations.ts`, model registration, and database helpers together.
-- Keep WatermelonDB writes inside `database.write(...)`.
+- Treat Expo SQLite + Drizzle as the native source of truth. Change `apps/native/lib/db/schema.ts`, generated migrations in `apps/native/drizzle`, and database helpers together.
+- Generate native migrations with `pnpm --filter @leafcue/native db:generate` after changing Drizzle table definitions, and keep migrations bundled in the app.
+- Use Drizzle transactions for multi-step native database writes.
 - Do not add native auth, Better Auth, tRPC, cookie forwarding, `@leafcue/server` imports, or server URL requirements unless explicitly requested.
 - Use HeroUI Native components and the default HeroUI Native light/dark themes. Native UI must not use `packages/ui`.
 - Use `expo-image` for images. Do not import `Image` from `react-native`.
@@ -29,7 +30,7 @@
 - Use Zod for any validation of user input, persisted data, route params, imports, or sync payloads.
 - Use Zustand for app-owned shared state in `apps/native/stores/use-*.ts`. Do not create React Context for app state.
 - Native dependencies with native code must be listed in `apps/native/package.json` for Expo autolinking.
-- WatermelonDB requires a prebuild/custom development build or EAS build; Expo Go is not enough after native module changes.
+- `expo-sqlite` is the native persistence layer; after native module or config plugin changes, rebuild the development build or EAS build.
 
 ## Web Rules
 
@@ -74,19 +75,20 @@
 
 ## Quality Bar
 
-- Never use `any`; model types from Zod, WatermelonDB models, or server exports as appropriate.
+- Never use `any`; model types from Zod, Drizzle table inference, or server exports as appropriate.
 - Keep changes small, typed, and aligned with the app split.
 - Preserve offline behavior in native. A missing network must not block core plant care flows.
 - Prefer existing dependencies and local patterns before adding new abstractions.
-- Update schema, migrations, model registration, UI, and tests together when changing persisted native data.
+- Update schema, migrations, database helpers, UI, and tests together when changing persisted native data.
 - Avoid expanding legacy template auth/tRPC paths. Remove or replace them when touching related local-first features.
 
 ## Reference Files
 
 - `apps/native/app/_layout.tsx`: native root providers.
-- `apps/native/lib/watermelon/schema.ts`: local schema.
-- `apps/native/lib/watermelon/migrations.ts`: local migrations.
-- `apps/native/lib/watermelon/database.ts`: WatermelonDB registration.
+- `apps/native/lib/db/schema.ts`: native Drizzle schema.
+- `apps/native/lib/db/index.ts`: native Drizzle database helpers.
+- `apps/native/lib/db/provider.tsx`: Expo SQLite provider and migration gate.
+- `apps/native/drizzle.config.ts`: native Drizzle Kit config.
 - `apps/native/stores/use-theme-store.ts`: Zustand pattern.
 - `apps/native/components/theme-store-sync.tsx`: theme sync pattern.
 - `packages/ui/src/components/field.tsx`: shadcn field primitives.

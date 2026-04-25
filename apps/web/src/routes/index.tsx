@@ -65,7 +65,7 @@ function HomeComponent() {
           </div>
 
           <div className="relative">
-            <div className="grid aspect-[4/5] max-h-[620px] min-h-[420px] overflow-hidden rounded-md border bg-[linear-gradient(160deg,hsl(var(--background))_0%,hsl(var(--muted))_62%,hsl(var(--accent))_100%)] p-5 shadow-sm">
+            <div className="grid aspect-4/5 max-h-[620px] min-h-[420px] overflow-hidden rounded-md border bg-[linear-gradient(160deg,hsl(var(--background))_0%,hsl(var(--muted))_62%,hsl(var(--accent))_100%)] p-5 shadow-sm">
               <div className="grid grid-rows-[auto_1fr_auto] rounded-md border bg-background p-4 shadow-xl">
                 <div className="flex items-center justify-between border-border border-b pb-3">
                   <div>
@@ -121,7 +121,7 @@ function HomeComponent() {
           <div className="grid gap-3 sm:grid-cols-2">
             <InfoCard
               icon={Database}
-              title="WatermelonDB storage"
+              title="SQLite storage"
               description="Native data is modeled locally first, with room for future sync if LeafCue ever needs it."
             />
             <InfoCard
