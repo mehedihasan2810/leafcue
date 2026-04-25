@@ -1,11 +1,11 @@
-import { createContext } from "./api/context";
-import { appRouter } from "./api/routers/index";
-import { auth } from "./auth";
-import { env } from "./env";
 import { trpcServer } from "@hono/trpc-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { createContext } from "./api/context";
+import { appRouter } from "./api/routers/index";
+import { auth } from "./auth";
+import { env } from "./env";
 
 const app = new Hono();
 

@@ -1,5 +1,9 @@
-const { withAppBuildGradle, withDangerousMod, withMainApplication, withSettingsGradle } =
-  require("expo/config-plugins");
+const {
+  withAppBuildGradle,
+  withDangerousMod,
+  withMainApplication,
+  withSettingsGradle,
+} = require("expo/config-plugins");
 const fs = require("node:fs/promises");
 const path = require("node:path");
 
@@ -41,7 +45,11 @@ function withWatermelonAppBuildGradle(config) {
 
 function withWatermelonMainApplication(config) {
   return withMainApplication(config, (mod) => {
-    if (!mod.modResults.contents.includes("import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage")) {
+    if (
+      !mod.modResults.contents.includes(
+        "import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage",
+      )
+    ) {
       mod.modResults.contents = mod.modResults.contents.replace(
         "import android.app.Application",
         `import android.app.Application
@@ -83,7 +91,10 @@ function withWatermelonProguard(config) {
       const contents = await fs.readFile(proguardPath, "utf8");
 
       if (!contents.includes(WATERMELON_KEEP_RULE)) {
-        await fs.writeFile(proguardPath, `${contents.trimEnd()}\n\n${WATERMELON_KEEP_RULE}\n`);
+        await fs.writeFile(
+          proguardPath,
+          `${contents.trimEnd()}\n\n${WATERMELON_KEEP_RULE}\n`,
+        );
       }
 
       return mod;
@@ -95,7 +106,10 @@ function withWatermelonPods(config) {
   return withDangerousMod(config, [
     "ios",
     async (mod) => {
-      const podfilePath = path.join(mod.modRequest.platformProjectRoot, "Podfile");
+      const podfilePath = path.join(
+        mod.modRequest.platformProjectRoot,
+        "Podfile",
+      );
       const contents = await fs.readFile(podfilePath, "utf8");
 
       if (!contents.includes("pod 'simdjson'")) {
@@ -104,7 +118,10 @@ function withWatermelonPods(config) {
 
         await fs.writeFile(
           podfilePath,
-          contents.replace("  use_expo_modules!\n", `  use_expo_modules!\n\n${simdjsonPod}`),
+          contents.replace(
+            "  use_expo_modules!\n",
+            `  use_expo_modules!\n\n${simdjsonPod}`,
+          ),
         );
       }
 

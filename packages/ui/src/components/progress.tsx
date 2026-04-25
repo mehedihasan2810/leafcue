@@ -1,8 +1,7 @@
 "use client";
 
-import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
-
 import { cn } from "@app/ui/lib/utils";
+import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
 
 function Progress({
   className,
@@ -65,7 +64,7 @@ function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
   return (
     <ProgressPrimitive.Value
       className={cn(
-        "ml-auto text-xs text-muted-foreground tabular-nums",
+        "ml-auto text-muted-foreground text-xs tabular-nums",
         className,
       )}
       data-slot="progress-value"
@@ -76,8 +75,8 @@ function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
 
 export {
   Progress,
-  ProgressTrack,
   ProgressIndicator,
   ProgressLabel,
+  ProgressTrack,
   ProgressValue,
 };

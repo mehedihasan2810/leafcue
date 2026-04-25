@@ -9,6 +9,8 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
+    "check": "biome check --write .",
+    "check:ci": "biome check .",
     "check-types": "turbo check-types",
     "dev:native": "turbo -F native dev",
     "dev:web": "turbo -F web dev",
@@ -23,6 +25,7 @@
     "deploy:web": "turbo -F web deploy"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
     "@cloudflare/workers-types": "catalog:",
     "@app/config": "workspace:*",
     "@types/node": "^22.13.14",

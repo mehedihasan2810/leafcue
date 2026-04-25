@@ -24,4 +24,5 @@ export const useThemeStore = create<ThemeStore>()((set, get) => ({
   },
 }));
 
-export const selectIsLightTheme = (state: ThemeStore) => state.currentTheme === "light";
+export const selectIsLightTheme = (state: ThemeStore) =>
+  state.currentTheme === "light";
