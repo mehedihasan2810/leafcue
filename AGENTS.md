@@ -69,12 +69,15 @@
 - `pnpm dev:native`: run the Expo app.
 - `pnpm dev:web`: run the marketing site.
 - `pnpm dev:server`: run the parked Worker.
+- `pnpm check`: Biome lint and format with auto-fix (reads `biome.json` at the repo root).
+- `pnpm check:ci`: same as `check` but read-only, no writes (for CI or verifying without changing files).
 - `pnpm check-types`: run TypeScript checks across the monorepo.
 - `pnpm build`: build all packages.
 - Server database scripts: `pnpm db:push`, `pnpm db:generate`, `pnpm db:migrate`, `pnpm db:studio`, `pnpm db:local`.
 
 ## Quality Bar
 
+- After completing substantive code changes, run from the repo root, in order: `pnpm check`, then `pnpm check-types`. Address failures before considering the work finished so formatting, lint, and types stay clean.
 - Never use `any`; model types from Zod, Drizzle table inference, or server exports as appropriate.
 - Keep changes small, typed, and aligned with the app split.
 - Preserve offline behavior in native. A missing network must not block core plant care flows.
