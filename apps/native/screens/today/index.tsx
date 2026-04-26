@@ -5,7 +5,7 @@ import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Button, useThemeColor } from "heroui-native";
 import { useMemo } from "react";
-import { Alert, FlatList, Pressable, Text, View } from "react-native";
+import { FlatList, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { CareTaskCard } from "@/components/care-task-card";
@@ -13,15 +13,15 @@ import { Container } from "@/components/container";
 import { EmptyState } from "@/components/empty-state";
 import { SectionHeader } from "@/components/section-header";
 import { StatPill } from "@/components/stat-pill";
+import { TaskActionSheets } from "@/components/task-action-sheets";
+import { useTaskHandlers } from "@/hooks/use-task-handlers";
 import { formatLongDate, isOverdue, timeOfDayGreeting } from "@/lib/dates";
 import { useDatabase } from "@/lib/db";
 import {
-  completeTask,
   type DueTaskRow,
   getDueTasks,
   getRooms,
   getUpcomingTasks,
-  snoozeTask,
 } from "@/lib/db/repositories";
 import {
   journalEntries,
@@ -30,8 +30,6 @@ import {
   plantTaskSchedules,
 } from "@/lib/db/schema";
 import type { Plant, Room } from "@/lib/db/types";
-
-const SNOOZE_HOURS = 4;
 
 export function TodayScreen() {
   const insets = useSafeAreaInsets();
@@ -83,27 +81,14 @@ export function TodayScreen() {
     return map;
   }, [rooms]);
 
+  const handlers = useTaskHandlers();
+
   const handleComplete = (row: DueTaskRow) => {
-    try {
-      completeTask(db, { scheduleId: row.schedule.id });
-    } catch (error) {
-      Alert.alert(
-        "Couldn't complete",
-        error instanceof Error ? error.message : "Please try again.",
-      );
-    }
+    handlers.handleQuickComplete(row);
   };
 
   const handleSnooze = (row: DueTaskRow) => {
-    try {
-      const until = new Date(now.getTime() + SNOOZE_HOURS * 60 * 60 * 1000);
-      snoozeTask(db, row.schedule.id, until);
-    } catch (error) {
-      Alert.alert(
-        "Couldn't snooze",
-        error instanceof Error ? error.message : "Please try again.",
-      );
-    }
+    handlers.openMenu(row);
   };
 
   const handleOpenPlant = (plantId: number) => {
@@ -117,6 +102,10 @@ export function TodayScreen() {
     router.push("/plants/new");
   };
 
+  const handleOpenSettings = () => {
+    router.push("/settings/reminders");
+  };
+
   if (activePlants.length === 0) {
     return (
       <Container className="px-6" isScrollable>
@@ -124,6 +113,7 @@ export function TodayScreen() {
           <Header
             greeting={timeOfDayGreeting(now)}
             date={formatLongDate(now)}
+            onPressSettings={handleOpenSettings}
           />
           <EmptyState
             icon="leaf-outline"
@@ -153,6 +143,7 @@ export function TodayScreen() {
             <Header
               greeting={timeOfDayGreeting(now)}
               date={formatLongDate(now)}
+              onPressSettings={handleOpenSettings}
             />
 
             <View className="flex-row gap-2">
@@ -300,15 +291,36 @@ export function TodayScreen() {
           <Button.Label>Add plant</Button.Label>
         </Button>
       </View>
+
+      <TaskActionSheets handlers={handlers} />
     </View>
   );
 }
 
-function Header({ greeting, date }: { greeting: string; date: string }) {
+function Header({
+  greeting,
+  date,
+  onPressSettings,
+}: {
+  greeting: string;
+  date: string;
+  onPressSettings: () => void;
+}) {
+  const muted = useThemeColor("muted");
   return (
-    <View className="gap-1">
-      <Text className="text-muted text-sm">{date}</Text>
-      <Text className="font-bold text-3xl text-foreground">{greeting}</Text>
+    <View className="flex-row items-end justify-between">
+      <View className="gap-1">
+        <Text className="text-muted text-sm">{date}</Text>
+        <Text className="font-bold text-3xl text-foreground">{greeting}</Text>
+      </View>
+      <Pressable
+        onPress={onPressSettings}
+        hitSlop={8}
+        className="size-10 items-center justify-center rounded-full bg-surface"
+        accessibilityLabel="Reminder settings"
+      >
+        <Ionicons name="settings-outline" size={18} color={muted} />
+      </Pressable>
     </View>
   );
 }

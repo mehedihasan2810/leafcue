@@ -23,6 +23,24 @@ export function getCareLogsForPlant(
   return query.all();
 }
 
+export function getCareLogsForSchedule(
+  db: LeafCueDbOrTx,
+  scheduleId: number,
+  limit?: number,
+): CareLog[] {
+  const query = db
+    .select()
+    .from(careLogs)
+    .where(eq(careLogs.scheduleId, scheduleId))
+    .orderBy(desc(careLogs.completedAt));
+
+  if (limit && limit > 0) {
+    return query.limit(limit).all();
+  }
+
+  return query.all();
+}
+
 export function createCareLog(
   db: LeafCueDatabase,
   input: CareLogInsertInput,

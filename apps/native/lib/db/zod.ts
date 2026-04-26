@@ -90,6 +90,9 @@ export type CareTaskTemplateInsertInput = z.infer<
   typeof careTaskTemplateInsertSchema
 >;
 
+const hourSchema = z.number().int().min(0).max(23);
+const minuteSchema = z.number().int().min(0).max(59);
+
 export const plantTaskScheduleInsertSchema = z.object({
   plantId: idSchema,
   templateId: idSchema.nullable().optional(),
@@ -100,6 +103,9 @@ export const plantTaskScheduleInsertSchema = z.object({
   snoozedUntil: optionalDateSchema,
   isEnabled: z.boolean().optional(),
   instructions: z.string().max(2000).nullable().optional(),
+  notificationId: z.string().max(200).nullable().optional(),
+  preferredHour: hourSchema.nullable().optional(),
+  preferredMinute: minuteSchema.nullable().optional(),
 });
 export type PlantTaskScheduleInsertInput = z.infer<
   typeof plantTaskScheduleInsertSchema
@@ -203,6 +209,42 @@ export const plantRouteParamsSchema = z.object({
   plantId: z.coerce.number().int().positive(),
 });
 export type PlantRouteParams = z.infer<typeof plantRouteParamsSchema>;
+
+export const taskFilterValues = [
+  "today",
+  "overdue",
+  "upcoming",
+  "completed",
+  "all",
+] as const;
+export type TaskFilter = (typeof taskFilterValues)[number];
+export const taskFilterSchema = z.enum(taskFilterValues);
+
+export const tasksRouteParamsSchema = z.object({
+  filter: taskFilterSchema.optional(),
+});
+export type TasksRouteParams = z.infer<typeof tasksRouteParamsSchema>;
+
+export const notificationPreviewStyleValues = ["detailed", "discreet"] as const;
+export type NotificationPreviewStyle =
+  (typeof notificationPreviewStyleValues)[number];
+export const notificationPreviewStyleSchema = z.enum(
+  notificationPreviewStyleValues,
+);
+
+export const reminderSettingsSchema = z.object({
+  enabled: z.boolean().default(false),
+  hour: hourSchema.default(9),
+  minute: minuteSchema.default(0),
+  quietHoursEnabled: z.boolean().default(false),
+  quietStartHour: hourSchema.default(22),
+  quietEndHour: hourSchema.default(7),
+  previewStyle: notificationPreviewStyleSchema.default("detailed"),
+  permissionAsked: z.boolean().default(false),
+});
+export type ReminderSettings = z.infer<typeof reminderSettingsSchema>;
+
+export const reminderSettingsKey = "reminders.main" as const;
 
 export const onboardingValueSchema = z.object({
   completed: z.boolean(),

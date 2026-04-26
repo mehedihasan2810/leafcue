@@ -762,6 +762,26 @@ export function EditPlantScreen({ mode, plantId }: EditPlantScreenProps) {
         </form.Field>
       </FormSection>
 
+      {mode === "edit" && plantId !== undefined ? (
+        <FormSection
+          title="Care schedules"
+          description="Manage watering, fertilizing, and other reminders."
+        >
+          <Button
+            variant="secondary"
+            onPress={() => {
+              router.push({
+                pathname: "/plants/[plantId]/schedules",
+                params: { plantId: String(plantId) },
+              });
+            }}
+          >
+            <Ionicons name="time-outline" size={16} color={accent} />
+            <Button.Label>Manage schedules</Button.Label>
+          </Button>
+        </FormSection>
+      ) : null}
+
       {mode === "edit" ? (
         <FormSection
           title="Danger zone"

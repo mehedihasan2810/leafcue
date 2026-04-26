@@ -12,6 +12,11 @@ import { ActivityIndicator, Text, View } from "react-native";
 import migrations from "@/drizzle/migrations";
 import { createDatabase, DATABASE_NAME, type LeafCueDatabase } from "@/lib/db";
 import { runSeeds } from "@/lib/db/seed";
+import {
+  configureNotificationHandler,
+  syncAllReminders,
+} from "@/lib/notifications";
+import { useReminderStore } from "@/stores/use-reminder-store";
 
 export function DatabaseProvider({ children }: PropsWithChildren) {
   return (
@@ -32,6 +37,8 @@ function DatabaseMigrationGate({ children }: PropsWithChildren) {
   const db = useMemo(() => createDatabase(sqlite), [sqlite]);
   const { success, error } = useMigrations(db, migrations);
   const seed = useSeed(db, success && !error);
+
+  useNotificationsBoot(db, seed.status === "done");
 
   if (error) {
     return (
@@ -58,6 +65,35 @@ function DatabaseMigrationGate({ children }: PropsWithChildren) {
   }
 
   return children;
+}
+
+function useNotificationsBoot(db: LeafCueDatabase, ready: boolean): void {
+  const hydrate = useReminderStore((state) => state.hydrate);
+
+  useEffect(() => {
+    if (!ready) return;
+    let cancelled = false;
+    configureNotificationHandler();
+
+    const boot = async () => {
+      try {
+        await hydrate(db);
+        if (cancelled) return;
+        const settings = useReminderStore.getState().settings;
+        const permissionStatus = useReminderStore.getState().permissionStatus;
+        if (settings.enabled && permissionStatus === "granted") {
+          await syncAllReminders(db);
+        }
+      } catch {
+        // Notifications boot is best-effort; ignore failures so the app still loads.
+      }
+    };
+
+    void boot();
+    return () => {
+      cancelled = true;
+    };
+  }, [db, ready, hydrate]);
 }
 
 type SeedState =

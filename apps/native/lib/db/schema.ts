@@ -244,6 +244,9 @@ export const plantTaskSchedules = sqliteTable(
       .notNull()
       .default(true),
     instructions: text("instructions"),
+    notificationId: text("notification_id"),
+    preferredHour: integer("preferred_hour"),
+    preferredMinute: integer("preferred_minute"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },

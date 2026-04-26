@@ -34,6 +34,20 @@ function StackLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="plants/[plantId]/schedules"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="settings/reminders"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

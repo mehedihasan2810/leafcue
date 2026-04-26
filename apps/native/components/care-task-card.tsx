@@ -3,27 +3,9 @@ import * as Haptics from "expo-haptics";
 import { Button, cn, useThemeColor } from "heroui-native";
 import { Platform, Pressable, Text, View } from "react-native";
 
+import { getCareTaskIcon } from "@/components/care-task-icons";
 import { relativeDueLabel } from "@/lib/dates";
 import type { DueTaskRow } from "@/lib/db/repositories";
-
-const TEMPLATE_KEY_TO_ICON: Record<
-  string,
-  keyof typeof import("@expo/vector-icons").Ionicons.glyphMap
-> = {
-  water: "water-outline",
-  fertilize: "flask-outline",
-  mist: "rainy-outline",
-  prune: "cut-outline",
-  repot: "swap-vertical-outline",
-  rotate: "refresh-outline",
-  clean_leaves: "leaf-outline",
-  inspect_pests: "search-outline",
-  treat_pests: "bug-outline",
-  quarantine: "shield-half-outline",
-  measure_growth: "resize-outline",
-  photo_update: "camera-outline",
-  custom_note: "document-text-outline",
-};
 
 type CareTaskCardProps = {
   row: DueTaskRow;
@@ -49,10 +31,7 @@ export function CareTaskCard({
   const successColor = useThemeColor("success");
 
   const { schedule, plant, template } = row;
-  const iconName =
-    template?.key && TEMPLATE_KEY_TO_ICON[template.key]
-      ? TEMPLATE_KEY_TO_ICON[template.key]
-      : "leaf-outline";
+  const iconName = getCareTaskIcon(template?.key);
 
   const taskLabel = schedule.customName ?? template?.name ?? "Care cue";
   const dueLabel = relativeDueLabel(schedule.nextDueAt ?? null);

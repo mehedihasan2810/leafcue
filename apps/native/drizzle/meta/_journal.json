@@ -8,6 +8,13 @@
       "when": 1777191699686,
       "tag": "0000_gigantic_steel_serpent",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1777197363853,
+      "tag": "0001_small_makkari",
+      "breakpoints": true
     }
   ]
 }
