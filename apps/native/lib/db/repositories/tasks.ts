@@ -1,11 +1,11 @@
-import { and, asc, eq, isNull, lte, or } from "drizzle-orm";
+import { and, asc, eq, gt, isNull, lte, or } from "drizzle-orm";
 
 import type { LeafCueDatabase, LeafCueDbOrTx } from "@/lib/db";
 import {
   careLogs,
   careTaskTemplates,
-  plantTaskSchedules,
   plants,
+  plantTaskSchedules,
 } from "@/lib/db/schema";
 import type {
   CareLog,
@@ -14,8 +14,8 @@ import type {
   PlantTaskSchedule,
 } from "@/lib/db/types";
 import {
-  plantTaskScheduleInsertSchema,
   type PlantTaskScheduleInsertInput,
+  plantTaskScheduleInsertSchema,
 } from "@/lib/db/zod";
 
 export type DueTaskRow = {
@@ -121,6 +121,37 @@ export function getDueTasks(
     .all();
 
   return rows;
+}
+
+export function getUpcomingTasks(
+  db: LeafCueDbOrTx,
+  days = 7,
+  now: Date = new Date(),
+): DueTaskRow[] {
+  const horizon = new Date(now.getTime() + days * MS_PER_DAY);
+
+  return db
+    .select({
+      schedule: plantTaskSchedules,
+      plant: plants,
+      template: careTaskTemplates,
+    })
+    .from(plantTaskSchedules)
+    .innerJoin(plants, eq(plants.id, plantTaskSchedules.plantId))
+    .leftJoin(
+      careTaskTemplates,
+      eq(careTaskTemplates.id, plantTaskSchedules.templateId),
+    )
+    .where(
+      and(
+        eq(plantTaskSchedules.isEnabled, true),
+        isNull(plants.archivedAt),
+        gt(plantTaskSchedules.nextDueAt, now),
+        lte(plantTaskSchedules.nextDueAt, horizon),
+      ),
+    )
+    .orderBy(asc(plantTaskSchedules.nextDueAt))
+    .all();
 }
 
 export function snoozeTask(

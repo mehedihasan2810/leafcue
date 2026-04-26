@@ -16,11 +16,7 @@ export function getPresetById(
   db: LeafCueDbOrTx,
   id: number,
 ): PlantPreset | undefined {
-  return db
-    .select()
-    .from(plantPresets)
-    .where(eq(plantPresets.id, id))
-    .get();
+  return db.select().from(plantPresets).where(eq(plantPresets.id, id)).get();
 }
 
 export function findPresetByName(

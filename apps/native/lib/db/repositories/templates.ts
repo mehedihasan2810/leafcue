@@ -1,19 +1,14 @@
 import { asc, eq } from "drizzle-orm";
 
 import type { LeafCueDatabase, LeafCueDbOrTx } from "@/lib/db";
-import {
-  type CareTaskTemplateKey,
-  careTaskTemplates,
-} from "@/lib/db/schema";
+import { type CareTaskTemplateKey, careTaskTemplates } from "@/lib/db/schema";
 import type { CareTaskTemplate } from "@/lib/db/types";
 import {
-  careTaskTemplateInsertSchema,
   type CareTaskTemplateInsertInput,
+  careTaskTemplateInsertSchema,
 } from "@/lib/db/zod";
 
-export function getCareTaskTemplates(
-  db: LeafCueDbOrTx,
-): CareTaskTemplate[] {
+export function getCareTaskTemplates(db: LeafCueDbOrTx): CareTaskTemplate[] {
   return db
     .select()
     .from(careTaskTemplates)

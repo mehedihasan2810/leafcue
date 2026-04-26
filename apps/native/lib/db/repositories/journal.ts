@@ -4,8 +4,8 @@ import type { LeafCueDatabase, LeafCueDbOrTx } from "@/lib/db";
 import { journalEntries } from "@/lib/db/schema";
 import type { JournalEntry } from "@/lib/db/types";
 import {
-  journalEntryInsertSchema,
   type JournalEntryInsertInput,
+  journalEntryInsertSchema,
 } from "@/lib/db/zod";
 
 export function getJournalEntriesForPlant(

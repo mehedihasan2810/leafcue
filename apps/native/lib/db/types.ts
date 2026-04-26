@@ -10,8 +10,8 @@ import type {
   onboardingState,
   plantPhotos,
   plantPresets,
-  plantTaskSchedules,
   plants,
+  plantTaskSchedules,
   rooms,
   shelves,
 } from "@/lib/db/schema";

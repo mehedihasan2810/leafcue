@@ -67,11 +67,7 @@ export type JournalEntryType = (typeof journalEntryTypeValues)[number];
 export const healthSeverityValues = ["low", "medium", "high"] as const;
 export type HealthSeverity = (typeof healthSeverityValues)[number];
 
-export const healthStatusValues = [
-  "open",
-  "monitoring",
-  "resolved",
-] as const;
+export const healthStatusValues = ["open", "monitoring", "resolved"] as const;
 export type HealthStatus = (typeof healthStatusValues)[number];
 
 export const careTaskTemplateKeyValues = [
@@ -174,9 +170,7 @@ export const plants = sqliteTable(
     careDifficulty: text("care_difficulty").$type<CareDifficulty>(),
     toxicity: text("toxicity").$type<Toxicity>(),
     lightPreference: text("light_preference").$type<LightPreference>(),
-    wateringPreference: text(
-      "watering_preference",
-    ).$type<WateringPreference>(),
+    wateringPreference: text("watering_preference").$type<WateringPreference>(),
     soilType: text("soil_type"),
     potType: text("pot_type"),
     potSize: text("pot_size"),
@@ -238,10 +232,9 @@ export const plantTaskSchedules = sqliteTable(
     plantId: integer("plant_id")
       .notNull()
       .references(() => plants.id, { onDelete: "cascade" }),
-    templateId: integer("template_id").references(
-      () => careTaskTemplates.id,
-      { onDelete: "set null" },
-    ),
+    templateId: integer("template_id").references(() => careTaskTemplates.id, {
+      onDelete: "set null",
+    }),
     customName: text("custom_name"),
     intervalDays: integer("interval_days"),
     nextDueAt: integer("next_due_at", { mode: "timestamp_ms" }),
@@ -256,10 +249,7 @@ export const plantTaskSchedules = sqliteTable(
   },
   (t) => [
     index("plant_task_schedules_plant_due_idx").on(t.plantId, t.nextDueAt),
-    index("plant_task_schedules_enabled_due_idx").on(
-      t.isEnabled,
-      t.nextDueAt,
-    ),
+    index("plant_task_schedules_enabled_due_idx").on(t.isEnabled, t.nextDueAt),
     index("plant_task_schedules_template_idx").on(t.templateId),
   ],
 );
@@ -271,14 +261,12 @@ export const careLogs = sqliteTable(
     plantId: integer("plant_id")
       .notNull()
       .references(() => plants.id, { onDelete: "cascade" }),
-    scheduleId: integer("schedule_id").references(
-      () => plantTaskSchedules.id,
-      { onDelete: "set null" },
-    ),
-    templateId: integer("template_id").references(
-      () => careTaskTemplates.id,
-      { onDelete: "set null" },
-    ),
+    scheduleId: integer("schedule_id").references(() => plantTaskSchedules.id, {
+      onDelete: "set null",
+    }),
+    templateId: integer("template_id").references(() => careTaskTemplates.id, {
+      onDelete: "set null",
+    }),
     type: text("type").notNull(),
     title: text("title"),
     notes: text("notes"),
@@ -336,10 +324,7 @@ export const growthMeasurements = sqliteTable(
     createdAt: createdAt(),
   },
   (t) => [
-    index("growth_measurements_plant_measured_idx").on(
-      t.plantId,
-      t.measuredAt,
-    ),
+    index("growth_measurements_plant_measured_idx").on(t.plantId, t.measuredAt),
   ],
 );
 
@@ -465,15 +450,12 @@ export const careLogsRelations = relations(careLogs, ({ one }) => ({
   }),
 }));
 
-export const journalEntriesRelations = relations(
-  journalEntries,
-  ({ one }) => ({
-    plant: one(plants, {
-      fields: [journalEntries.plantId],
-      references: [plants.id],
-    }),
+export const journalEntriesRelations = relations(journalEntries, ({ one }) => ({
+  plant: one(plants, {
+    fields: [journalEntries.plantId],
+    references: [plants.id],
   }),
-);
+}));
 
 export const growthMeasurementsRelations = relations(
   growthMeasurements,

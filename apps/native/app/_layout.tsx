@@ -4,20 +4,35 @@ import { HeroUINativeProvider } from "heroui-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
+import { OnboardingGate } from "@/components/onboarding-gate";
 import { ThemeStoreSync } from "@/components/theme-store-sync";
 import { DatabaseProvider } from "@/lib/db/provider";
 
 export const unstable_settings = {
-  initialRouteName: "(drawer)",
+  initialRouteName: "(tabs)",
 };
 
 function StackLayout() {
   return (
-    <Stack screenOptions={{}}>
-      <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+    <Stack>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen
-        name="modal"
-        options={{ title: "Modal", presentation: "modal" }}
+        name="onboarding"
+        options={{ headerShown: false, gestureEnabled: false }}
+      />
+      <Stack.Screen
+        name="plants/new"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="plants/[plantId]/edit"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+        }}
       />
     </Stack>
   );
@@ -30,7 +45,9 @@ export default function Layout() {
         <ThemeStoreSync />
         <HeroUINativeProvider>
           <DatabaseProvider>
-            <StackLayout />
+            <OnboardingGate>
+              <StackLayout />
+            </OnboardingGate>
           </DatabaseProvider>
         </HeroUINativeProvider>
       </KeyboardProvider>

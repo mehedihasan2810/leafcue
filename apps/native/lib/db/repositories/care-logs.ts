@@ -3,10 +3,7 @@ import { desc, eq } from "drizzle-orm";
 import type { LeafCueDatabase, LeafCueDbOrTx } from "@/lib/db";
 import { careLogs } from "@/lib/db/schema";
 import type { CareLog } from "@/lib/db/types";
-import {
-  careLogInsertSchema,
-  type CareLogInsertInput,
-} from "@/lib/db/zod";
+import { type CareLogInsertInput, careLogInsertSchema } from "@/lib/db/zod";
 
 export function getCareLogsForPlant(
   db: LeafCueDbOrTx,
