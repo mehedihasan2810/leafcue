@@ -17,6 +17,7 @@ import {
   syncAllReminders,
 } from "@/lib/notifications";
 import { useReminderStore } from "@/stores/use-reminder-store";
+import { useThemeStore } from "@/stores/use-theme-store";
 
 export function DatabaseProvider({ children }: PropsWithChildren) {
   return (
@@ -69,11 +70,14 @@ function DatabaseMigrationGate({ children }: PropsWithChildren) {
 
 function useNotificationsBoot(db: LeafCueDatabase, ready: boolean): void {
   const hydrate = useReminderStore((state) => state.hydrate);
+  const hydrateAppearance = useThemeStore((state) => state.hydrateAppearance);
 
   useEffect(() => {
     if (!ready) return;
     let cancelled = false;
     configureNotificationHandler();
+    // Sync appearance preference into Uniwind so dark mode persists.
+    hydrateAppearance(db);
 
     const boot = async () => {
       try {
@@ -93,7 +97,7 @@ function useNotificationsBoot(db: LeafCueDatabase, ready: boolean): void {
     return () => {
       cancelled = true;
     };
-  }, [db, ready, hydrate]);
+  }, [db, ready, hydrate, hydrateAppearance]);
 }
 
 type SeedState =

@@ -114,7 +114,7 @@ export function TodayScreen() {
   };
 
   const handleOpenSettings = () => {
-    router.push("/settings/reminders");
+    router.push("/settings");
   };
 
   if (activePlants.length === 0) {

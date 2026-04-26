@@ -129,7 +129,7 @@ export function TasksScreen() {
   };
 
   const handleOpenReminders = () => {
-    router.push("/settings/reminders");
+    router.push("/settings");
   };
 
   const isEmpty =

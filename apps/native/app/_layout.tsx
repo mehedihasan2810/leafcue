@@ -61,6 +61,23 @@ function StackLayout() {
         name="plants/[plantId]/health"
         options={{ headerShown: false }}
       />
+      <Stack.Screen name="settings/index" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="settings/appearance"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="settings/app-preferences"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="settings/plant-defaults"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen name="settings/backup" options={{ headerShown: false }} />
+      <Stack.Screen name="settings/archive" options={{ headerShown: false }} />
+      <Stack.Screen name="settings/about" options={{ headerShown: false }} />
+      <Stack.Screen name="settings/privacy" options={{ headerShown: false }} />
       <Stack.Screen
         name="settings/reminders"
         options={{

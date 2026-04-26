@@ -278,6 +278,24 @@ export function unarchivePlant(db: LeafCueDatabase, id: number): Plant {
   return restored;
 }
 
+export function getArchivedPlants(db: LeafCueDbOrTx): Plant[] {
+  return db
+    .select()
+    .from(plants)
+    .where(isNotNull(plants.archivedAt))
+    .orderBy(desc(plants.archivedAt))
+    .all();
+}
+
+/**
+ * Permanently delete a plant. Cascades to schedules, photos, logs, journals,
+ * growth measurements, and health observations via FK rules. Use with
+ * destructive confirmation.
+ */
+export function deletePlantPermanently(db: LeafCueDatabase, id: number): void {
+  db.delete(plants).where(eq(plants.id, id)).run();
+}
+
 export type PlantTimelineKind =
   | "care_log"
   | "journal_entry"

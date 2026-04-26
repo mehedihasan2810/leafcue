@@ -189,24 +189,51 @@ export type PlantPresetInsertInput = z.infer<typeof plantPresetInsertSchema>;
 
 export const settingsKeySchema = z.string().min(1).max(80);
 
-export const exportPayloadSchema = z.object({
+const tableRowSchema = z.record(z.string(), z.unknown());
+
+export const backupTablesSchema = z.object({
+  plantPresets: z.array(tableRowSchema),
+  rooms: z.array(tableRowSchema),
+  shelves: z.array(tableRowSchema),
+  plants: z.array(tableRowSchema),
+  plantPhotos: z.array(tableRowSchema),
+  careTaskTemplates: z.array(tableRowSchema),
+  plantTaskSchedules: z.array(tableRowSchema),
+  careLogs: z.array(tableRowSchema),
+  journalEntries: z.array(tableRowSchema),
+  growthMeasurements: z.array(tableRowSchema),
+  healthObservations: z.array(tableRowSchema),
+});
+export type BackupTables = z.infer<typeof backupTablesSchema>;
+
+export const backupSettingsRowSchema = z.object({
+  key: z.string(),
+  value: z.string(),
+  updatedAt: z.string().datetime().optional(),
+});
+export type BackupSettingsRow = z.infer<typeof backupSettingsRowSchema>;
+
+export const backupMetadataSchema = z.object({
+  appVersion: z.string().optional(),
+  platform: z.string().optional(),
+  deviceLabel: z.string().optional(),
+});
+export type BackupMetadata = z.infer<typeof backupMetadataSchema>;
+
+export const backupPhotoPolicySchema = z.object({
+  includesPhotoFiles: z.literal(false),
+});
+
+export const backupPayloadSchema = z.object({
   version: z.literal(1),
   exportedAt: z.string().datetime(),
-  plants: z.array(z.unknown()),
-  plantPhotos: z.array(z.unknown()),
-  rooms: z.array(z.unknown()),
-  shelves: z.array(z.unknown()),
-  careTaskTemplates: z.array(z.unknown()),
-  plantTaskSchedules: z.array(z.unknown()),
-  careLogs: z.array(z.unknown()),
-  journalEntries: z.array(z.unknown()),
-  growthMeasurements: z.array(z.unknown()),
-  healthObservations: z.array(z.unknown()),
-  plantPresets: z.array(z.unknown()),
-  appSettings: z.array(z.unknown()),
-  onboardingState: z.array(z.unknown()),
+  metadata: backupMetadataSchema.default({}),
+  tables: backupTablesSchema,
+  settings: z.array(backupSettingsRowSchema),
+  onboardingState: z.array(backupSettingsRowSchema),
+  photoPolicy: backupPhotoPolicySchema,
 });
-export type ExportPayload = z.infer<typeof exportPayloadSchema>;
+export type BackupPayload = z.infer<typeof backupPayloadSchema>;
 
 export const plantRouteParamsSchema = z.object({
   plantId: z.coerce.number().int().positive(),
@@ -258,3 +285,54 @@ export type OnboardingValue = z.infer<typeof onboardingValueSchema>;
 export const onboardingKeys = {
   MAIN: "onboarding.main",
 } as const;
+
+export const appearanceModeValues = ["system", "light", "dark"] as const;
+export type AppearanceMode = (typeof appearanceModeValues)[number];
+export const appearanceModeSchema = z.enum(appearanceModeValues);
+
+export const appearanceSettingsSchema = z.object({
+  mode: appearanceModeSchema.default("system"),
+});
+export type AppearanceSettings = z.infer<typeof appearanceSettingsSchema>;
+export const appearanceSettingsKey = "appearance.main" as const;
+
+export const weekStartDayValues = ["sunday", "monday", "saturday"] as const;
+export type WeekStartDay = (typeof weekStartDayValues)[number];
+export const weekStartDaySchema = z.enum(weekStartDayValues);
+
+export const measurementUnitValues = ["metric", "imperial"] as const;
+export type MeasurementUnits = (typeof measurementUnitValues)[number];
+export const measurementUnitsSchema = z.enum(measurementUnitValues);
+
+export const appPreferencesSchema = z.object({
+  weekStartDay: weekStartDaySchema.default("monday"),
+  units: measurementUnitsSchema.default("metric"),
+});
+export type AppPreferences = z.infer<typeof appPreferencesSchema>;
+export const appPreferencesKey = "app.preferences" as const;
+
+export const plantDefaultsSchema = z.object({
+  waterIntervalDays: z
+    .number()
+    .int()
+    .positive()
+    .max(365)
+    .nullable()
+    .default(null),
+  fertilizeIntervalDays: z
+    .number()
+    .int()
+    .positive()
+    .max(365)
+    .nullable()
+    .default(null),
+  mistIntervalDays: z
+    .number()
+    .int()
+    .positive()
+    .max(365)
+    .nullable()
+    .default(null),
+});
+export type PlantDefaults = z.infer<typeof plantDefaultsSchema>;
+export const plantDefaultsKey = "plant.defaults" as const;

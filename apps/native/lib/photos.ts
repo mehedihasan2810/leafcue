@@ -14,7 +14,7 @@ function ensurePhotoDir(): Directory {
 function inferExtension(uri: string): string {
   const queryStripped = uri.split("?")[0] ?? uri;
   const match = queryStripped.match(/\.([a-zA-Z0-9]+)$/);
-  if (!match || !match[1]) return "jpg";
+  if (!match?.[1]) return "jpg";
   return match[1].toLowerCase();
 }
 
