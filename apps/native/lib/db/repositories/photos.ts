@@ -55,6 +55,44 @@ export function addPlantPhoto(
   });
 }
 
+export function updatePlantPhotoCaption(
+  db: LeafCueDatabase,
+  photoId: number,
+  caption: string | null,
+): void {
+  db.update(plantPhotos)
+    .set({ caption })
+    .where(eq(plantPhotos.id, photoId))
+    .run();
+}
+
+export function setPlantPhotoAsCover(
+  db: LeafCueDatabase,
+  photoId: number,
+): void {
+  db.transaction((tx) => {
+    const photo = tx
+      .select()
+      .from(plantPhotos)
+      .where(eq(plantPhotos.id, photoId))
+      .get();
+
+    if (!photo) {
+      throw new Error(`Plant photo ${photoId} not found`);
+    }
+
+    tx.update(plantPhotos)
+      .set({ type: "cover" })
+      .where(eq(plantPhotos.id, photoId))
+      .run();
+
+    tx.update(plants)
+      .set({ photoUri: photo.uri, updatedAt: new Date() })
+      .where(eq(plants.id, photo.plantId))
+      .run();
+  });
+}
+
 export function deletePlantPhoto(db: LeafCueDatabase, photoId: number): void {
   db.delete(plantPhotos).where(eq(plantPhotos.id, photoId)).run();
 }

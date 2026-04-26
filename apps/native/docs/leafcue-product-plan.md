@@ -54,11 +54,13 @@ inferred types in [`apps/native/lib/db/types.ts`](../lib/db/types.ts).
   `nextDueAt`, `lastCompletedAt`, `snoozedUntil`, `isEnabled`.
 - `care_logs` - immutable history of completed care actions. Always linked to
   a plant; optionally to a schedule and template. Powers the timeline.
-- `journal_entries` - free-form notes, milestones, issues, and celebrations,
-  optionally attached to a plant.
+- `journal_entries` - free-form notes, milestones, issues, treatments, and
+  observations, optionally attached to a plant. A single optional
+  `photo_uri` mirrors the latest photo for the entry on disk.
 - `growth_measurements` - height in cm, leaf count, bloom count, free notes.
-- `health_observations` - issues with severity (`low | medium | high`) and
-  status (`open | monitoring | resolved`).
+- `health_observations` - issues with `issue_type` (yellow_leaves, brown_tips,
+  pests, root_rot, wilting, leaf_drop, mold, other), severity
+  (`low | medium | high`) and status (`active | improving | resolved`).
 - `plant_presets` - the local plant guide. Seeded with 20 common houseplants;
   uniquely indexed on `(common_name, scientific_name)`.
 - `app_settings`, `onboarding_state` - key/value stores. Values are JSON and
@@ -131,7 +133,11 @@ Re-exported from [`apps/native/lib/db/repositories/index.ts`](../lib/db/reposito
 - Growth: `getGrowthMeasurements`, `addGrowthMeasurement`,
   `deleteGrowthMeasurement`.
 - Health: `getHealthObservations`, `addHealthObservation`,
-  `updateHealthObservationStatus`, `deleteHealthObservation`.
+  `updateHealthObservation`, `updateHealthObservationStatus`,
+  `deleteHealthObservation`, `getActiveHealthObservationsAcrossPlants`.
+- Insights: `getInsightsSummary` (care streak, watering consistency, top
+  cared-for, most overdue, recent growth milestones, active health
+  issues, recently neglected).
 - Presets: `getPresets`, `getPresetById`, `findPresetByName`.
 - Templates: `getCareTaskTemplates`, `getCareTaskTemplateByKey`,
   `createCareTaskTemplate`.
@@ -155,42 +161,48 @@ When `completeTask` runs:
 
 | Area | Status |
 | --- | --- |
-| Home / care feed | placeholder ready, reads real data |
-| Plant list (rooms, shelves filters) | not started |
-| Plant detail (timeline, schedules, photos) | not started |
-| Add plant flow (preset picker + form) | not started |
-| Journal feed | not started |
-| Rooms & shelves manager | not started |
-| Settings (theme, units, export, import) | not started |
+| Home / care feed | shipped (Today screen with stats, banner, sections) |
+| Plant list (rooms, shelves filters) | shipped (`screens/plants/library`) |
+| Plant detail (hero, timeline, previews) | shipped (`screens/plants/detail`) |
+| Plant journal | shipped (`screens/plants/journal`) |
+| Plant photos (with before/after) | shipped (`screens/plants/photos`) |
+| Plant growth (with sparkline) | shipped (`screens/plants/growth`) |
+| Plant health (advisory hints) | shipped (`screens/plants/health`) |
+| Add plant flow (preset picker + form) | shipped |
+| Rooms & shelves manager | shipped |
+| Care tasks queue, calendar, schedule editor | shipped (step 3) |
+| Reminder settings | shipped (step 3) |
+| Insights tab | shipped (`screens/insights`) |
+| Settings (theme, units, export, import) | partially shipped (theme + reminders) |
 | Onboarding wizard (rooms + first plant) | table reserved |
-| Health workspace | not started |
 
 ## What the Next Agent Should Build
 
-1. **Plant CRUD UI**: a `screens/plants` feature folder with list, detail,
-   and add flow. The add flow uses the existing `plantInsertSchema`,
-   TanStack Form, HeroUI Native form controls, and `expo-image` for the
-   photo preview.
-2. **Care feed**: replace the home placeholder with a real
-   today / overdue / upcoming feed. Power "Mark done" with `completeTask`.
-3. **Plant detail timeline**: render `getPlantTimeline(db, plantId)` with a
-   composable item renderer per `kind`. Add quick actions to log care, add a
-   journal note, add a photo, add a measurement, and report a health issue.
-4. **Rooms & shelves**: bulk reorder via `sortOrder`, drag-and-drop with
-   `react-native-reanimated`. Use the room/shelf repos already in place.
-5. **Reminder scheduling**: integrate `expo-notifications` (must be added to
-   `apps/native/package.json`) and schedule local notifications based on
-   `plant_task_schedules.nextDueAt`. Keep the scheduler driven entirely by
-   local data so the app remains offline-first.
-6. **Onboarding wizard**: read and write progress through `setOnboardingState`
+1. **Onboarding wizard**: read and write progress through `setOnboardingState`
    / `getOnboardingState` and finish by seeding the user's first plant.
-7. **Import / export**: implement against `exportPayloadSchema`. Pull every
-   table to JSON for export; on import, validate and write inside a single
-   `db.transaction(...)` so partial imports never corrupt the database.
+2. **Import / export**: implement against `exportPayloadSchema`. Pull every
+   table (including `journal_entries.photo_uri`, growth, health,
+   schedules, and care logs) to JSON for export; on import, validate and
+   write inside a single `db.transaction(...)` so partial imports never
+   corrupt the database. Photos can be exported as base64 alongside their
+   row, or as a parallel manifest pointing at file paths.
+3. **Drag-and-drop reorder for rooms / shelves**: bulk reorder via
+   `sortOrder` with `react-native-reanimated`.
+4. **Tag plants and tag-based filtering**: add a free-tag column on
+   `plants`, surface in the library filter chips, and let insights cluster
+   by tag.
+5. **Insights polish**: chart watering frequency over time, bring in a
+   tappable "Why is this here?" sheet for each card, and add a per-plant
+   insights surface inside the detail screen.
+6. **Per-plant timeline filters in detail**: extend the timeline filter
+   chips to include "Has photo" and "Has notes" toggles.
+7. **Settings expansion**: theme picker, default units, photo quality, and
+   data ownership flows (export, import, reset).
 
 ### Future infrastructure tasks (kept out of scope here)
 
-- Photo capture pipeline (`expo-image-picker`, `expo-file-system`).
-- Background notifications (Expo task / notifications module).
+- Background notifications scheduling refresh task (Expo task module).
 - On-device species identification (optional).
 - Optional E2EE backup to a user-controlled cloud (no LeafCue server).
+- Push-once-per-month "looking back" digest powered by the insights
+  summary.

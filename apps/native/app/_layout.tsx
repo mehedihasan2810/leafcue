@@ -28,6 +28,10 @@ function StackLayout() {
         }}
       />
       <Stack.Screen
+        name="plants/[plantId]/index"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="plants/[plantId]/edit"
         options={{
           presentation: "modal",
@@ -40,6 +44,22 @@ function StackLayout() {
           presentation: "modal",
           headerShown: false,
         }}
+      />
+      <Stack.Screen
+        name="plants/[plantId]/journal"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="plants/[plantId]/photos"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="plants/[plantId]/growth"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="plants/[plantId]/health"
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="settings/reminders"

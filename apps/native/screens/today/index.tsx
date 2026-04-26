@@ -15,15 +15,19 @@ import { SectionHeader } from "@/components/section-header";
 import { StatPill } from "@/components/stat-pill";
 import { TaskActionSheets } from "@/components/task-action-sheets";
 import { useTaskHandlers } from "@/hooks/use-task-handlers";
+import { getHealthIssueLabel } from "@/lib/care/health-hints";
 import { formatLongDate, isOverdue, timeOfDayGreeting } from "@/lib/dates";
 import { useDatabase } from "@/lib/db";
 import {
+  type ActiveHealthObservationRow,
   type DueTaskRow,
+  getActiveHealthObservationsAcrossPlants,
   getDueTasks,
   getRooms,
   getUpcomingTasks,
 } from "@/lib/db/repositories";
 import {
+  healthObservations,
   journalEntries,
   plantPhotos,
   plants,
@@ -42,6 +46,13 @@ export function TodayScreen() {
   const liveSchedules = useLiveQuery(db.select().from(plantTaskSchedules));
   const liveJournal = useLiveQuery(db.select().from(journalEntries));
   const livePhotos = useLiveQuery(db.select().from(plantPhotos));
+  const liveHealth = useLiveQuery(db.select().from(healthObservations));
+
+  const activeHealthIssues = useMemo(
+    () => getActiveHealthObservationsAcrossPlants(db),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [db, liveHealth.data.length, livePlants.data.length],
+  );
 
   const allDueTasks = useMemo(
     () => getDueTasks(db, now),
@@ -93,7 +104,7 @@ export function TodayScreen() {
 
   const handleOpenPlant = (plantId: number) => {
     router.push({
-      pathname: "/plants/[plantId]/edit",
+      pathname: "/plants/[plantId]",
       params: { plantId: String(plantId) },
     });
   };
@@ -171,6 +182,18 @@ export function TodayScreen() {
                 tone="success"
               />
             </View>
+
+            {activeHealthIssues.length > 0 ? (
+              <HealthBanner
+                rows={activeHealthIssues}
+                onPressRow={(plantId) => {
+                  router.push({
+                    pathname: "/plants/[plantId]/health",
+                    params: { plantId: String(plantId) },
+                  });
+                }}
+              />
+            ) : null}
 
             {overdueTasks.length > 0 ? (
               <View className="gap-3">
@@ -361,6 +384,55 @@ function UpcomingRow({
       </View>
       <Text className="text-muted text-xs">{dueLabel}</Text>
     </Pressable>
+  );
+}
+
+function HealthBanner({
+  rows,
+  onPressRow,
+}: {
+  rows: ActiveHealthObservationRow[];
+  onPressRow: (plantId: number) => void;
+}) {
+  const danger = useThemeColor("danger");
+  const top = rows.slice(0, 3);
+  const remaining = rows.length - top.length;
+
+  return (
+    <View className="gap-2 rounded-3xl border border-warning/40 bg-warning-soft/40 p-4">
+      <View className="flex-row items-center gap-2">
+        <Ionicons name="alert-circle-outline" size={18} color={danger} />
+        <Text className="font-semibold text-foreground">
+          {rows.length === 1
+            ? "1 plant needs a closer look"
+            : `${rows.length} plants need a closer look`}
+        </Text>
+      </View>
+      <View className="gap-1.5">
+        {top.map((row) => (
+          <Pressable
+            key={`health-${row.observation.id}`}
+            onPress={() => onPressRow(row.plant.id)}
+            className="flex-row items-center justify-between rounded-xl bg-surface/80 px-3 py-2"
+          >
+            <View className="flex-1 pr-2">
+              <Text className="font-medium text-foreground" numberOfLines={1}>
+                {row.plant.nickname}
+              </Text>
+              <Text className="text-muted text-xs" numberOfLines={1}>
+                {getHealthIssueLabel(row.observation.issueType)}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={14} color={danger} />
+          </Pressable>
+        ))}
+        {remaining > 0 ? (
+          <Text className="px-1 text-muted text-xs">
+            +{remaining} more open
+          </Text>
+        ) : null}
+      </View>
+    </View>
   );
 }
 

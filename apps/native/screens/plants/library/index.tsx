@@ -149,7 +149,7 @@ export function PlantLibraryScreen() {
 
   const handleOpenPlant = (plant: Plant) => {
     router.push({
-      pathname: "/plants/[plantId]/edit",
+      pathname: "/plants/[plantId]",
       params: { plantId: String(plant.id) },
     });
   };

@@ -3,6 +3,7 @@ import {
   format,
   formatDistanceToNowStrict,
   isSameDay,
+  isThisYear,
   isToday,
   isYesterday,
   startOfDay,
@@ -60,6 +61,15 @@ export function timeOfDayGreeting(now: Date = new Date()): string {
 
 export function formatLongDate(date: Date = new Date()): string {
   return format(date, "EEEE, MMMM d");
+}
+
+export function formatDayHeader(date: Date, now: Date = new Date()): string {
+  if (isToday(date)) return "Today";
+  if (isYesterday(date)) return "Yesterday";
+  const diff = differenceInCalendarDays(now, date);
+  if (diff > 0 && diff < 7) return format(date, "EEEE");
+  if (isThisYear(date)) return format(date, "EEEE, MMM d");
+  return format(date, "MMM d, yyyy");
 }
 
 export function formatIsoDate(date: Date | null | undefined): string {

@@ -166,7 +166,7 @@ export function CalendarScreen() {
 
   const handleOpenPlant = (plantId: number) => {
     router.push({
-      pathname: "/plants/[plantId]/edit",
+      pathname: "/plants/[plantId]",
       params: { plantId: String(plantId) },
     });
   };

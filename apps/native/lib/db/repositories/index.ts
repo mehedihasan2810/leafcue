@@ -1,6 +1,7 @@
 export * from "@/lib/db/repositories/care-logs";
 export * from "@/lib/db/repositories/growth";
 export * from "@/lib/db/repositories/health";
+export * from "@/lib/db/repositories/insights";
 export * from "@/lib/db/repositories/journal";
 export * from "@/lib/db/repositories/photos";
 export * from "@/lib/db/repositories/plants";

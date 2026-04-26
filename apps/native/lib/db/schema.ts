@@ -60,15 +60,28 @@ export const journalEntryTypeValues = [
   "note",
   "milestone",
   "issue",
-  "celebration",
+  "treatment",
+  "observation",
 ] as const;
 export type JournalEntryType = (typeof journalEntryTypeValues)[number];
 
 export const healthSeverityValues = ["low", "medium", "high"] as const;
 export type HealthSeverity = (typeof healthSeverityValues)[number];
 
-export const healthStatusValues = ["open", "monitoring", "resolved"] as const;
+export const healthStatusValues = ["active", "improving", "resolved"] as const;
 export type HealthStatus = (typeof healthStatusValues)[number];
+
+export const healthIssueTypeValues = [
+  "yellow_leaves",
+  "brown_tips",
+  "pests",
+  "root_rot",
+  "wilting",
+  "leaf_drop",
+  "mold",
+  "other",
+] as const;
+export type HealthIssueType = (typeof healthIssueTypeValues)[number];
 
 export const careTaskTemplateKeyValues = [
   "water",
@@ -301,6 +314,7 @@ export const journalEntries = sqliteTable(
       .$type<JournalEntryType>()
       .notNull()
       .default("note"),
+    photoUri: text("photo_uri"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -344,7 +358,7 @@ export const healthObservations = sqliteTable(
     issueType: text("issue_type").notNull(),
     severity: text("severity").$type<HealthSeverity>().notNull(),
     notes: text("notes"),
-    status: text("status").$type<HealthStatus>().notNull().default("open"),
+    status: text("status").$type<HealthStatus>().notNull().default("active"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },

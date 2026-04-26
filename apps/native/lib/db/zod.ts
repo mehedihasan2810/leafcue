@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   careDifficultyValues,
   careTaskTemplateKeyValues,
+  healthIssueTypeValues,
   healthSeverityValues,
   healthStatusValues,
   journalEntryTypeValues,
@@ -24,6 +25,7 @@ export const photoTypeSchema = z.enum(photoTypeValues);
 export const journalEntryTypeSchema = z.enum(journalEntryTypeValues);
 export const healthSeveritySchema = z.enum(healthSeverityValues);
 export const healthStatusSchema = z.enum(healthStatusValues);
+export const healthIssueTypeSchema = z.enum(healthIssueTypeValues);
 export const careTaskTemplateKeySchema = z.enum(careTaskTemplateKeyValues);
 
 const trimmedString = (max: number) => z.string().trim().min(1).max(max);
@@ -130,6 +132,7 @@ export const journalEntryInsertSchema = z.object({
   body: trimmedString(8000),
   mood: z.string().max(40).nullable().optional(),
   entryType: journalEntryTypeSchema.optional(),
+  photoUri: z.string().trim().max(2048).nullable().optional(),
 });
 export type JournalEntryInsertInput = z.infer<typeof journalEntryInsertSchema>;
 

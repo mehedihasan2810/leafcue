@@ -1,8 +1,8 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 
 import type { LeafCueDatabase, LeafCueDbOrTx } from "@/lib/db";
-import { healthObservations } from "@/lib/db/schema";
-import type { HealthObservation } from "@/lib/db/types";
+import { healthObservations, plants } from "@/lib/db/schema";
+import type { HealthObservation, Plant } from "@/lib/db/types";
 import {
   type HealthObservationInsertInput,
   healthObservationInsertSchema,
@@ -12,12 +12,12 @@ import {
 export function getHealthObservations(
   db: LeafCueDbOrTx,
   plantId: number,
-  options: { onlyOpen?: boolean } = {},
+  options: { onlyActive?: boolean } = {},
 ): HealthObservation[] {
-  const where = options.onlyOpen
+  const where = options.onlyActive
     ? and(
         eq(healthObservations.plantId, plantId),
-        eq(healthObservations.status, "open"),
+        eq(healthObservations.status, "active"),
       )
     : eq(healthObservations.plantId, plantId);
 
@@ -25,6 +25,28 @@ export function getHealthObservations(
     .select()
     .from(healthObservations)
     .where(where)
+    .orderBy(desc(healthObservations.observedAt))
+    .all();
+}
+
+export type ActiveHealthObservationRow = {
+  observation: HealthObservation;
+  plant: Plant;
+};
+
+export function getActiveHealthObservationsAcrossPlants(
+  db: LeafCueDbOrTx,
+): ActiveHealthObservationRow[] {
+  return db
+    .select({
+      observation: healthObservations,
+      plant: plants,
+    })
+    .from(healthObservations)
+    .innerJoin(plants, eq(plants.id, healthObservations.plantId))
+    .where(
+      and(eq(healthObservations.status, "active"), isNull(plants.archivedAt)),
+    )
     .orderBy(desc(healthObservations.observedAt))
     .all();
 }
@@ -44,7 +66,7 @@ export function addHealthObservation(
       issueType: parsed.issueType,
       severity: parsed.severity,
       notes: parsed.notes ?? null,
-      status: parsed.status ?? "open",
+      status: parsed.status ?? "active",
       createdAt: now,
       updatedAt: now,
     })
@@ -56,6 +78,31 @@ export function addHealthObservation(
   }
 
   return inserted;
+}
+
+export function updateHealthObservation(
+  db: LeafCueDatabase,
+  id: number,
+  input: Partial<HealthObservationInsertInput>,
+): HealthObservation {
+  const parsed = healthObservationInsertSchema.partial().parse(input);
+  const { observedAt, ...rest } = parsed;
+  const updated = db
+    .update(healthObservations)
+    .set({
+      ...rest,
+      ...(observedAt ? { observedAt } : {}),
+      updatedAt: new Date(),
+    })
+    .where(eq(healthObservations.id, id))
+    .returning()
+    .get();
+
+  if (!updated) {
+    throw new Error(`Health observation ${id} not found`);
+  }
+
+  return updated;
 }
 
 export function updateHealthObservationStatus(
