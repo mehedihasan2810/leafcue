@@ -46,6 +46,11 @@
       "sourceType": "github",
       "computedHash": "4bd34c624734d588f607750ab1c5aa2de6f8255bb1dd572529d5a1906f6ea155"
     },
+    "commit-security-scan": {
+      "source": "factory-ai/factory-plugins",
+      "sourceType": "github",
+      "computedHash": "256c000db3c01f2b63a2bc056a4e92c1534fa0e1c5c0b923a8943234cdbcb822"
+    },
     "create-auth-skill": {
       "source": "better-auth/skills",
       "sourceType": "github",
@@ -89,7 +94,7 @@
     "heroui-native": {
       "source": "heroui-inc/heroui",
       "sourceType": "github",
-      "computedHash": "183b321e308ba32b2e015c68ac50a9ce0bf65e8d31610614d7f80ea565714432"
+      "computedHash": "d2fc03a13d03678d40799726a144ba72ba1cb08126176ddbf0a0461c901aef29"
     },
     "index-knowledge": {
       "source": "tursodatabase/turso",
@@ -100,6 +105,11 @@
       "source": "tursodatabase/turso",
       "sourceType": "github",
       "computedHash": "08d2af6640d29405598754d0302672e287186d626056916545a699435af4f724"
+    },
+    "no-use-effect": {
+      "source": "factory-ai/factory-plugins",
+      "sourceType": "github",
+      "computedHash": "3c4d9c9a65312482569bf3ad27d149c5c339567b52009f90ac29d212beee3766"
     },
     "organization-best-practices": {
       "source": "better-auth/skills",
@@ -116,10 +126,20 @@
       "sourceType": "github",
       "computedHash": "90a025d8344f61891348e4dd20e73b228b5b87db3cc0270f2b83388373f98ba7"
     },
+    "review": {
+      "source": "factory-ai/factory-plugins",
+      "sourceType": "github",
+      "computedHash": "4d0ba2f04fa2b607e3504462842f6523d2b8337f678b4c3a637a7ba369e962d1"
+    },
+    "security-review": {
+      "source": "factory-ai/factory-plugins",
+      "sourceType": "github",
+      "computedHash": "054b9e38467050b270153c78e69719f92298496bbf93b9b8fe5c4a58b494fc45"
+    },
     "seo-audit": {
       "source": "coreyhaines31/marketingskills",
       "sourceType": "github",
-      "computedHash": "ec3109d213dde1747614ad1112ef0e498e04b24e464538968e156dfbfadb2121"
+      "computedHash": "ddd028951738fcbcdebf0f9bd90b708c55d1b9370a31603e0c13e5b262d8b8bb"
     },
     "shadcn": {
       "source": "shadcn/ui",
