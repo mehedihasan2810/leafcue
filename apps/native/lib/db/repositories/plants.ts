@@ -1,13 +1,20 @@
 import { and, desc, eq, isNotNull, isNull, like, or } from "drizzle-orm";
 
-import type { LeafCueDatabase, LeafCueDbOrTx } from "@/lib/db";
+import type {
+  LeafCueDatabase,
+  LeafCueDbOrTx,
+  LeafCueTransaction,
+} from "@/lib/db";
 import {
+  type CareTaskTemplateKey,
   careLogs,
+  careTaskTemplates,
   growthMeasurements,
   healthObservations,
   journalEntries,
   plantPhotos,
   plants,
+  plantTaskSchedules,
 } from "@/lib/db/schema";
 import type {
   CareLog,
@@ -16,12 +23,13 @@ import type {
   JournalEntry,
   Plant,
   PlantPhoto,
+  PlantTaskSchedule,
 } from "@/lib/db/types";
 import {
-  plantInsertSchema,
   type PlantInsertInput,
-  plantUpdateSchema,
   type PlantUpdateInput,
+  plantInsertSchema,
+  plantUpdateSchema,
 } from "@/lib/db/zod";
 
 export type PlantListFilters = {
@@ -38,7 +46,9 @@ export function getPlants(
 ): Plant[] {
   const conditions = [
     filters.includeArchived ? undefined : isNull(plants.archivedAt),
-    filters.roomId !== undefined ? eq(plants.roomId, filters.roomId) : undefined,
+    filters.roomId !== undefined
+      ? eq(plants.roomId, filters.roomId)
+      : undefined,
     filters.shelfId !== undefined
       ? eq(plants.shelfId, filters.shelfId)
       : undefined,
@@ -50,7 +60,7 @@ export function getPlants(
           like(plants.scientificName, `%${filters.search.trim()}%`),
         )
       : undefined,
-  ].filter(<T,>(value: T | undefined): value is T => value !== undefined);
+  ].filter(<T>(value: T | undefined): value is T => value !== undefined);
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
@@ -62,10 +72,7 @@ export function getPlants(
     .all();
 }
 
-export function getPlantById(
-  db: LeafCueDbOrTx,
-  id: number,
-): Plant | undefined {
+export function getPlantById(db: LeafCueDbOrTx, id: number): Plant | undefined {
   return db.select().from(plants).where(eq(plants.id, id)).get();
 }
 
@@ -145,6 +152,114 @@ export function archivePlant(db: LeafCueDatabase, id: number): Plant {
   }
 
   return archived;
+}
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+const DEFAULT_SCHEDULE_KEYS: ReadonlyArray<CareTaskTemplateKey> = [
+  "water",
+  "fertilize",
+];
+
+export type CreatePlantWithDefaultsResult = {
+  plant: Plant;
+  schedules: PlantTaskSchedule[];
+};
+
+export type CreatePlantWithDefaultsOptions = {
+  scheduleKeys?: ReadonlyArray<CareTaskTemplateKey>;
+  startAt?: Date;
+};
+
+function insertDefaultSchedule(
+  tx: LeafCueTransaction,
+  plantId: number,
+  key: CareTaskTemplateKey,
+  startAt: Date,
+): PlantTaskSchedule | null {
+  const template = tx
+    .select()
+    .from(careTaskTemplates)
+    .where(eq(careTaskTemplates.key, key))
+    .get();
+  if (!template) return null;
+
+  const intervalDays = template.defaultIntervalDays;
+  const nextDueAt =
+    intervalDays !== null && intervalDays !== undefined
+      ? new Date(startAt.getTime() + intervalDays * MS_PER_DAY)
+      : null;
+
+  const inserted = tx
+    .insert(plantTaskSchedules)
+    .values({
+      plantId,
+      templateId: template.id,
+      customName: null,
+      intervalDays: intervalDays ?? null,
+      nextDueAt,
+      lastCompletedAt: null,
+      snoozedUntil: null,
+      isEnabled: true,
+      instructions: template.defaultInstructions ?? null,
+      createdAt: startAt,
+      updatedAt: startAt,
+    })
+    .returning()
+    .get();
+
+  return inserted ?? null;
+}
+
+export function createPlantWithDefaults(
+  db: LeafCueDatabase,
+  input: PlantInsertInput,
+  options: CreatePlantWithDefaultsOptions = {},
+): CreatePlantWithDefaultsResult {
+  const parsed = plantInsertSchema.parse(input);
+  const startAt = options.startAt ?? new Date();
+  const scheduleKeys = options.scheduleKeys ?? DEFAULT_SCHEDULE_KEYS;
+
+  return db.transaction((tx) => {
+    const inserted = tx
+      .insert(plants)
+      .values({
+        nickname: parsed.nickname,
+        commonName: parsed.commonName ?? null,
+        scientificName: parsed.scientificName ?? null,
+        speciesPresetId: parsed.speciesPresetId ?? null,
+        photoUri: parsed.photoUri ?? null,
+        roomId: parsed.roomId ?? null,
+        shelfId: parsed.shelfId ?? null,
+        notes: parsed.notes ?? null,
+        acquiredAt: parsed.acquiredAt ?? null,
+        careDifficulty: parsed.careDifficulty ?? null,
+        toxicity: parsed.toxicity ?? null,
+        lightPreference: parsed.lightPreference ?? null,
+        wateringPreference: parsed.wateringPreference ?? null,
+        soilType: parsed.soilType ?? null,
+        potType: parsed.potType ?? null,
+        potSize: parsed.potSize ?? null,
+        hasDrainage: parsed.hasDrainage ?? null,
+        isFavorite: parsed.isFavorite ?? false,
+        createdAt: startAt,
+        updatedAt: startAt,
+      })
+      .returning()
+      .get();
+
+    if (!inserted) {
+      throw new Error("Failed to create plant");
+    }
+
+    const schedules: PlantTaskSchedule[] = [];
+    for (const key of scheduleKeys) {
+      const schedule = insertDefaultSchedule(tx, inserted.id, key, startAt);
+      if (schedule) schedules.push(schedule);
+    }
+
+    return { plant: inserted, schedules };
+  });
 }
 
 export function unarchivePlant(db: LeafCueDatabase, id: number): Plant {

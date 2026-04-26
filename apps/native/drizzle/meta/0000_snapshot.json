@@ -119,24 +119,17 @@
       "indexes": {
         "care_logs_plant_completed_idx": {
           "name": "care_logs_plant_completed_idx",
-          "columns": [
-            "plant_id",
-            "completed_at"
-          ],
+          "columns": ["plant_id", "completed_at"],
           "isUnique": false
         },
         "care_logs_schedule_idx": {
           "name": "care_logs_schedule_idx",
-          "columns": [
-            "schedule_id"
-          ],
+          "columns": ["schedule_id"],
           "isUnique": false
         },
         "care_logs_template_idx": {
           "name": "care_logs_template_idx",
-          "columns": [
-            "template_id"
-          ],
+          "columns": ["template_id"],
           "isUnique": false
         }
       },
@@ -145,12 +138,8 @@
           "name": "care_logs_plant_id_plants_id_fk",
           "tableFrom": "care_logs",
           "tableTo": "plants",
-          "columnsFrom": [
-            "plant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["plant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -158,12 +147,8 @@
           "name": "care_logs_schedule_id_plant_task_schedules_id_fk",
           "tableFrom": "care_logs",
           "tableTo": "plant_task_schedules",
-          "columnsFrom": [
-            "schedule_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["schedule_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -171,12 +156,8 @@
           "name": "care_logs_template_id_care_task_templates_id_fk",
           "tableFrom": "care_logs",
           "tableTo": "care_task_templates",
-          "columnsFrom": [
-            "template_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["template_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -249,9 +230,7 @@
       "indexes": {
         "care_task_templates_key_unique": {
           "name": "care_task_templates_key_unique",
-          "columns": [
-            "key"
-          ],
+          "columns": ["key"],
           "isUnique": true
         }
       },
@@ -323,10 +302,7 @@
       "indexes": {
         "growth_measurements_plant_measured_idx": {
           "name": "growth_measurements_plant_measured_idx",
-          "columns": [
-            "plant_id",
-            "measured_at"
-          ],
+          "columns": ["plant_id", "measured_at"],
           "isUnique": false
         }
       },
@@ -335,12 +311,8 @@
           "name": "growth_measurements_plant_id_plants_id_fk",
           "tableFrom": "growth_measurements",
           "tableTo": "plants",
-          "columnsFrom": [
-            "plant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["plant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -420,17 +392,12 @@
       "indexes": {
         "health_observations_plant_status_idx": {
           "name": "health_observations_plant_status_idx",
-          "columns": [
-            "plant_id",
-            "status"
-          ],
+          "columns": ["plant_id", "status"],
           "isUnique": false
         },
         "health_observations_observed_idx": {
           "name": "health_observations_observed_idx",
-          "columns": [
-            "observed_at"
-          ],
+          "columns": ["observed_at"],
           "isUnique": false
         }
       },
@@ -439,12 +406,8 @@
           "name": "health_observations_plant_id_plants_id_fk",
           "tableFrom": "health_observations",
           "tableTo": "plants",
-          "columnsFrom": [
-            "plant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["plant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -517,17 +480,12 @@
       "indexes": {
         "journal_entries_plant_created_idx": {
           "name": "journal_entries_plant_created_idx",
-          "columns": [
-            "plant_id",
-            "created_at"
-          ],
+          "columns": ["plant_id", "created_at"],
           "isUnique": false
         },
         "journal_entries_type_idx": {
           "name": "journal_entries_type_idx",
-          "columns": [
-            "entry_type"
-          ],
+          "columns": ["entry_type"],
           "isUnique": false
         }
       },
@@ -536,12 +494,8 @@
           "name": "journal_entries_plant_id_plants_id_fk",
           "tableFrom": "journal_entries",
           "tableTo": "plants",
-          "columnsFrom": [
-            "plant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["plant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -638,17 +592,12 @@
       "indexes": {
         "plant_photos_plant_taken_idx": {
           "name": "plant_photos_plant_taken_idx",
-          "columns": [
-            "plant_id",
-            "taken_at"
-          ],
+          "columns": ["plant_id", "taken_at"],
           "isUnique": false
         },
         "plant_photos_type_idx": {
           "name": "plant_photos_type_idx",
-          "columns": [
-            "type"
-          ],
+          "columns": ["type"],
           "isUnique": false
         }
       },
@@ -657,12 +606,8 @@
           "name": "plant_photos_plant_id_plants_id_fk",
           "tableFrom": "plant_photos",
           "tableTo": "plants",
-          "columnsFrom": [
-            "plant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["plant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -769,10 +714,7 @@
       "indexes": {
         "plant_presets_common_scientific_idx": {
           "name": "plant_presets_common_scientific_idx",
-          "columns": [
-            "common_name",
-            "scientific_name"
-          ],
+          "columns": ["common_name", "scientific_name"],
           "isUnique": true
         }
       },
@@ -873,25 +815,17 @@
       "indexes": {
         "plant_task_schedules_plant_due_idx": {
           "name": "plant_task_schedules_plant_due_idx",
-          "columns": [
-            "plant_id",
-            "next_due_at"
-          ],
+          "columns": ["plant_id", "next_due_at"],
           "isUnique": false
         },
         "plant_task_schedules_enabled_due_idx": {
           "name": "plant_task_schedules_enabled_due_idx",
-          "columns": [
-            "is_enabled",
-            "next_due_at"
-          ],
+          "columns": ["is_enabled", "next_due_at"],
           "isUnique": false
         },
         "plant_task_schedules_template_idx": {
           "name": "plant_task_schedules_template_idx",
-          "columns": [
-            "template_id"
-          ],
+          "columns": ["template_id"],
           "isUnique": false
         }
       },
@@ -900,12 +834,8 @@
           "name": "plant_task_schedules_plant_id_plants_id_fk",
           "tableFrom": "plant_task_schedules",
           "tableTo": "plants",
-          "columnsFrom": [
-            "plant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["plant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -913,12 +843,8 @@
           "name": "plant_task_schedules_template_id_care_task_templates_id_fk",
           "tableFrom": "plant_task_schedules",
           "tableTo": "care_task_templates",
-          "columnsFrom": [
-            "template_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["template_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1089,31 +1015,22 @@
       "indexes": {
         "plants_archived_at_idx": {
           "name": "plants_archived_at_idx",
-          "columns": [
-            "archived_at"
-          ],
+          "columns": ["archived_at"],
           "isUnique": false
         },
         "plants_room_shelf_idx": {
           "name": "plants_room_shelf_idx",
-          "columns": [
-            "room_id",
-            "shelf_id"
-          ],
+          "columns": ["room_id", "shelf_id"],
           "isUnique": false
         },
         "plants_species_preset_idx": {
           "name": "plants_species_preset_idx",
-          "columns": [
-            "species_preset_id"
-          ],
+          "columns": ["species_preset_id"],
           "isUnique": false
         },
         "plants_is_favorite_idx": {
           "name": "plants_is_favorite_idx",
-          "columns": [
-            "is_favorite"
-          ],
+          "columns": ["is_favorite"],
           "isUnique": false
         }
       },
@@ -1122,12 +1039,8 @@
           "name": "plants_species_preset_id_plant_presets_id_fk",
           "tableFrom": "plants",
           "tableTo": "plant_presets",
-          "columnsFrom": [
-            "species_preset_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["species_preset_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1135,12 +1048,8 @@
           "name": "plants_room_id_rooms_id_fk",
           "tableFrom": "plants",
           "tableTo": "rooms",
-          "columnsFrom": [
-            "room_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["room_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1148,12 +1057,8 @@
           "name": "plants_shelf_id_shelves_id_fk",
           "tableFrom": "plants",
           "tableTo": "shelves",
-          "columnsFrom": [
-            "shelf_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["shelf_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1212,9 +1117,7 @@
       "indexes": {
         "rooms_sort_order_idx": {
           "name": "rooms_sort_order_idx",
-          "columns": [
-            "sort_order"
-          ],
+          "columns": ["sort_order"],
           "isUnique": false
         }
       },
@@ -1280,17 +1183,12 @@
       "indexes": {
         "shelves_room_id_idx": {
           "name": "shelves_room_id_idx",
-          "columns": [
-            "room_id"
-          ],
+          "columns": ["room_id"],
           "isUnique": false
         },
         "shelves_room_sort_idx": {
           "name": "shelves_room_sort_idx",
-          "columns": [
-            "room_id",
-            "sort_order"
-          ],
+          "columns": ["room_id", "sort_order"],
           "isUnique": false
         }
       },
@@ -1299,12 +1197,8 @@
           "name": "shelves_room_id_rooms_id_fk",
           "tableFrom": "shelves",
           "tableTo": "rooms",
-          "columnsFrom": [
-            "room_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["room_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }

@@ -8,7 +8,17 @@
     },
     "name": "LeafCue",
     "slug": "leafcue",
-    "plugins": ["expo-font", "expo-sqlite"],
+    "plugins": [
+      "expo-font",
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "LeafCue needs access to your photo library so you can attach photos to your plants. Photos stay on this device.",
+          "cameraPermission": "LeafCue needs access to your camera so you can capture photos of your plants. Photos stay on this device."
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true

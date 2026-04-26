@@ -4,10 +4,10 @@ import type { LeafCueDatabase, LeafCueDbOrTx } from "@/lib/db";
 import { rooms, shelves } from "@/lib/db/schema";
 import type { Room, Shelf } from "@/lib/db/types";
 import {
-  roomInsertSchema,
   type RoomInsertInput,
-  shelfInsertSchema,
+  roomInsertSchema,
   type ShelfInsertInput,
+  shelfInsertSchema,
 } from "@/lib/db/zod";
 
 export function getRooms(db: LeafCueDbOrTx): Room[] {
@@ -18,17 +18,11 @@ export function getRooms(db: LeafCueDbOrTx): Room[] {
     .all();
 }
 
-export function getRoomById(
-  db: LeafCueDbOrTx,
-  id: number,
-): Room | undefined {
+export function getRoomById(db: LeafCueDbOrTx, id: number): Room | undefined {
   return db.select().from(rooms).where(eq(rooms.id, id)).get();
 }
 
-export function createRoom(
-  db: LeafCueDatabase,
-  input: RoomInsertInput,
-): Room {
+export function createRoom(db: LeafCueDatabase, input: RoomInsertInput): Room {
   const parsed = roomInsertSchema.parse(input);
   const now = new Date();
 
@@ -75,10 +69,7 @@ export function deleteRoom(db: LeafCueDatabase, id: number): void {
   db.delete(rooms).where(eq(rooms.id, id)).run();
 }
 
-export function getShelves(
-  db: LeafCueDbOrTx,
-  roomId?: number,
-): Shelf[] {
+export function getShelves(db: LeafCueDbOrTx, roomId?: number): Shelf[] {
   const where = roomId !== undefined ? eq(shelves.roomId, roomId) : undefined;
   return db
     .select()

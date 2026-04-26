@@ -4,8 +4,8 @@ import type { LeafCueDatabase, LeafCueDbOrTx } from "@/lib/db";
 import { healthObservations } from "@/lib/db/schema";
 import type { HealthObservation } from "@/lib/db/types";
 import {
-  healthObservationInsertSchema,
   type HealthObservationInsertInput,
+  healthObservationInsertSchema,
   healthStatusSchema,
 } from "@/lib/db/zod";
 
@@ -78,9 +78,6 @@ export function updateHealthObservationStatus(
   return updated;
 }
 
-export function deleteHealthObservation(
-  db: LeafCueDatabase,
-  id: number,
-): void {
+export function deleteHealthObservation(db: LeafCueDatabase, id: number): void {
   db.delete(healthObservations).where(eq(healthObservations.id, id)).run();
 }

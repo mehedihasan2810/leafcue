@@ -1,18 +1,16 @@
 import { sql } from "drizzle-orm";
 
 import type { LeafCueDatabase, LeafCueDbOrTx } from "@/lib/db";
-import { careTaskTemplates, plantPresets } from "@/lib/db/schema";
+import { careTaskTemplates, plantPresets, rooms } from "@/lib/db/schema";
 import { builtInCareTaskTemplates } from "@/lib/db/seeds/care-task-templates";
+import { defaultRoomSeeds } from "@/lib/db/seeds/default-rooms";
 import { builtInPlantPresets } from "@/lib/db/seeds/plant-presets";
 
 function tableIsEmpty(
   db: LeafCueDbOrTx,
-  table: typeof careTaskTemplates | typeof plantPresets,
+  table: typeof careTaskTemplates | typeof plantPresets | typeof rooms,
 ): boolean {
-  const row = db
-    .select({ count: sql<number>`count(*)` })
-    .from(table)
-    .get();
+  const row = db.select({ count: sql<number>`count(*)` }).from(table).get();
   return (row?.count ?? 0) === 0;
 }
 
@@ -63,14 +61,36 @@ function seedPlantPresets(db: LeafCueDbOrTx): number {
   return builtInPlantPresets.length;
 }
 
+export function seedDefaultRoomsIfEmpty(db: LeafCueDbOrTx): number {
+  if (!tableIsEmpty(db, rooms)) return 0;
+
+  const now = new Date();
+
+  db.insert(rooms)
+    .values(
+      defaultRoomSeeds.map((room) => ({
+        name: room.name,
+        icon: room.icon ?? null,
+        sortOrder: room.sortOrder ?? 0,
+        createdAt: now,
+        updatedAt: now,
+      })),
+    )
+    .run();
+
+  return defaultRoomSeeds.length;
+}
+
 export type SeedReport = {
   careTaskTemplatesInserted: number;
   plantPresetsInserted: number;
+  roomsInserted: number;
 };
 
 export function runSeeds(db: LeafCueDatabase): SeedReport {
   return db.transaction((tx) => ({
     careTaskTemplatesInserted: seedCareTaskTemplates(tx),
     plantPresetsInserted: seedPlantPresets(tx),
+    roomsInserted: seedDefaultRoomsIfEmpty(tx),
   }));
 }

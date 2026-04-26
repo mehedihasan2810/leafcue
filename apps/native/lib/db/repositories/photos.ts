@@ -4,8 +4,8 @@ import type { LeafCueDatabase, LeafCueDbOrTx } from "@/lib/db";
 import { plantPhotos, plants } from "@/lib/db/schema";
 import type { PlantPhoto } from "@/lib/db/types";
 import {
-  plantPhotoInsertSchema,
   type PlantPhotoInsertInput,
+  plantPhotoInsertSchema,
 } from "@/lib/db/zod";
 
 export function getPlantPhotos(

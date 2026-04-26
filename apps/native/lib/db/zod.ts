@@ -26,8 +26,7 @@ export const healthSeveritySchema = z.enum(healthSeverityValues);
 export const healthStatusSchema = z.enum(healthStatusValues);
 export const careTaskTemplateKeySchema = z.enum(careTaskTemplateKeyValues);
 
-const trimmedString = (max: number) =>
-  z.string().trim().min(1).max(max);
+const trimmedString = (max: number) => z.string().trim().min(1).max(max);
 
 export const plantInsertSchema = z.object({
   nickname: trimmedString(120),
@@ -204,3 +203,13 @@ export const plantRouteParamsSchema = z.object({
   plantId: z.coerce.number().int().positive(),
 });
 export type PlantRouteParams = z.infer<typeof plantRouteParamsSchema>;
+
+export const onboardingValueSchema = z.object({
+  completed: z.boolean(),
+  completedAt: z.string().datetime().optional(),
+});
+export type OnboardingValue = z.infer<typeof onboardingValueSchema>;
+
+export const onboardingKeys = {
+  MAIN: "onboarding.main",
+} as const;

@@ -1,6 +1,12 @@
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import { SQLiteProvider, useSQLiteContext } from "expo-sqlite";
-import { type PropsWithChildren, Suspense, useEffect, useMemo, useState } from "react";
+import {
+  type PropsWithChildren,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 
 import migrations from "@/drizzle/migrations";

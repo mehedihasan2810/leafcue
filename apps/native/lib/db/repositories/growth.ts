@@ -4,8 +4,8 @@ import type { LeafCueDatabase, LeafCueDbOrTx } from "@/lib/db";
 import { growthMeasurements } from "@/lib/db/schema";
 import type { GrowthMeasurement } from "@/lib/db/types";
 import {
-  growthMeasurementInsertSchema,
   type GrowthMeasurementInsertInput,
+  growthMeasurementInsertSchema,
 } from "@/lib/db/zod";
 
 export function getGrowthMeasurements(
@@ -48,9 +48,6 @@ export function addGrowthMeasurement(
   return inserted;
 }
 
-export function deleteGrowthMeasurement(
-  db: LeafCueDatabase,
-  id: number,
-): void {
+export function deleteGrowthMeasurement(db: LeafCueDatabase, id: number): void {
   db.delete(growthMeasurements).where(eq(growthMeasurements.id, id)).run();
 }
