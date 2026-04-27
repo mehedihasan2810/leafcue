@@ -1,5 +1,6 @@
 {
   "expo": {
+    "icon": "./assets/images/icon.png",
     "scheme": "leafcue",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
@@ -11,6 +12,12 @@
     "plugins": [
       "expo-font",
       "expo-sqlite",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "LeafCue needs access to your camera so you can capture photos of your plants. Photos stay on this device."
+        }
+      ],
       [
         "expo-image-picker",
         {
