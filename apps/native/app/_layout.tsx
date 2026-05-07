@@ -1,6 +1,7 @@
 import "@/global.css";
 import { Stack } from "expo-router";
 import { HeroUINativeProvider } from "heroui-native";
+import { ToastProvider } from "heroui-native/toast";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
@@ -96,9 +97,11 @@ export default function Layout() {
         <ThemeStoreSync />
         <HeroUINativeProvider>
           <DatabaseProvider>
-            <OnboardingGate>
-              <StackLayout />
-            </OnboardingGate>
+            <ToastProvider>
+              <OnboardingGate>
+                <StackLayout />
+              </OnboardingGate>
+            </ToastProvider>
           </DatabaseProvider>
         </HeroUINativeProvider>
       </KeyboardProvider>

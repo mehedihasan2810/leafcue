@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
 import { useThemeColor } from "heroui-native";
+import { useToast } from "heroui-native/toast";
 import { useMemo, useState } from "react";
 import { Alert, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -172,6 +173,7 @@ export function PlantDetailScreen({ plantId }: PlantDetailScreenProps) {
   );
 
   const handlers = useTaskHandlers();
+  const { toast } = useToast();
 
   const nextDueAt = useMemo<Date | null>(() => {
     let next: Date | null = null;
@@ -215,21 +217,19 @@ export function PlantDetailScreen({ plantId }: PlantDetailScreenProps) {
   const handleCompleteByKey = async (key: "water" | "fertilize") => {
     const found = findScheduleForKey(key);
     if (!found) {
-      Alert.alert(
-        `No ${key} schedule yet`,
-        "Add a schedule to log this care.",
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Add schedule",
-            onPress: () =>
-              router.push({
-                pathname: "/plants/[plantId]/schedules",
-                params: { plantId: String(plantId) },
-              }),
-          },
-        ],
-      );
+      toast.show({
+        label: `No ${key} schedule yet`,
+        description: "Add a schedule to log this care.",
+        variant: "warning",
+        actionLabel: "Add schedule",
+        onActionPress: ({ hide }) => {
+          hide();
+          router.push({
+            pathname: "/plants/[plantId]/schedules",
+            params: { plantId: String(plantId) },
+          });
+        },
+      });
       return;
     }
     await performComplete(
@@ -237,6 +237,13 @@ export function PlantDetailScreen({ plantId }: PlantDetailScreenProps) {
       { scheduleId: found.schedule.id },
       found.schedule,
     );
+    const actionLabel = key === "water" ? "Watered" : "Fertilized";
+    toast.show({
+      label: `${actionLabel} ${plant?.nickname ?? ""}`,
+      description:
+        key === "water" ? "💧 Logged as watered" : "🧪 Logged as fertilized",
+      variant: "success",
+    });
   };
 
   const handleQuickAction = (id: QuickActionId) => {

@@ -3,7 +3,7 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
 import { useMemo } from "react";
 import { Text, View } from "react-native";
-
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Container } from "@/components/container";
 import { EmptyState } from "@/components/empty-state";
 import { getHealthIssueLabel } from "@/lib/care/health-hints";
@@ -16,12 +16,10 @@ import {
   plants,
   plantTaskSchedules,
 } from "@/lib/db/schema";
-
 import { ConsistencyCard } from "@/screens/insights/_components/consistency-card";
 import { InsightsCard } from "@/screens/insights/_components/insights-card";
 import { PlantRow } from "@/screens/insights/_components/plant-row";
 import { StreakCard } from "@/screens/insights/_components/streak-card";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export function InsightsScreen() {
   const db = useDatabase();
@@ -68,13 +66,16 @@ export function InsightsScreen() {
 
   if (summary.totalPlants === 0) {
     return (
-      <Container isScrollable scrollViewProps={{
-        contentContainerStyle: {
-          paddingTop: insets.top + 4,
-          paddingHorizontal: 16,
-          paddingBottom: insets.bottom + 96,
-        },
-      }}>
+      <Container
+        isScrollable
+        scrollViewProps={{
+          contentContainerStyle: {
+            paddingTop: insets.top + 4,
+            paddingHorizontal: 16,
+            paddingBottom: insets.bottom + 96,
+          },
+        }}
+      >
         <View className="gap-4">
           <Header />
           <EmptyState
@@ -90,13 +91,16 @@ export function InsightsScreen() {
   }
 
   return (
-    <Container isScrollable scrollViewProps={{
-      contentContainerStyle: {
-        paddingTop: insets.top + 4,
-        paddingHorizontal: 16,
-        paddingBottom: insets.bottom + 96,
-      },
-    }}>
+    <Container
+      isScrollable
+      scrollViewProps={{
+        contentContainerStyle: {
+          paddingTop: insets.top + 4,
+          paddingHorizontal: 16,
+          paddingBottom: insets.bottom + 96,
+        },
+      }}
+    >
       <View className="gap-4">
         <Header />
         <StreakCard days={summary.careStreakDays} />

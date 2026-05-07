@@ -152,20 +152,14 @@ export function TasksScreen() {
       >
         <View className="gap-4">
           <View className="flex-row items-center justify-between">
-              <Text className="font-bold text-2xl text-foreground">
-                Tasks
-              </Text>
+            <Text className="font-bold text-2xl text-foreground">Tasks</Text>
             <Pressable
               onPress={handleOpenReminders}
               hitSlop={8}
               className="size-10 items-center justify-center rounded-full bg-surface"
               accessibilityLabel="Reminder settings"
             >
-              <Ionicons
-                name="notifications-outline"
-                size={18}
-                color={accent}
-              />
+              <Ionicons name="notifications-outline" size={18} color={accent} />
             </Pressable>
           </View>
 
