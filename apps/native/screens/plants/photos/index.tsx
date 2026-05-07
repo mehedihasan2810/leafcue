@@ -8,6 +8,7 @@ import { Alert, FlatList, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/empty-state";
+import { PhotoViewerDialog } from "@/components/photo-viewer-dialog";
 import { useDatabase } from "@/lib/db";
 import {
   addPlantPhoto,
@@ -40,6 +41,7 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
   const db = useDatabase();
   const [selected, setSelected] = useState<PlantPhoto | null>(null);
   const [showCompare, setShowCompare] = useState(false);
+  const [viewerPhoto, setViewerPhoto] = useState<PlantPhoto | null>(null);
 
   const livePlants = useLiveQuery(db.select().from(plantsTable));
   const livePhotos = useLiveQuery(db.select().from(plantPhotosTable));
@@ -83,10 +85,13 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
     }
   };
 
-  const handleSetCover = () => {
-    if (!selected) return;
+  const handleSetCover = (photo?: PlantPhoto | null) => {
+    const target = photo ?? selected;
+    if (!target) return;
     try {
-      setPlantPhotoAsCover(db, selected.id);
+      setPlantPhotoAsCover(db, target.id);
+      if (viewerPhoto?.id === target.id) setViewerPhoto(null);
+      if (selected?.id === target.id) setSelected(null);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not set cover";
@@ -94,20 +99,23 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
     }
   };
 
-  const handleDeletePhoto = () => {
-    if (!selected) return;
-    const photo = selected;
+  const handleDeletePhoto = (photo?: PlantPhoto | null) => {
+    const target = photo ?? selected;
+    if (!target) return;
     Alert.alert("Delete photo?", "This permanently removes the photo.", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Delete",
         style: "destructive",
         onPress: () => {
-          deletePlantPhoto(db, photo.id);
-          deletePersistedPhoto(photo.uri);
-          if (plant?.photoUri === photo.uri) {
+          deletePlantPhoto(db, target.id);
+          deletePersistedPhoto(target.uri);
+          if (plant?.photoUri === target.uri) {
             updatePlant(db, plantId, { photoUri: null });
           }
+          // Clear viewer/bottom sheet if they show the deleted photo
+          if (viewerPhoto?.id === target.id) setViewerPhoto(null);
+          if (selected?.id === target.id) setSelected(null);
         },
       },
     ]);
@@ -190,7 +198,7 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
         }
         renderItem={({ item }) => (
           <Pressable
-            onPress={() => setSelected(item)}
+            onPress={() => setViewerPhoto(item)}
             className="aspect-square flex-1 overflow-hidden rounded-2xl bg-muted/15"
           >
             <Image
@@ -228,8 +236,18 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
         }}
         photo={selected}
         onSaveCaption={handleSaveCaption}
-        onSetCover={handleSetCover}
-        onDelete={handleDeletePhoto}
+        onSetCover={() => handleSetCover()}
+        onDelete={() => handleDeletePhoto()}
+      />
+
+      <PhotoViewerDialog
+        isOpen={viewerPhoto !== null}
+        onOpenChange={(open) => {
+          if (!open) setViewerPhoto(null);
+        }}
+        photo={viewerPhoto}
+        onSetCover={() => handleSetCover(viewerPhoto)}
+        onDelete={() => handleDeletePhoto(viewerPhoto)}
       />
     </View>
   );

@@ -201,7 +201,7 @@ export function PlantLibraryScreen() {
               />
             </View>
           ) : (
-            <View className="px-6">
+            <View className="px-4">
               <PlantCard
                 plant={item}
                 variant="list"

@@ -8,6 +8,7 @@ import { Alert, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
+import { PhotoViewerDialog } from "@/components/photo-viewer-dialog";
 import { TaskActionSheets } from "@/components/task-action-sheets";
 import { useTaskHandlers } from "@/hooks/use-task-handlers";
 import { performComplete } from "@/lib/care/task-actions";
@@ -41,6 +42,7 @@ import {
 } from "@/lib/db/schema";
 import type {
   CareTaskTemplate,
+  PlantPhoto,
   PlantTaskSchedule,
   Room,
   Shelf,
@@ -82,6 +84,7 @@ export function PlantDetailScreen({ plantId }: PlantDetailScreenProps) {
   const muted = useThemeColor("muted");
   const db = useDatabase();
   const [filter, setFilter] = useState<TimelineFilter>("all");
+  const [viewerPhoto, setViewerPhoto] = useState<PlantPhoto | null>(null);
 
   const livePlants = useLiveQuery(db.select().from(plantsTable));
   const liveSchedules = useLiveQuery(db.select().from(plantTaskSchedules));
@@ -403,6 +406,7 @@ export function PlantDetailScreen({ plantId }: PlantDetailScreenProps) {
           />
           <PhotosStrip
             photos={photos}
+            onPressPhoto={setViewerPhoto}
             onAddPhoto={() =>
               router.push({
                 pathname: "/plants/[plantId]/photos",
@@ -436,6 +440,14 @@ export function PlantDetailScreen({ plantId }: PlantDetailScreenProps) {
       </Container>
 
       <TaskActionSheets handlers={handlers} />
+
+      <PhotoViewerDialog
+        isOpen={viewerPhoto !== null}
+        onOpenChange={(open) => {
+          if (!open) setViewerPhoto(null);
+        }}
+        photo={viewerPhoto}
+      />
     </View>
   );
 }

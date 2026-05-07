@@ -10,12 +10,14 @@ type PhotosStripProps = {
   photos: ReadonlyArray<PlantPhoto>;
   onPressSeeAll: () => void;
   onAddPhoto: () => void;
+  onPressPhoto?: (photo: PlantPhoto) => void;
 };
 
 export function PhotosStrip({
   photos,
   onPressSeeAll,
   onAddPhoto,
+  onPressPhoto,
 }: PhotosStripProps) {
   const accent = useThemeColor("accent");
   const muted = useThemeColor("muted");
@@ -55,7 +57,7 @@ export function PhotosStrip({
           contentContainerStyle={{ gap: 8 }}
           renderItem={({ item }) => (
             <Pressable
-              onPress={onPressSeeAll}
+              onPress={() => onPressPhoto?.(item)}
               className="size-24 overflow-hidden rounded-2xl bg-muted/15"
             >
               <Image

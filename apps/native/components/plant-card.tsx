@@ -108,7 +108,7 @@ export function PlantCard({
       onPress={handlePress}
       onLongPress={handleLongPress}
       className={cn(
-        "gap-2 overflow-hidden rounded-3xl border border-border/40 bg-surface",
+        "gap-2 overflow-hidden rounded-2xl border border-border/40 bg-surface",
         className,
       )}
     >
