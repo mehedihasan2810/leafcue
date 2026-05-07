@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { useThemeColor } from "heroui-native";
-import { Dimensions, Pressable, Text, View } from "react-native";
+import { PressableFeedback, useThemeColor } from "heroui-native";
+import { Dimensions, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   FadeIn,
@@ -149,7 +149,7 @@ export function PhotoViewerDialog({
       pointerEvents="auto"
     >
       {/* Backdrop */}
-      <Pressable
+      <PressableFeedback
         className="absolute inset-0 bg-black"
         onPress={() => {
           resetValues();
@@ -180,8 +180,7 @@ export function PhotoViewerDialog({
         className="absolute right-0 left-0 flex-row items-center justify-between px-4"
         style={{ top: insets.top + 8 }}
       >
-        <Pressable
-          hitSlop={12}
+        <PressableFeedback
           onPress={() => {
             resetValues();
             onOpenChange(false);
@@ -189,12 +188,11 @@ export function PhotoViewerDialog({
           className="size-10 items-center justify-center rounded-full bg-white/20"
         >
           <Ionicons name="close" size={22} color="white" />
-        </Pressable>
+        </PressableFeedback>
 
         <View className="flex-row gap-3">
           {onSetCover ? (
-            <Pressable
-              hitSlop={12}
+            <PressableFeedback
               onPress={() => {
                 resetValues();
                 onSetCover();
@@ -202,11 +200,10 @@ export function PhotoViewerDialog({
               className="size-10 items-center justify-center rounded-full bg-white/20"
             >
               <Ionicons name="image-outline" size={20} color="white" />
-            </Pressable>
+            </PressableFeedback>
           ) : null}
           {onDelete ? (
-            <Pressable
-              hitSlop={12}
+            <PressableFeedback
               onPress={() => {
                 resetValues();
                 onDelete();
@@ -214,15 +211,14 @@ export function PhotoViewerDialog({
               className="size-10 items-center justify-center rounded-full bg-white/20"
             >
               <Ionicons name="trash-outline" size={20} color={danger} />
-            </Pressable>
+            </PressableFeedback>
           ) : null}
-          <Pressable
-            hitSlop={12}
+          <PressableFeedback
             onPress={resetZoom}
             className="size-10 items-center justify-center rounded-full bg-white/20"
           >
             <Ionicons name="scan-outline" size={20} color="white" />
-          </Pressable>
+          </PressableFeedback>
         </View>
       </View>
 

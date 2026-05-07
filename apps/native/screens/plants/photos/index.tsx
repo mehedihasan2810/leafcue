@@ -2,9 +2,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { Button, useThemeColor } from "heroui-native";
+import { Button, PressableFeedback, useThemeColor } from "heroui-native";
 import { useMemo, useState } from "react";
-import { Alert, FlatList, Pressable, Text, View } from "react-native";
+import { Alert, FlatList, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/empty-state";
@@ -138,21 +138,19 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
         className="flex-row items-center justify-between px-6"
         style={{ paddingTop: insets.top + 4, paddingBottom: 12 }}
       >
-        <Pressable
-          hitSlop={8}
+        <PressableFeedback
           onPress={() => router.back()}
           className="size-9 items-center justify-center rounded-full bg-surface"
         >
           <Ionicons name="chevron-back" size={20} color={muted} />
-        </Pressable>
+        </PressableFeedback>
         <View className="items-center">
           <Text className="text-muted text-xs">Photos</Text>
           <Text className="font-semibold text-base text-foreground">
             {plant.nickname}
           </Text>
         </View>
-        <Pressable
-          hitSlop={8}
+        <PressableFeedback
           onPress={() => setShowCompare((prev) => !prev)}
           className="size-9 items-center justify-center rounded-full bg-surface"
           accessibilityLabel="Toggle compare"
@@ -162,7 +160,7 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
             size={18}
             color={accent}
           />
-        </Pressable>
+        </PressableFeedback>
       </View>
 
       <FlatList
@@ -197,7 +195,7 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
           </View>
         }
         renderItem={({ item }) => (
-          <Pressable
+          <PressableFeedback
             onPress={() => setViewerPhoto(item)}
             className="aspect-square flex-1 overflow-hidden rounded-2xl bg-muted/15"
           >
@@ -214,7 +212,7 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
                 </Text>
               </View>
             ) : null}
-          </Pressable>
+          </PressableFeedback>
         )}
       />
 

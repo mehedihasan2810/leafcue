@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { BottomSheet, useThemeColor } from "heroui-native";
-import { Pressable, Text, View } from "react-native";
+import { BottomSheet, PressableFeedback, useThemeColor } from "heroui-native";
+import { Text, View } from "react-native";
 
 import type { DueTaskRow } from "@/lib/db/repositories";
 
@@ -131,10 +131,9 @@ function ActionRow({
   const tint = action.destructive ? danger : accent;
 
   return (
-    <Pressable
+    <PressableFeedback
       onPress={onPress}
       className="flex-row items-center gap-3 rounded-2xl px-3 py-3 active:bg-muted/10"
-      accessibilityRole="button"
       accessibilityLabel={action.label}
     >
       <View className="size-9 items-center justify-center rounded-xl bg-accent-soft">
@@ -154,6 +153,6 @@ function ActionRow({
         ) : null}
       </View>
       <Ionicons name="chevron-forward" size={16} color={muted} />
-    </Pressable>
+    </PressableFeedback>
   );
 }

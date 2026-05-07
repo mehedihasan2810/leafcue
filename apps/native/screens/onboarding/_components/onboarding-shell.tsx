@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Button, cn, useThemeColor } from "heroui-native";
+import { Button, cn, PressableFeedback, useThemeColor } from "heroui-native";
 import type { PropsWithChildren, ReactNode } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 import { HeroScreen } from "@/components/hero-screen";
 import { useDatabase } from "@/lib/db";
@@ -52,9 +52,9 @@ export function OnboardingShell({
     <View className="flex-row items-center justify-between">
       <ProgressDots step={step} totalSteps={ONBOARDING_STEPS} />
       {showSkip ? (
-        <Pressable hitSlop={8} onPress={handleSkip}>
+        <PressableFeedback onPress={handleSkip}>
           <Text className="font-medium text-muted text-sm">Skip</Text>
-        </Pressable>
+        </PressableFeedback>
       ) : null}
     </View>
   );

@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { Chip, useThemeColor } from "heroui-native";
-import { Pressable, Text, View } from "react-native";
+import { Chip, PressableFeedback, useThemeColor } from "heroui-native";
+import { Text, View } from "react-native";
 
 import { relativeDueLabel } from "@/lib/dates";
 import type { Plant, Room, Shelf } from "@/lib/db/types";
@@ -62,9 +62,8 @@ export function HeroCard({
           </View>
         )}
         <View className="absolute top-3 right-3 flex-row gap-2">
-          <Pressable
+          <PressableFeedback
             onPress={onToggleFavorite}
-            hitSlop={8}
             className="size-10 items-center justify-center rounded-full bg-background/85"
             accessibilityLabel={
               plant.isFavorite ? "Unfavorite plant" : "Favorite plant"
@@ -75,7 +74,7 @@ export function HeroCard({
               size={18}
               color={plant.isFavorite ? favoriteColor : muted}
             />
-          </Pressable>
+          </PressableFeedback>
         </View>
       </View>
 

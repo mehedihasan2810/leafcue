@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useThemeColor } from "heroui-native";
-import { Pressable, Text, View } from "react-native";
+import { PressableFeedback, useThemeColor } from "heroui-native";
+import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type SettingsHeaderProps = {
@@ -24,15 +24,13 @@ export function SettingsHeader({
       style={{ paddingTop: insets.top + 12, paddingBottom: 12 }}
     >
       {showBack ? (
-        <Pressable
-          accessibilityRole="button"
+        <PressableFeedback
           accessibilityLabel="Go back"
-          hitSlop={8}
           onPress={() => router.back()}
           className="size-9 items-center justify-center rounded-full bg-surface"
         >
           <Ionicons name="chevron-back" size={20} color={muted} />
-        </Pressable>
+        </PressableFeedback>
       ) : (
         <View className="w-9" />
       )}

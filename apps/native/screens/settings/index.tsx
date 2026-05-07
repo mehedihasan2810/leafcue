@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useThemeColor } from "heroui-native";
-import { Pressable, Text, View } from "react-native";
+import { PressableFeedback, useThemeColor } from "heroui-native";
+import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
@@ -106,9 +106,8 @@ export function SettingsHubScreen() {
               </Text>
               <View className="gap-2 rounded-3xl border border-border/40 bg-surface p-2">
                 {section.items.map((item) => (
-                  <Pressable
+                  <PressableFeedback
                     key={item.href}
-                    accessibilityRole="button"
                     accessibilityLabel={item.label}
                     accessibilityHint={item.caption}
                     onPress={() => {
@@ -129,7 +128,7 @@ export function SettingsHubScreen() {
                       <Text className="text-muted text-xs">{item.caption}</Text>
                     </View>
                     <Ionicons name="chevron-forward" size={18} color={muted} />
-                  </Pressable>
+                  </PressableFeedback>
                 ))}
               </View>
             </View>

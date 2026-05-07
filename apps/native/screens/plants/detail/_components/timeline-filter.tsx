@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { cn, useThemeColor } from "heroui-native";
-import { FlatList, Pressable, Text } from "react-native";
+import { cn, PressableFeedback, useThemeColor } from "heroui-native";
+import { FlatList, Text } from "react-native";
 
 import type { PlantTimelineKind } from "@/lib/db/repositories";
 
@@ -38,7 +38,7 @@ export function TimelineFilterRow({ value, onChange }: TimelineFilterProps) {
       renderItem={({ item }) => {
         const isActive = value === item.id;
         return (
-          <Pressable
+          <PressableFeedback
             onPress={() => onChange(item.id)}
             className={cn(
               "flex-row items-center gap-1.5 rounded-full border px-3 py-2",
@@ -60,7 +60,7 @@ export function TimelineFilterRow({ value, onChange }: TimelineFilterProps) {
             >
               {item.label}
             </Text>
-          </Pressable>
+          </PressableFeedback>
         );
       }}
     />

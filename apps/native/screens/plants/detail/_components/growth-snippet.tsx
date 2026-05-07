@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useThemeColor } from "heroui-native";
-import { Pressable, Text, View } from "react-native";
+import { PressableFeedback, useThemeColor } from "heroui-native";
+import { Text, View } from "react-native";
 
 import { SectionHeader } from "@/components/section-header";
 import type { GrowthMeasurement } from "@/lib/db/types";
@@ -28,7 +28,7 @@ export function GrowthSnippet({
         onPressAction={onPressSeeAll}
       />
       {!latest ? (
-        <Pressable
+        <PressableFeedback
           onPress={onPressSeeAll}
           className="flex-row items-center gap-3 rounded-2xl border border-border/40 border-dashed bg-surface p-4"
         >
@@ -44,9 +44,9 @@ export function GrowthSnippet({
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={16} color={muted} />
-        </Pressable>
+        </PressableFeedback>
       ) : (
-        <Pressable
+        <PressableFeedback
           onPress={onPressSeeAll}
           className="flex-row items-center gap-3 rounded-2xl border border-border/30 bg-surface p-4"
         >
@@ -72,7 +72,7 @@ export function GrowthSnippet({
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={16} color={muted} />
-        </Pressable>
+        </PressableFeedback>
       )}
     </View>
   );

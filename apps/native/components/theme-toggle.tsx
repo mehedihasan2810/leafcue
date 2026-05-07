@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { Platform, Pressable } from "react-native";
+import { PressableFeedback } from "heroui-native";
+import { Platform } from "react-native";
 import Animated, { FadeOut, ZoomIn } from "react-native-reanimated";
 import { withUniwind } from "uniwind";
 
@@ -13,7 +14,7 @@ export function ThemeToggle() {
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
 
   return (
-    <Pressable
+    <PressableFeedback
       onPress={() => {
         if (Platform.OS === "ios") {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -31,6 +32,6 @@ export function ThemeToggle() {
           <StyledIonicons name="sunny" size={20} className="text-foreground" />
         </Animated.View>
       )}
-    </Pressable>
+    </PressableFeedback>
   );
 }

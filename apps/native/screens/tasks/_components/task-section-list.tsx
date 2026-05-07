@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { format, isToday, isTomorrow, isYesterday } from "date-fns";
 import { Image } from "expo-image";
-import { useThemeColor } from "heroui-native";
-import { Pressable, Text, View } from "react-native";
+import { PressableFeedback, useThemeColor } from "heroui-native";
+import { Text, View } from "react-native";
 
 import { getCareTaskIcon } from "@/components/care-task-icons";
 import { GroupedTaskCard } from "@/components/grouped-task-card";
@@ -211,7 +211,7 @@ function CompletedRow({
   const time = format(row.log.completedAt, "p");
 
   return (
-    <Pressable
+    <PressableFeedback
       onPress={onPress}
       className="flex-row items-center gap-3 rounded-2xl border border-border/30 bg-surface p-3"
     >
@@ -250,6 +250,6 @@ function CompletedRow({
       <Text className="text-muted text-xs" style={{ color: muted }}>
         {time}
       </Text>
-    </Pressable>
+    </PressableFeedback>
   );
 }

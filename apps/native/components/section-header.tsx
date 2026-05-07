@@ -1,6 +1,6 @@
-import { cn } from "heroui-native";
+import { cn, PressableFeedback } from "heroui-native";
 import type { ReactNode } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 type SectionHeaderProps = {
   title: string;
@@ -39,9 +39,9 @@ export function SectionHeader({
       {action ? (
         action
       ) : actionLabel ? (
-        <Pressable onPress={onPressAction} hitSlop={8}>
+        <PressableFeedback onPress={onPressAction}>
           <Text className="font-medium text-accent text-sm">{actionLabel}</Text>
-        </Pressable>
+        </PressableFeedback>
       ) : null}
     </View>
   );

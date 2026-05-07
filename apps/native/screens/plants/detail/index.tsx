@@ -1,10 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
-import { useThemeColor } from "heroui-native";
+import { PressableFeedback, useThemeColor } from "heroui-native";
 import { useToast } from "heroui-native/toast";
 import { useMemo, useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
@@ -196,9 +196,9 @@ export function PlantDetailScreen({ plantId }: PlantDetailScreenProps) {
         <Text className="font-semibold text-base text-foreground">
           Plant not found
         </Text>
-        <Pressable hitSlop={8} className="mt-4" onPress={() => router.back()}>
+        <PressableFeedback className="mt-4" onPress={() => router.back()}>
           <Text className="font-medium text-accent">Close</Text>
-        </Pressable>
+        </PressableFeedback>
       </View>
     );
   }
@@ -333,22 +333,20 @@ export function PlantDetailScreen({ plantId }: PlantDetailScreenProps) {
         className="flex-row items-center justify-between px-6"
         style={{ paddingTop: insets.top + 4, paddingBottom: 12 }}
       >
-        <Pressable
-          hitSlop={8}
+        <PressableFeedback
           onPress={() => router.back()}
           className="size-9 items-center justify-center rounded-full bg-surface"
           accessibilityLabel="Back"
         >
           <Ionicons name="chevron-back" size={20} color={muted} />
-        </Pressable>
+        </PressableFeedback>
         <Text
           className="flex-1 px-3 text-center font-semibold text-base text-foreground"
           numberOfLines={1}
         >
           {plant.nickname}
         </Text>
-        <Pressable
-          hitSlop={8}
+        <PressableFeedback
           onPress={() =>
             router.push({
               pathname: "/plants/[plantId]/edit",
@@ -359,7 +357,7 @@ export function PlantDetailScreen({ plantId }: PlantDetailScreenProps) {
           accessibilityLabel="Edit plant"
         >
           <Ionicons name="create-outline" size={18} color={accent} />
-        </Pressable>
+        </PressableFeedback>
       </View>
 
       <Container

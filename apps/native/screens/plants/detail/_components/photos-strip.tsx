@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { useThemeColor } from "heroui-native";
-import { FlatList, Pressable, Text, View } from "react-native";
+import { PressableFeedback, useThemeColor } from "heroui-native";
+import { FlatList, Text, View } from "react-native";
 
 import { SectionHeader } from "@/components/section-header";
 import type { PlantPhoto } from "@/lib/db/types";
@@ -31,7 +31,7 @@ export function PhotosStrip({
         onPressAction={onPressSeeAll}
       />
       {photos.length === 0 ? (
-        <Pressable
+        <PressableFeedback
           onPress={onAddPhoto}
           className="flex-row items-center gap-3 rounded-2xl border border-border/40 border-dashed bg-surface p-4"
         >
@@ -47,7 +47,7 @@ export function PhotosStrip({
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={16} color={muted} />
-        </Pressable>
+        </PressableFeedback>
       ) : (
         <FlatList
           horizontal
@@ -56,7 +56,7 @@ export function PhotosStrip({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ gap: 8 }}
           renderItem={({ item }) => (
-            <Pressable
+            <PressableFeedback
               onPress={() => onPressPhoto?.(item)}
               className="size-24 overflow-hidden rounded-2xl bg-muted/15"
             >
@@ -66,7 +66,7 @@ export function PhotosStrip({
                 contentFit="cover"
                 transition={150}
               />
-            </Pressable>
+            </PressableFeedback>
           )}
         />
       )}

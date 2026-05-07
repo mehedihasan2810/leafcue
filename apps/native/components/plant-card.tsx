@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { cn, useThemeColor } from "heroui-native";
-import { Pressable, Text, View } from "react-native";
+import { cn, PressableFeedback, useThemeColor } from "heroui-native";
+import { Text, View } from "react-native";
 
 import { relativeDueLabel } from "@/lib/dates";
 import type { Plant } from "@/lib/db/types";
@@ -45,7 +45,7 @@ export function PlantCard({
 
   if (variant === "list") {
     return (
-      <Pressable
+      <PressableFeedback
         onPress={handlePress}
         onLongPress={handleLongPress}
         className={cn(
@@ -99,12 +99,12 @@ export function PlantCard({
             {dueLabel}
           </Text>
         </View>
-      </Pressable>
+      </PressableFeedback>
     );
   }
 
   return (
-    <Pressable
+    <PressableFeedback
       onPress={handlePress}
       onLongPress={handleLongPress}
       className={cn(
@@ -160,6 +160,6 @@ export function PlantCard({
           </View>
         </View>
       </View>
-    </Pressable>
+    </PressableFeedback>
   );
 }

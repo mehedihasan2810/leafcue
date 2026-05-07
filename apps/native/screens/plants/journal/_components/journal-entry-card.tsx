@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { Image } from "expo-image";
-import { Chip, useThemeColor } from "heroui-native";
-import { Pressable, Text, View } from "react-native";
+import { Chip, PressableFeedback, useThemeColor } from "heroui-native";
+import { Text, View } from "react-native";
 
 import type { JournalEntry } from "@/lib/db/types";
 
@@ -27,7 +27,7 @@ export function JournalEntryCard({ entry, onPress }: JournalEntryCardProps) {
   const muted = useThemeColor("muted");
 
   return (
-    <Pressable
+    <PressableFeedback
       onPress={onPress}
       className="gap-2 rounded-2xl border border-border/30 bg-surface p-4"
     >
@@ -77,6 +77,6 @@ export function JournalEntryCard({ entry, onPress }: JournalEntryCardProps) {
         <Ionicons name="chevron-forward" size={12} color={muted} />
         <Text className="text-muted text-xs">Tap to edit</Text>
       </View>
-    </Pressable>
+    </PressableFeedback>
   );
 }

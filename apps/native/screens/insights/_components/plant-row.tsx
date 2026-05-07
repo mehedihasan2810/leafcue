@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { useThemeColor } from "heroui-native";
-import { Pressable, Text, View } from "react-native";
+import { PressableFeedback, useThemeColor } from "heroui-native";
+import { Text, View } from "react-native";
 
 import type { Plant } from "@/lib/db/types";
 
@@ -22,7 +22,7 @@ export function PlantRow({
   const muted = useThemeColor("muted");
 
   return (
-    <Pressable
+    <PressableFeedback
       onPress={onPress}
       className="flex-row items-center gap-3 rounded-2xl border border-border/30 bg-surface p-3"
     >
@@ -53,6 +53,6 @@ export function PlantRow({
         <Text className="font-medium text-muted text-xs">{trailingValue}</Text>
       ) : null}
       <Ionicons name="chevron-forward" size={14} color={muted} />
-    </Pressable>
+    </PressableFeedback>
   );
 }

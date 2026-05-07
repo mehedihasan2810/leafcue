@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useThemeColor } from "heroui-native";
-import { FlatList, Pressable, Text, View } from "react-native";
+import { PressableFeedback, useThemeColor } from "heroui-native";
+import { FlatList, Text, View } from "react-native";
 
 export type QuickActionId =
   | "water"
@@ -48,10 +48,9 @@ function QuickActionPill({
   const accent = useThemeColor("accent");
 
   return (
-    <Pressable
+    <PressableFeedback
       onPress={() => onPress(action.id)}
-      disabled={action.disabled}
-      accessibilityRole="button"
+      isDisabled={action.disabled}
       accessibilityLabel={action.label}
       className="flex-row items-center gap-1.5 rounded-full border border-border/60 bg-surface px-3 py-2"
       style={{ opacity: action.disabled ? 0.5 : 1 }}
@@ -62,6 +61,6 @@ function QuickActionPill({
       <Text className="font-medium text-foreground text-sm">
         {action.label}
       </Text>
-    </Pressable>
+    </PressableFeedback>
   );
 }

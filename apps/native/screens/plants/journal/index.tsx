@@ -1,9 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
-import { Button, useThemeColor } from "heroui-native";
+import { Button, PressableFeedback, useThemeColor } from "heroui-native";
 import { useMemo, useState } from "react";
-import { Alert, FlatList, Pressable, Text, View } from "react-native";
+import { Alert, FlatList, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/empty-state";
@@ -132,13 +132,12 @@ export function PlantJournalScreen({ plantId }: PlantJournalScreenProps) {
         className="flex-row items-center justify-between px-6"
         style={{ paddingTop: insets.top + 12, paddingBottom: 12 }}
       >
-        <Pressable
-          hitSlop={8}
+        <PressableFeedback
           onPress={() => router.back()}
           className="size-9 items-center justify-center rounded-full bg-surface"
         >
           <Ionicons name="chevron-back" size={20} color={muted} />
-        </Pressable>
+        </PressableFeedback>
         <View className="items-center">
           <Text className="text-muted text-xs">Journal</Text>
           <Text className="font-semibold text-base text-foreground">

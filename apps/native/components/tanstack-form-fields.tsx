@@ -4,13 +4,14 @@ import {
   FieldError,
   Input,
   Label,
+  PressableFeedback,
   Switch,
   TextArea,
   TextField,
   useThemeColor,
 } from "heroui-native";
 import type { ComponentProps, ReactNode } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 type FieldErrors = ReadonlyArray<unknown>;
 
@@ -220,7 +221,7 @@ export function FormChipGroupField<TValue extends string>({
         {options.map((option) => {
           const isSelected = value === option.value;
           return (
-            <Pressable
+            <PressableFeedback
               key={option.value}
               onPress={() => {
                 if (isSelected && allowClear) {
@@ -253,7 +254,7 @@ export function FormChipGroupField<TValue extends string>({
               >
                 {option.label}
               </Text>
-            </Pressable>
+            </PressableFeedback>
           );
         })}
       </View>
@@ -306,9 +307,9 @@ export function FormSelectField({
           <Label.Text>{label}</Label.Text>
         </Label>
         {ctaLabel ? (
-          <Pressable hitSlop={8} onPress={onPressCta}>
+          <PressableFeedback onPress={onPressCta}>
             <Text className="font-medium text-accent text-xs">{ctaLabel}</Text>
-          </Pressable>
+          </PressableFeedback>
         ) : null}
       </View>
 
@@ -321,7 +322,7 @@ export function FormSelectField({
           {options.map((option) => {
             const isSelected = value === option.value;
             return (
-              <Pressable
+              <PressableFeedback
                 key={option.value}
                 onPress={() => {
                   if (isSelected && allowClear) {
@@ -352,7 +353,7 @@ export function FormSelectField({
                     {option.description}
                   </Text>
                 ) : null}
-              </Pressable>
+              </PressableFeedback>
             );
           })}
         </View>

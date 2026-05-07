@@ -335,9 +335,9 @@ function Header({
   const muted = useThemeColor("muted");
   return (
     <View className="flex-row items-end justify-between">
-      <View className="gap-1">
+      <View>
         <Text className="text-muted text-sm">{date}</Text>
-        <Text className="font-bold text-3xl text-foreground">{greeting}</Text>
+        <Text className="font-bold text-2xl text-foreground">{greeting}</Text>
       </View>
       <PressableFeedback
         onPress={onPressSettings}

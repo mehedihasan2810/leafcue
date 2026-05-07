@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { cn, useThemeColor } from "heroui-native";
-import { Pressable, Text, View } from "react-native";
+import { cn, PressableFeedback, useThemeColor } from "heroui-native";
+import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
@@ -51,7 +51,7 @@ export function AppearanceSettingsScreen() {
             {OPTIONS.map((option) => {
               const isActive = mode === option.value;
               return (
-                <Pressable
+                <PressableFeedback
                   key={option.value}
                   accessibilityRole="radio"
                   accessibilityState={{ selected: isActive }}
@@ -83,7 +83,7 @@ export function AppearanceSettingsScreen() {
                       color={accent}
                     />
                   ) : null}
-                </Pressable>
+                </PressableFeedback>
               );
             })}
           </View>

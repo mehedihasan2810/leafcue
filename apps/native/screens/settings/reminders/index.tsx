@@ -7,12 +7,13 @@ import {
   FieldError,
   Input,
   Label,
+  PressableFeedback,
   Switch,
   TextField,
   useThemeColor,
 } from "heroui-native";
 import { useEffect, useMemo, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
@@ -157,13 +158,12 @@ export function RemindersSettingsScreen() {
         className="flex-row items-center justify-between px-6"
         style={{ paddingTop: insets.top + 12, paddingBottom: 12 }}
       >
-        <Pressable
-          hitSlop={8}
+        <PressableFeedback
           onPress={() => router.back()}
           className="size-9 items-center justify-center rounded-full bg-surface"
         >
           <Ionicons name="chevron-back" size={20} color={muted} />
-        </Pressable>
+        </PressableFeedback>
         <Text className="font-semibold text-base text-foreground">
           Reminders
         </Text>
@@ -381,7 +381,7 @@ export function RemindersSettingsScreen() {
               {PREVIEW_OPTIONS.map((option) => {
                 const isActive = settings.previewStyle === option.value;
                 return (
-                  <Pressable
+                  <PressableFeedback
                     key={option.value}
                     onPress={() => {
                       void handlePreviewStyle(option.value);
@@ -411,7 +411,7 @@ export function RemindersSettingsScreen() {
                         color={accent}
                       />
                     ) : null}
-                  </Pressable>
+                  </PressableFeedback>
                 );
               })}
             </View>

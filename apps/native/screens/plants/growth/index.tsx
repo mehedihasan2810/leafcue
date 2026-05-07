@@ -2,9 +2,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
-import { Button, useThemeColor } from "heroui-native";
+import { Button, PressableFeedback, useThemeColor } from "heroui-native";
 import { useMemo, useState } from "react";
-import { Alert, FlatList, Pressable, Text, View } from "react-native";
+import { Alert, FlatList, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/empty-state";
@@ -102,13 +102,12 @@ export function PlantGrowthScreen({ plantId }: PlantGrowthScreenProps) {
         className="flex-row items-center justify-between px-6"
         style={{ paddingTop: insets.top + 4, paddingBottom: 12 }}
       >
-        <Pressable
-          hitSlop={8}
+        <PressableFeedback
           onPress={() => router.back()}
           className="size-9 items-center justify-center rounded-full bg-surface"
         >
           <Ionicons name="chevron-back" size={20} color={muted} />
-        </Pressable>
+        </PressableFeedback>
         <View className="items-center">
           <Text className="text-muted text-xs">Growth</Text>
           <Text className="font-semibold text-base text-foreground">
@@ -145,7 +144,7 @@ export function PlantGrowthScreen({ plantId }: PlantGrowthScreenProps) {
           </View>
         }
         renderItem={({ item }) => (
-          <Pressable
+          <PressableFeedback
             onLongPress={() => handleDelete(item)}
             className="gap-2 rounded-2xl border border-border/30 bg-surface p-4"
           >
@@ -153,9 +152,9 @@ export function PlantGrowthScreen({ plantId }: PlantGrowthScreenProps) {
               <Text className="font-semibold text-foreground text-sm">
                 {format(item.measuredAt, "PPP")}
               </Text>
-              <Pressable hitSlop={8} onPress={() => handleDelete(item)}>
+              <PressableFeedback onPress={() => handleDelete(item)}>
                 <Ionicons name="trash-outline" size={14} color={danger} />
-              </Pressable>
+              </PressableFeedback>
             </View>
             <View className="flex-row flex-wrap gap-3">
               {item.heightCm !== null ? (
@@ -171,7 +170,7 @@ export function PlantGrowthScreen({ plantId }: PlantGrowthScreenProps) {
             {item.notes ? (
               <Text className="text-muted text-xs leading-5">{item.notes}</Text>
             ) : null}
-          </Pressable>
+          </PressableFeedback>
         )}
       />
 

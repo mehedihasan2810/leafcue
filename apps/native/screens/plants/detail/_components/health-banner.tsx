@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
-import { useThemeColor } from "heroui-native";
-import { Pressable, Text, View } from "react-native";
+import { PressableFeedback, useThemeColor } from "heroui-native";
+import { Text, View } from "react-native";
 
 import { SectionHeader } from "@/components/section-header";
 import { getHealthIssueLabel } from "@/lib/care/health-hints";
@@ -33,7 +33,7 @@ export function HealthBanner({ observations, onPress }: HealthBannerProps) {
         onPressAction={onPress}
       />
       {hasActive ? (
-        <Pressable
+        <PressableFeedback
           onPress={onPress}
           className="gap-2 rounded-2xl border border-danger/40 bg-danger-soft/40 p-4"
         >
@@ -57,9 +57,9 @@ export function HealthBanner({ observations, onPress }: HealthBannerProps) {
               {obs.notes ? ` · ${obs.notes}` : ""}
             </Text>
           ))}
-        </Pressable>
+        </PressableFeedback>
       ) : hasImproving ? (
-        <Pressable
+        <PressableFeedback
           onPress={onPress}
           className="flex-row items-center gap-3 rounded-2xl border border-warning/40 bg-warning-soft/40 p-4"
         >
@@ -69,9 +69,9 @@ export function HealthBanner({ observations, onPress }: HealthBannerProps) {
             improving
           </Text>
           <Ionicons name="chevron-forward" size={16} color={muted} />
-        </Pressable>
+        </PressableFeedback>
       ) : (
-        <Pressable
+        <PressableFeedback
           onPress={onPress}
           className="flex-row items-center gap-3 rounded-2xl border border-border/40 bg-surface p-4"
         >
@@ -80,7 +80,7 @@ export function HealthBanner({ observations, onPress }: HealthBannerProps) {
             No active health concerns. Log an observation if anything looks off.
           </Text>
           <Ionicons name="chevron-forward" size={16} color={muted} />
-        </Pressable>
+        </PressableFeedback>
       )}
     </View>
   );

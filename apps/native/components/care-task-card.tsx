@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { Button, cn, useThemeColor } from "heroui-native";
-import { Platform, Pressable, Text, View } from "react-native";
+import { Button, cn, PressableFeedback, useThemeColor } from "heroui-native";
+import { Platform, Text, View } from "react-native";
 
 import { getCareTaskIcon } from "@/components/care-task-icons";
 import { relativeDueLabel } from "@/lib/dates";
@@ -52,7 +52,7 @@ export function CareTaskCard({
   };
 
   return (
-    <Pressable
+    <PressableFeedback
       onPress={() => onPressOpen?.(row)}
       className={cn(
         "gap-3 rounded-2xl border border-border/40 bg-surface p-4",
@@ -116,6 +116,6 @@ export function CareTaskCard({
           <Button.Label>Snooze</Button.Label>
         </Button>
       </View>
-    </Pressable>
+    </PressableFeedback>
   );
 }

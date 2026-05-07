@@ -1,8 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
-import { Button, Chip, cn, useThemeColor } from "heroui-native";
-import { Platform, Pressable, Text, View } from "react-native";
+import {
+  Button,
+  Chip,
+  cn,
+  PressableFeedback,
+  useThemeColor,
+} from "heroui-native";
+import { Platform, Text, View } from "react-native";
 
 import { getCareTaskIcon } from "@/components/care-task-icons";
 import { relativeDueLabel } from "@/lib/dates";
@@ -74,10 +80,9 @@ export function GroupedTaskCard({
         className,
       )}
     >
-      <Pressable
+      <PressableFeedback
         onPress={() => onPressOpen?.(row)}
         className="flex-row items-start gap-3"
-        accessibilityRole="button"
         accessibilityLabel={`${taskLabel} for ${plant.nickname}`}
       >
         <View className="size-14 overflow-hidden rounded-2xl bg-muted/15">
@@ -153,7 +158,7 @@ export function GroupedTaskCard({
             ) : null}
           </View>
         </View>
-      </Pressable>
+      </PressableFeedback>
 
       <View className="flex-row gap-2">
         <Button

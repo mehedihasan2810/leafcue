@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Button, useThemeColor } from "heroui-native";
+import { Button, PressableFeedback, useThemeColor } from "heroui-native";
 import { useCallback, useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
@@ -128,8 +128,7 @@ export function ArchiveSettingsScreen() {
                     >
                       <Button.Label>Unarchive</Button.Label>
                     </Button>
-                    <Pressable
-                      accessibilityRole="button"
+                    <PressableFeedback
                       accessibilityLabel={`Permanently delete ${plant.nickname}`}
                       accessibilityHint="This cannot be undone."
                       onPress={() => onDelete(plant)}
@@ -141,7 +140,7 @@ export function ArchiveSettingsScreen() {
                       >
                         Delete forever
                       </Text>
-                    </Pressable>
+                    </PressableFeedback>
                   </View>
                 </View>
               ))}

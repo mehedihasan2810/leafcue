@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { Button, cn, useThemeColor } from "heroui-native";
+import { Button, cn, PressableFeedback, useThemeColor } from "heroui-native";
 import { useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 
 import {
   deletePersistedPhoto,
@@ -58,12 +58,11 @@ export function PhotoPickerField({
   return (
     <View className={cn("gap-3", className)}>
       <View className="flex-row items-center gap-4">
-        <Pressable
+        <PressableFeedback
           onPress={() => handlePick("library")}
-          disabled={isWorking}
+          isDisabled={isWorking}
           className="overflow-hidden rounded-2xl border border-border/40 bg-muted/15"
           style={{ width: size, height: size }}
-          accessibilityRole="button"
           accessibilityLabel={value ? "Change plant photo" : "Add plant photo"}
         >
           {value ? (
@@ -79,7 +78,7 @@ export function PhotoPickerField({
               <Text className="text-muted text-xs">Add photo</Text>
             </View>
           )}
-        </Pressable>
+        </PressableFeedback>
         <View className="flex-1 gap-2">
           <Button
             size="sm"

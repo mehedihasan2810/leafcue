@@ -1,9 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
-import { Input, Label, TextField, useThemeColor } from "heroui-native";
+import {
+  Input,
+  Label,
+  PressableFeedback,
+  TextField,
+  useThemeColor,
+} from "heroui-native";
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { useDatabase } from "@/lib/db";
 import { createRoom, deleteRoom } from "@/lib/db/repositories";
 import { rooms } from "@/lib/db/schema";
@@ -50,7 +56,7 @@ export function OnboardingRoomScreen() {
       <View className="gap-3">
         <View className="flex-row flex-wrap gap-2">
           {liveRooms.data.map((room) => (
-            <Pressable
+            <PressableFeedback
               key={room.id}
               onPress={() => handleToggle(room.id)}
               className="flex-row items-center gap-1.5 rounded-full border border-border/60 bg-surface px-3 py-2"
@@ -67,7 +73,7 @@ export function OnboardingRoomScreen() {
                 {room.name}
               </Text>
               <Ionicons name="close-circle" size={16} color={muted} />
-            </Pressable>
+            </PressableFeedback>
           ))}
           {liveRooms.data.length === 0 ? (
             <View className="rounded-2xl border border-border/60 border-dashed bg-surface px-4 py-3">
@@ -92,16 +98,16 @@ export function OnboardingRoomScreen() {
               returnKeyType="done"
             />
           </TextField>
-          <Pressable
+          <PressableFeedback
             onPress={handleAdd}
-            disabled={!customRoom.trim()}
+            isDisabled={!customRoom.trim()}
             className="self-start"
           >
             <View className="flex-row items-center gap-1.5">
               <Ionicons name="add-circle-outline" size={18} color={accent} />
               <Text className="font-medium text-accent text-sm">Add room</Text>
             </View>
-          </Pressable>
+          </PressableFeedback>
         </View>
 
         <View className="flex-row items-center gap-2 rounded-2xl bg-accent-soft p-3">

@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Button, useThemeColor } from "heroui-native";
+import { Button, PressableFeedback, useThemeColor } from "heroui-native";
 import { useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
@@ -297,24 +297,22 @@ function PreviewSummary({
         ))}
       </View>
       <View className="flex-row gap-2">
-        <Pressable
-          accessibilityRole="button"
+        <PressableFeedback
           accessibilityLabel="Merge import"
           accessibilityHint="Adds plant data with new IDs and keeps current settings."
           onPress={onMerge}
           className="flex-1 items-center justify-center rounded-2xl bg-accent-soft p-3"
         >
           <Text className="font-medium text-foreground text-sm">Merge</Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
+        </PressableFeedback>
+        <PressableFeedback
           accessibilityLabel="Replace local data"
           accessibilityHint="Deletes existing data, then restores everything from the backup."
           onPress={onReplace}
           className="flex-1 items-center justify-center rounded-2xl bg-danger-soft/40 p-3"
         >
           <Text className="font-medium text-danger text-sm">Replace</Text>
-        </Pressable>
+        </PressableFeedback>
       </View>
     </View>
   );

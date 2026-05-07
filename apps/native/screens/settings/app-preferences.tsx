@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
-import { cn, useThemeColor } from "heroui-native";
+import { cn, PressableFeedback, useThemeColor } from "heroui-native";
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
@@ -59,7 +59,7 @@ export function AppPreferencesScreen() {
               {WEEK_OPTIONS.map((option) => {
                 const isActive = prefs.weekStartDay === option.value;
                 return (
-                  <Pressable
+                  <PressableFeedback
                     key={option.value}
                     accessibilityRole="radio"
                     accessibilityState={{ selected: isActive }}
@@ -80,7 +80,7 @@ export function AppPreferencesScreen() {
                         color={accent}
                       />
                     ) : null}
-                  </Pressable>
+                  </PressableFeedback>
                 );
               })}
             </View>
@@ -95,7 +95,7 @@ export function AppPreferencesScreen() {
               {UNIT_OPTIONS.map((option) => {
                 const isActive = prefs.units === option.value;
                 return (
-                  <Pressable
+                  <PressableFeedback
                     key={option.value}
                     accessibilityRole="radio"
                     accessibilityState={{ selected: isActive }}
@@ -122,7 +122,7 @@ export function AppPreferencesScreen() {
                         color={accent}
                       />
                     ) : null}
-                  </Pressable>
+                  </PressableFeedback>
                 );
               })}
             </View>

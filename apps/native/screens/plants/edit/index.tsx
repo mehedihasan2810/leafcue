@@ -2,9 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useForm } from "@tanstack/react-form";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
-import { Button, Spinner, useThemeColor } from "heroui-native";
+import {
+  Button,
+  PressableFeedback,
+  Spinner,
+  useThemeColor,
+} from "heroui-native";
 import { useMemo, useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { KeyboardAwareScreen } from "@/components/keyboard-aware-screen";
@@ -445,13 +450,12 @@ export function EditPlantScreen({ mode, plantId }: EditPlantScreenProps) {
         className="flex-row items-center justify-between"
         style={{ paddingTop: insets.top > 0 ? 0 : 8 }}
       >
-        <Pressable
-          hitSlop={8}
+        <PressableFeedback
           onPress={() => router.back()}
           className="size-9 items-center justify-center rounded-full bg-surface"
         >
           <Ionicons name="close" size={20} color={muted} />
-        </Pressable>
+        </PressableFeedback>
         <Text className="font-semibold text-base text-foreground">
           {mode === "edit" ? "Edit plant" : "Add a new plant"}
         </Text>

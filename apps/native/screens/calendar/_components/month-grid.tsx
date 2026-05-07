@@ -12,8 +12,8 @@ import {
   startOfWeek,
   subMonths,
 } from "date-fns";
-import { cn, useThemeColor } from "heroui-native";
-import { Pressable, Text, View } from "react-native";
+import { cn, PressableFeedback, useThemeColor } from "heroui-native";
+import { Text, View } from "react-native";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -52,20 +52,18 @@ export function MonthGrid({
   return (
     <View className="gap-3 rounded-3xl border border-border/40 bg-surface p-4">
       <View className="flex-row items-center justify-between">
-        <Pressable
-          hitSlop={8}
+        <PressableFeedback
           onPress={() => onChangeMonth(subMonths(monthAnchor, 1))}
           className="size-9 items-center justify-center rounded-full bg-background"
           accessibilityLabel="Previous month"
         >
           <Ionicons name="chevron-back" size={18} color={muted} />
-        </Pressable>
+        </PressableFeedback>
         <View className="items-center">
           <Text className="font-semibold text-base text-foreground">
             {format(monthAnchor, "MMMM yyyy")}
           </Text>
-          <Pressable
-            hitSlop={8}
+          <PressableFeedback
             onPress={() => {
               const today = new Date();
               onChangeMonth(today);
@@ -73,16 +71,15 @@ export function MonthGrid({
             }}
           >
             <Text className="text-accent text-xs">Today</Text>
-          </Pressable>
+          </PressableFeedback>
         </View>
-        <Pressable
-          hitSlop={8}
+        <PressableFeedback
           onPress={() => onChangeMonth(addMonths(monthAnchor, 1))}
           className="size-9 items-center justify-center rounded-full bg-background"
           accessibilityLabel="Next month"
         >
           <Ionicons name="chevron-forward" size={18} color={muted} />
-        </Pressable>
+        </PressableFeedback>
       </View>
 
       <View className="flex-row">
@@ -109,9 +106,8 @@ export function MonthGrid({
               style={{ width: "14.2857%" }}
               className="items-center py-1"
             >
-              <Pressable
+              <PressableFeedback
                 onPress={() => onSelectDate(day)}
-                hitSlop={4}
                 className={cn(
                   "size-10 items-center justify-center rounded-2xl",
                   isSelected ? "bg-accent" : null,
@@ -146,7 +142,7 @@ export function MonthGrid({
                     />
                   ) : null}
                 </View>
-              </Pressable>
+              </PressableFeedback>
             </View>
           );
         })}

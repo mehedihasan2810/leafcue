@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
-import { Button, Chip, useThemeColor } from "heroui-native";
-import { Pressable, Text, View } from "react-native";
+import { Button, Chip, PressableFeedback, useThemeColor } from "heroui-native";
+import { Text, View } from "react-native";
 
 import { getHealthHints, getHealthIssueLabel } from "@/lib/care/health-hints";
 import type { HealthObservation } from "@/lib/db/types";
@@ -42,7 +42,7 @@ export function ObservationCard({
 
   return (
     <View className="gap-3 rounded-2xl border border-border/30 bg-surface p-4">
-      <Pressable onPress={onPressEdit} className="gap-2">
+      <PressableFeedback onPress={onPressEdit} className="gap-2">
         <View className="flex-row items-center gap-2">
           <View className="size-9 items-center justify-center rounded-xl bg-accent-soft">
             <Ionicons name="medkit-outline" size={16} color={accent} />
@@ -75,7 +75,7 @@ export function ObservationCard({
             {observation.notes}
           </Text>
         ) : null}
-      </Pressable>
+      </PressableFeedback>
 
       {hints.length > 0 ? (
         <View className="gap-1.5 rounded-xl bg-accent-soft/40 p-3">

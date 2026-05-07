@@ -1,9 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { Image } from "expo-image";
-import { useThemeColor } from "heroui-native";
+import { PressableFeedback, useThemeColor } from "heroui-native";
 import { useMemo } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 import type { PlantPhoto } from "@/lib/db/types";
 
@@ -39,9 +39,9 @@ export function BeforeAfterCompare({
           <Ionicons name="git-compare-outline" size={16} color={accent} />
           <Text className="font-semibold text-foreground">Before · After</Text>
         </View>
-        <Pressable onPress={onClose} hitSlop={8}>
+        <PressableFeedback onPress={onClose}>
           <Ionicons name="close" size={18} color={muted} />
-        </Pressable>
+        </PressableFeedback>
       </View>
 
       {earliest && latest && earliest.id !== latest.id ? (
