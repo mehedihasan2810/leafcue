@@ -1,9 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
-import { Button, cn, SearchField, useThemeColor } from "heroui-native";
+import {
+  Button,
+  cn,
+  PressableFeedback,
+  SearchField,
+  useThemeColor,
+} from "heroui-native";
 import { useDeferredValue, useMemo, useState } from "react";
-import { FlatList, Pressable, Text, View } from "react-native";
+import { FlatList, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/empty-state";
@@ -250,7 +256,7 @@ export function PlantLibraryScreen() {
                     {rooms.map((room) => {
                       const isActive = roomFilter === room.id;
                       return (
-                        <Pressable
+                        <PressableFeedback
                           key={`room-filter-${room.id}`}
                           onPress={() => setRoomFilter(room.id)}
                           className={cn(
@@ -278,7 +284,7 @@ export function PlantLibraryScreen() {
                           >
                             {room.name}
                           </Text>
-                        </Pressable>
+                        </PressableFeedback>
                       );
                     })}
                   </View>
@@ -287,14 +293,13 @@ export function PlantLibraryScreen() {
             ) : null}
 
             <View className="flex-row items-center justify-between">
-              <Pressable
-                hitSlop={8}
+              <PressableFeedback
                 onPress={() => setShowArchived((current) => !current)}
               >
                 <Text className="font-medium text-accent text-xs">
                   {showArchived ? "Hide archived" : "Show archived"}
                 </Text>
-              </Pressable>
+              </PressableFeedback>
               <View className="flex-row items-center gap-2">
                 <ViewModePill
                   icon="grid-outline"
@@ -373,7 +378,7 @@ function FilterChipRow({
       renderItem={({ item }) => {
         const isActive = filter === item.id;
         return (
-          <Pressable
+          <PressableFeedback
             onPress={() => onPress(item.id)}
             className={cn(
               "flex-row items-center gap-1.5 rounded-full border px-3 py-2",
@@ -395,7 +400,7 @@ function FilterChipRow({
             >
               {item.label}
             </Text>
-          </Pressable>
+          </PressableFeedback>
         );
       }}
     />
@@ -414,7 +419,7 @@ function ViewModePill({
   const accent = useThemeColor("accent");
   const muted = useThemeColor("muted");
   return (
-    <Pressable
+    <PressableFeedback
       onPress={onPress}
       className={cn(
         "size-9 items-center justify-center rounded-full border",
@@ -424,6 +429,6 @@ function ViewModePill({
       )}
     >
       <Ionicons name={icon} size={16} color={isActive ? accent : muted} />
-    </Pressable>
+    </PressableFeedback>
   );
 }

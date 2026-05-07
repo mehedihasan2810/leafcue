@@ -10,9 +10,9 @@ import {
 } from "date-fns";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
-import { Chip, useThemeColor } from "heroui-native";
+import { Chip, PressableFeedback, useThemeColor } from "heroui-native";
 import { useMemo, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { z } from "zod";
 
@@ -342,7 +342,7 @@ export function CalendarScreen() {
               ) : (
                 <View className="gap-2">
                   {completedRows.map((row) => (
-                    <Pressable
+                    <PressableFeedback
                       key={`hist-${row.log.id}`}
                       onPress={() => handleOpenPlant(row.plant.id)}
                       className="flex-row items-center gap-3 rounded-2xl border border-border/30 bg-surface p-3"
@@ -368,7 +368,7 @@ export function CalendarScreen() {
                       <Text className="text-muted text-xs">
                         {format(row.log.completedAt, "MMM d")}
                       </Text>
-                    </Pressable>
+                    </PressableFeedback>
                   ))}
                 </View>
               )}

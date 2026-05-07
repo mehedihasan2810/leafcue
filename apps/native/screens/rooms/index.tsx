@@ -6,11 +6,12 @@ import {
   cn,
   Input,
   Label,
+  PressableFeedback,
   TextField,
   useThemeColor,
 } from "heroui-native";
 import { useMemo, useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/empty-state";
@@ -212,7 +213,7 @@ export function RoomsScreen() {
               key={`room-${room.id}`}
               className="overflow-hidden rounded-3xl border border-border/40 bg-surface"
             >
-              <Pressable
+              <PressableFeedback
                 onPress={() =>
                   setExpandedRoomId((current) =>
                     current === room.id ? null : room.id,
@@ -245,7 +246,7 @@ export function RoomsScreen() {
                   size={18}
                   color={muted}
                 />
-              </Pressable>
+              </PressableFeedback>
 
               {isExpanded ? (
                 <View className="gap-4 border-border/40 border-t px-4 pt-4 pb-5">
@@ -311,8 +312,7 @@ export function RoomsScreen() {
                             <Text className="flex-1 text-foreground text-sm">
                               {shelf.name}
                             </Text>
-                            <Pressable
-                              hitSlop={8}
+                            <PressableFeedback
                               onPress={() => handleDeleteShelf(shelf)}
                             >
                               <Ionicons
@@ -320,7 +320,7 @@ export function RoomsScreen() {
                                 size={18}
                                 color={danger}
                               />
-                            </Pressable>
+                            </PressableFeedback>
                           </View>
                         ))}
                       </View>
@@ -342,8 +342,7 @@ export function RoomsScreen() {
         <AddRoomForm db={db} />
       </View>
 
-      <Pressable
-        hitSlop={8}
+      <PressableFeedback
         onPress={handleSeedDefaults}
         className="flex-row items-center gap-2 self-start"
       >
@@ -351,7 +350,7 @@ export function RoomsScreen() {
         <Text className="font-medium text-accent text-xs">
           Add suggested starter rooms
         </Text>
-      </Pressable>
+      </PressableFeedback>
     </KeyboardAwareScreen>
   );
 }
@@ -434,7 +433,7 @@ function AddRoomForm({ db }: AddRoomFormProps) {
       <form.Field name="icon">
         {(field) => (
           <View className="gap-2">
-            <Pressable
+            <PressableFeedback
               onPress={() => setIconPickerOpen((current) => !current)}
               className="flex-row items-center gap-2 rounded-2xl border border-border/60 bg-surface px-3 py-2"
             >
@@ -449,13 +448,13 @@ function AddRoomForm({ db }: AddRoomFormProps) {
                 size={14}
                 color={muted}
               />
-            </Pressable>
+            </PressableFeedback>
             {iconPickerOpen ? (
               <View className="flex-row flex-wrap gap-2 rounded-2xl border border-border/40 bg-muted/10 p-3">
                 {ROOM_ICON_OPTIONS.map((icon) => {
                   const isSelected = field.state.value === icon;
                   return (
-                    <Pressable
+                    <PressableFeedback
                       key={icon}
                       onPress={() => {
                         field.handleChange(icon);
@@ -473,7 +472,7 @@ function AddRoomForm({ db }: AddRoomFormProps) {
                         size={20}
                         color={isSelected ? accent : muted}
                       />
-                    </Pressable>
+                    </PressableFeedback>
                   );
                 })}
               </View>
