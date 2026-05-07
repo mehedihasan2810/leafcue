@@ -3,9 +3,9 @@ import { addDays, isAfter } from "date-fns";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { Button, useThemeColor } from "heroui-native";
+import { Button, PressableFeedback, useThemeColor } from "heroui-native";
 import { useMemo } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { CareTaskCard } from "@/components/care-task-card";
@@ -339,14 +339,13 @@ function Header({
         <Text className="text-muted text-sm">{date}</Text>
         <Text className="font-bold text-3xl text-foreground">{greeting}</Text>
       </View>
-      <Pressable
+      <PressableFeedback
         onPress={onPressSettings}
-        hitSlop={8}
         className="size-10 items-center justify-center rounded-full bg-surface"
         accessibilityLabel="Reminder settings"
       >
         <Ionicons name="settings-outline" size={18} color={muted} />
-      </Pressable>
+      </PressableFeedback>
     </View>
   );
 }
@@ -370,7 +369,7 @@ function UpcomingRow({
     : "—";
 
   return (
-    <Pressable
+    <PressableFeedback
       onPress={onPress}
       className="flex-row items-center gap-3 rounded-2xl border border-border/30 bg-surface p-3"
     >
@@ -396,7 +395,7 @@ function UpcomingRow({
         </Text>
       </View>
       <Text className="text-muted text-xs">{dueLabel}</Text>
-    </Pressable>
+    </PressableFeedback>
   );
 }
 
@@ -423,7 +422,7 @@ function HealthBanner({
       </View>
       <View className="gap-1.5">
         {top.map((row) => (
-          <Pressable
+          <PressableFeedback
             key={`health-${row.observation.id}`}
             onPress={() => onPressRow(row.plant.id)}
             className="flex-row items-center justify-between rounded-xl bg-surface/80 px-3 py-2"
@@ -437,7 +436,7 @@ function HealthBanner({
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={14} color={danger} />
-          </Pressable>
+          </PressableFeedback>
         ))}
         {remaining > 0 ? (
           <Text className="px-1 text-muted text-xs">
@@ -461,7 +460,7 @@ function FavoritePlantCard({
   const accent = useThemeColor("accent");
 
   return (
-    <Pressable
+    <PressableFeedback
       onPress={onPress}
       className="w-40 overflow-hidden rounded-2xl border border-border/30 bg-surface"
     >
@@ -488,6 +487,6 @@ function FavoritePlantCard({
           </Text>
         ) : null}
       </View>
-    </Pressable>
+    </PressableFeedback>
   );
 }

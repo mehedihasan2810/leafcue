@@ -1,9 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router, useLocalSearchParams } from "expo-router";
-import { useThemeColor } from "heroui-native";
+import { PressableFeedback, useThemeColor } from "heroui-native";
 import { useEffect, useMemo } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
@@ -153,14 +153,13 @@ export function TasksScreen() {
         <View className="gap-4">
           <View className="flex-row items-center justify-between">
             <Text className="font-bold text-2xl text-foreground">Tasks</Text>
-            <Pressable
+            <PressableFeedback
               onPress={handleOpenReminders}
-              hitSlop={8}
               className="size-10 items-center justify-center rounded-full bg-surface"
               accessibilityLabel="Reminder settings"
             >
               <Ionicons name="notifications-outline" size={18} color={accent} />
-            </Pressable>
+            </PressableFeedback>
           </View>
 
           <TaskFilterTabs
