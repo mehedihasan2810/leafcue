@@ -220,20 +220,32 @@ export const backupMetadataSchema = z.object({
 });
 export type BackupMetadata = z.infer<typeof backupMetadataSchema>;
 
-export const backupPhotoPolicySchema = z.object({
-  includesPhotoFiles: z.literal(false),
+export const backupPhotoFileSchema = z.object({
+  path: z.string(),
+  filename: z.string(),
+  mimeType: z.string(),
+  data: z.string(),
 });
+export type BackupPhotoFile = z.infer<typeof backupPhotoFileSchema>;
 
 export const backupPayloadSchema = z.object({
-  version: z.literal(1),
+  version: z.union([z.literal(1), z.literal(2)]),
   exportedAt: z.string().datetime(),
   metadata: backupMetadataSchema.default({}),
   tables: backupTablesSchema,
   settings: z.array(backupSettingsRowSchema),
   onboardingState: z.array(backupSettingsRowSchema),
-  photoPolicy: backupPhotoPolicySchema,
+  /**
+   * Base64-encoded photo files bundled with the export.
+   * Keyed by the URI path stored in the database.
+   */
+  photoFiles: z.record(z.string(), backupPhotoFileSchema).optional(),
 });
 export type BackupPayload = z.infer<typeof backupPayloadSchema>;
+
+/** @deprecated Only version 2 payloads bundle photos. */
+export type BackupPayloadV1 = BackupPayload & { version: 1 };
+export type BackupPayloadV2 = BackupPayload & { version: 2 };
 
 export const plantRouteParamsSchema = z.object({
   plantId: z.coerce.number().int().positive(),

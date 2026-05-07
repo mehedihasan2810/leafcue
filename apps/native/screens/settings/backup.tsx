@@ -143,14 +143,11 @@ export function BackupSettingsScreen() {
               caption="A versioned JSON file with your plants, logs, and settings."
             />
             <View className="gap-3 rounded-3xl border border-border/40 bg-surface p-4">
-              <View className="flex-row items-start gap-2 rounded-2xl bg-warning-soft/40 p-3">
-                <Ionicons name="image-outline" size={14} color={danger} />
-                <Text
-                  className="flex-1 text-foreground text-xs"
-                  style={{ color: danger }}
-                >
-                  Photo files are not bundled in this JSON. Keep your photo
-                  library safe separately. (Photo bundle support is planned.)
+              <View className="flex-row items-start gap-2 rounded-2xl bg-accent-soft/40 p-3">
+                <Ionicons name="image-outline" size={14} color={accent} />
+                <Text className="flex-1 text-foreground text-xs">
+                  Photos stored in the app are bundled as base64 in the JSON.
+                  Exported JSON files can be large if you have many photos.
                 </Text>
               </View>
               <Button
@@ -167,13 +164,26 @@ export function BackupSettingsScreen() {
                 </Button.Label>
               </Button>
               {status.kind === "exported" ? (
-                <Text className="text-muted text-xs">
-                  {status.outcome.kind === "shared"
-                    ? "Shared. Save it to Files, iCloud Drive, or send it to yourself."
-                    : status.outcome.kind === "saved"
-                      ? `Saved to ${status.outcome.uri}`
-                      : "Sharing isn't available on this device. The file lives in app cache and may be cleared."}
-                </Text>
+                <View className="gap-1.5">
+                  <Text className="text-muted text-xs">
+                    {status.outcome.kind === "shared"
+                      ? "Shared. Save it to Files, iCloud Drive, or send it to yourself."
+                      : status.outcome.kind === "saved"
+                        ? `Saved to ${status.outcome.uri}`
+                        : "Sharing isn't available on this device. The file lives in app cache and may be cleared."}
+                  </Text>
+                  {status.outcome.photoFileCount > 0 ? (
+                    <Text className="text-muted text-xs">
+                      {status.outcome.photoFileCount} photo file
+                      {status.outcome.photoFileCount === 1 ? "" : "s"} bundled
+                      in this backup.
+                    </Text>
+                  ) : (
+                    <Text className="text-muted text-xs">
+                      No photos to bundle in this backup.
+                    </Text>
+                  )}
+                </View>
               ) : null}
             </View>
           </View>
@@ -262,6 +272,7 @@ function PreviewSummary({
     { label: "Growth measurements", value: counts.growthMeasurements },
     { label: "Health observations", value: counts.healthObservations },
     { label: "Settings", value: counts.settings },
+    { label: "Bundled photo files", value: counts.photoFiles },
   ];
 
   return (

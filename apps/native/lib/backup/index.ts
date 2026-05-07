@@ -1,4 +1,5 @@
 import { sql } from "drizzle-orm";
+import { File } from "expo-file-system";
 
 import type { LeafCueDatabase } from "@/lib/db";
 import {
@@ -18,9 +19,16 @@ import {
 } from "@/lib/db/schema";
 import {
   type BackupPayload,
+  type BackupPhotoFile,
   type BackupTables,
   backupPayloadSchema,
 } from "@/lib/db/zod";
+import {
+  ensurePhotoDir,
+  PHOTO_DIR_NAME,
+  readPhotoAsBase64,
+  writePhotoBase64,
+} from "@/lib/photos";
 
 function dateToIso(value: unknown): unknown {
   if (value instanceof Date) return value.toISOString();
@@ -43,6 +51,26 @@ function serializeRows<T extends Record<string, unknown>>(
   return rows.map((row) => serializeRow(row));
 }
 
+/** Collect all unique photo URIs stored in the app photo directory. */
+function collectPhotoUris(payload: BackupPayload): string[] {
+  const uris = new Set<string>();
+
+  for (const row of payload.tables.plants) {
+    const uri = typeof row.photoUri === "string" ? row.photoUri : null;
+    if (uri && uri.includes(`/${PHOTO_DIR_NAME}/`)) uris.add(uri);
+  }
+  for (const row of payload.tables.plantPhotos) {
+    const uri = typeof row.uri === "string" ? row.uri : null;
+    if (uri && uri.includes(`/${PHOTO_DIR_NAME}/`)) uris.add(uri);
+  }
+  for (const row of payload.tables.journalEntries) {
+    const uri = typeof row.photoUri === "string" ? row.photoUri : null;
+    if (uri && uri.includes(`/${PHOTO_DIR_NAME}/`)) uris.add(uri);
+  }
+
+  return [...uris];
+}
+
 export type BackupCounts = {
   plants: number;
   rooms: number;
@@ -57,9 +85,12 @@ export type BackupCounts = {
   healthObservations: number;
   settings: number;
   onboardingState: number;
+  photoFiles: number;
 };
 
-export function buildBackupPayload(db: LeafCueDatabase): BackupPayload {
+export function buildBackupPayload(
+  db: LeafCueDatabase,
+): BackupPayload & { photoFileCount: number } {
   const tables: BackupTables = {
     plantPresets: serializeRows(db.select().from(plantPresets).all()),
     rooms: serializeRows(db.select().from(rooms).all()),
@@ -100,16 +131,43 @@ export function buildBackupPayload(db: LeafCueDatabase): BackupPayload {
       updatedAt: row.updatedAt.toISOString(),
     }));
 
-  const payload: BackupPayload = {
-    version: 1,
+  // Build a temporary payload to collect URIs
+  const partialPayload: BackupPayload = backupPayloadSchema.parse({
+    version: 2,
     exportedAt: new Date().toISOString(),
     metadata: { appVersion: "1.0.0", platform: "native" },
     tables,
     settings: settingsRows,
     onboardingState: onboardingRows,
-    photoPolicy: { includesPhotoFiles: false },
-  };
-  return backupPayloadSchema.parse(payload);
+  });
+
+  // Bundle photo files as base64
+  const photoUris = collectPhotoUris(partialPayload);
+  const photoFiles: Record<string, BackupPhotoFile> = {};
+  for (const uri of photoUris) {
+    const result = readPhotoAsBase64(uri);
+    if (result) {
+      const filename = uri.split("/").pop() ?? "photo.jpg";
+      photoFiles[uri] = {
+        path: uri,
+        filename,
+        mimeType: result.mimeType,
+        data: result.base64,
+      };
+    }
+  }
+
+  const payload = backupPayloadSchema.parse({
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    metadata: { appVersion: "1.0.0", platform: "native" },
+    tables,
+    settings: settingsRows,
+    onboardingState: onboardingRows,
+    photoFiles: Object.keys(photoFiles).length > 0 ? photoFiles : undefined,
+  });
+
+  return { ...payload, photoFileCount: Object.keys(photoFiles).length };
 }
 
 export function parseBackupJson(raw: string): BackupPayload {
@@ -133,71 +191,36 @@ export function previewBackupCounts(payload: BackupPayload): BackupCounts {
     healthObservations: t.healthObservations.length,
     settings: payload.settings.length,
     onboardingState: payload.onboardingState.length,
+    photoFiles: payload.photoFiles ? Object.keys(payload.photoFiles).length : 0,
   };
 }
 
-function getNumber(row: Record<string, unknown>, key: string): number | null {
-  const v = row[key];
-  if (typeof v === "number" && Number.isFinite(v)) return v;
-  return null;
-}
+type CsvSummary = BackupCounts;
 
-function getString(row: Record<string, unknown>, key: string): string | null {
-  const v = row[key];
-  if (typeof v === "string") return v;
-  return null;
-}
-
-function getNullableString(
-  row: Record<string, unknown>,
-  key: string,
-): string | null {
-  const v = row[key];
-  if (typeof v === "string") return v;
-  return null;
-}
-
-function getBool(row: Record<string, unknown>, key: string): boolean | null {
-  const v = row[key];
-  if (typeof v === "boolean") return v;
-  if (typeof v === "number") return v !== 0;
-  return null;
-}
-
-function getDate(row: Record<string, unknown>, key: string): Date | null {
-  const v = row[key];
-  if (typeof v === "string") {
-    const d = new Date(v);
-    if (!Number.isNaN(d.getTime())) return d;
+/** Write bundled photo files from the payload back to the device directory. */
+function restorePhotoFiles(payload: BackupPayload): void {
+  if (!payload.photoFiles) return;
+  ensurePhotoDir();
+  for (const [uri, photoFile] of Object.entries(payload.photoFiles)) {
+    writePhotoFromBase64File(uri, photoFile);
   }
-  if (typeof v === "number" && Number.isFinite(v)) {
-    return new Date(v);
+}
+
+function writePhotoFromBase64File(
+  targetUri: string,
+  photoFile: BackupPhotoFile,
+): void {
+  try {
+    const dir = ensurePhotoDir();
+    const filename = photoFile.filename;
+    const file = new File(dir, filename);
+    writePhotoBase64(file, photoFile.data);
+  } catch {
+    // Best-effort restore; the import can still work with missing photo files.
   }
-  if (v instanceof Date) return v;
-  return null;
 }
 
-type RemapResult = {
-  rooms: Map<number, number>;
-  shelves: Map<number, number>;
-  plants: Map<number, number>;
-  presets: Map<number, number>;
-  templates: Map<number, number>;
-  schedules: Map<number, number>;
-};
-
-function makeEmptyRemap(): RemapResult {
-  return {
-    rooms: new Map(),
-    shelves: new Map(),
-    plants: new Map(),
-    presets: new Map(),
-    templates: new Map(),
-    schedules: new Map(),
-  };
-}
-
-export type ImportSummary = BackupCounts;
+export type ImportSummary = CsvSummary;
 
 /**
  * Replace import: wipes existing local data within a transaction and
@@ -210,6 +233,9 @@ export function importBackupReplace(
 ): ImportSummary {
   const validated = backupPayloadSchema.parse(payload);
   const counts: ImportSummary = previewBackupCounts(validated);
+
+  // Restore bundled photo files to the device first.
+  restorePhotoFiles(validated);
 
   db.transaction((tx) => {
     // Wipe in dependency-safe order (FKs use cascade where possible).
@@ -245,6 +271,9 @@ export function importBackupMerge(
 ): ImportSummary {
   const validated = backupPayloadSchema.parse(payload);
   const counts: ImportSummary = previewBackupCounts(validated);
+
+  // Restore bundled photo files to the device first.
+  restorePhotoFiles(validated);
 
   db.transaction((tx) => {
     insertAll(tx as unknown as LeafCueDatabase, validated, {
@@ -398,7 +427,7 @@ function insertAll(
     }
   }
 
-  // Photos: skip URIs whose files are absent on this device.
+  // Photos: URIs point to bundled photo files that were restored above.
   for (const row of t.plantPhotos) {
     const oldPlantId = getNumber(row, "plantId");
     const uri = getString(row, "uri");
@@ -628,4 +657,65 @@ function insertAll(
         .run();
     }
   }
+}
+
+function getNumber(row: Record<string, unknown>, key: string): number | null {
+  const v = row[key];
+  if (typeof v === "number" && Number.isFinite(v)) return v;
+  return null;
+}
+
+function getString(row: Record<string, unknown>, key: string): string | null {
+  const v = row[key];
+  if (typeof v === "string") return v;
+  return null;
+}
+
+function getNullableString(
+  row: Record<string, unknown>,
+  key: string,
+): string | null {
+  const v = row[key];
+  if (typeof v === "string") return v;
+  return null;
+}
+
+function getBool(row: Record<string, unknown>, key: string): boolean | null {
+  const v = row[key];
+  if (typeof v === "boolean") return v;
+  if (typeof v === "number") return v !== 0;
+  return null;
+}
+
+function getDate(row: Record<string, unknown>, key: string): Date | null {
+  const v = row[key];
+  if (typeof v === "string") {
+    const d = new Date(v);
+    if (!Number.isNaN(d.getTime())) return d;
+  }
+  if (typeof v === "number" && Number.isFinite(v)) {
+    return new Date(v);
+  }
+  if (v instanceof Date) return v;
+  return null;
+}
+
+type RemapResult = {
+  rooms: Map<number, number>;
+  shelves: Map<number, number>;
+  plants: Map<number, number>;
+  presets: Map<number, number>;
+  templates: Map<number, number>;
+  schedules: Map<number, number>;
+};
+
+function makeEmptyRemap(): RemapResult {
+  return {
+    rooms: new Map(),
+    shelves: new Map(),
+    plants: new Map(),
+    presets: new Map(),
+    templates: new Map(),
+    schedules: new Map(),
+  };
 }

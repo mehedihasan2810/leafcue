@@ -1,9 +1,9 @@
 import { Directory, File, Paths } from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 
-const PHOTO_DIR_NAME = "plant-photos";
+export const PHOTO_DIR_NAME = "plant-photos";
 
-function ensurePhotoDir(): Directory {
+export function ensurePhotoDir(): Directory {
   const dir = new Directory(Paths.document, PHOTO_DIR_NAME);
   if (!dir.exists) {
     dir.create({ intermediates: true, idempotent: true });
@@ -82,4 +82,39 @@ function resolveResult(result: ImagePicker.ImagePickerResult): PickPhotoResult {
   }
   const persistedUri = persistPickedPhoto(result.assets[0].uri);
   return { canceled: false, uri: persistedUri };
+}
+
+/** Read a persisted photo file and return its base64-encoded content + mime type. */
+export function readPhotoAsBase64(
+  uri: string,
+): { base64: string; mimeType: string } | null {
+  try {
+    const file = new File(uri);
+    if (!file.exists) return null;
+    const extension = inferExtension(uri);
+    const mimeType = mimeFromExtension(extension);
+    const base64 = file.base64Sync();
+    return { base64, mimeType };
+  } catch {
+    return null;
+  }
+}
+
+/** Write a base64-encoded photo to a file. */
+export function writePhotoBase64(file: File, base64Data: string): void {
+  file.write(base64Data, { encoding: "base64" });
+}
+
+/** Infer a MIME type from a file extension. */
+function mimeFromExtension(ext: string): string {
+  const map: Record<string, string> = {
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    gif: "image/gif",
+    webp: "image/webp",
+    heic: "image/heic",
+    heif: "image/heif",
+  };
+  return map[ext.toLowerCase()] ?? "image/jpeg";
 }

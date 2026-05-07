@@ -70,48 +70,46 @@ export function CalendarScreen() {
 
   const now = new Date();
 
-  const allSchedules = useMemo<DueTaskRow[]>(
-    () => getAllActiveScheduleRows(db),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, liveSchedules.data.length, livePlants.data.length],
-  );
+  const allSchedules = useMemo<DueTaskRow[]>(() => {
+    // Read live data lengths to trigger recomputation on changes
+    void liveSchedules.data.length;
+    void livePlants.data.length;
+    return getAllActiveScheduleRows(db);
+  }, [db, liveSchedules.data.length, livePlants.data.length]);
 
-  const overdueRows = useMemo<DueTaskRow[]>(
-    () => getOverdueTasks(db, now),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, liveSchedules.data.length, livePlants.data.length],
-  );
+  const overdueRows = useMemo<DueTaskRow[]>(() => {
+    void liveSchedules.data.length;
+    void livePlants.data.length;
+    return getOverdueTasks(db, now);
+  }, [db, liveSchedules.data.length, livePlants.data.length, now]);
 
   const monthStart = startOfMonth(monthAnchor);
   const monthEnd = endOfMonth(monthAnchor);
 
-  const completedRows = useMemo<CompletedLogRow[]>(
-    () =>
-      getCompletedTaskLogs(db, {
-        from: subMonths(monthStart, 0),
-        to: addMonths(monthEnd, 0),
-        limit: 200,
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      db,
-      monthStart.getTime(),
-      monthEnd.getTime(),
-      liveLogs.data.length,
-      livePlants.data.length,
-    ],
-  );
+  const completedRows = useMemo<CompletedLogRow[]>(() => {
+    void liveLogs.data.length;
+    void livePlants.data.length;
+    return getCompletedTaskLogs(db, {
+      from: subMonths(monthStart, 0),
+      to: addMonths(monthEnd, 0),
+      limit: 200,
+    });
+  }, [
+    db,
+    monthStart.getTime(),
+    monthEnd.getTime(),
+    liveLogs.data.length,
+    livePlants.data.length,
+  ]);
 
-  const roomList = useMemo<Room[]>(
-    () => getRooms(db),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, liveRooms.data.length],
-  );
-  const shelfList = useMemo<Shelf[]>(
-    () => getShelves(db),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, liveShelves.data.length],
-  );
+  const roomList = useMemo<Room[]>(() => {
+    void liveRooms.data.length;
+    return getRooms(db);
+  }, [db, liveRooms.data.length]);
+  const shelfList = useMemo<Shelf[]>(() => {
+    void liveShelves.data.length;
+    return getShelves(db);
+  }, [db, liveShelves.data.length]);
   const roomById = useMemo(() => {
     const map = new Map<number, Room>();
     for (const room of roomList) map.set(room.id, room);
@@ -145,8 +143,7 @@ export function CalendarScreen() {
       });
     }
     return map;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allSchedules, completedRows]);
+  }, [allSchedules, completedRows, now]);
 
   const tasksForSelectedDay = useMemo<DueTaskRow[]>(() => {
     return allSchedules.filter((row) => {

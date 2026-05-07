@@ -27,9 +27,9 @@ function timestampedFilename(): string {
 }
 
 export type ExportOutcome =
-  | { kind: "shared"; uri: string }
-  | { kind: "saved"; uri: string }
-  | { kind: "unavailable"; uri: string };
+  | { kind: "shared"; uri: string; photoFileCount: number }
+  | { kind: "saved"; uri: string; photoFileCount: number }
+  | { kind: "unavailable"; uri: string; photoFileCount: number };
 
 /**
  * Build a backup, write it to the cache directory, and present a share sheet.
@@ -38,8 +38,9 @@ export type ExportOutcome =
 export async function exportBackup(
   db: LeafCueDatabase,
 ): Promise<ExportOutcome> {
-  const payload = buildBackupPayload(db);
-  const json = JSON.stringify(payload, null, 2);
+  const result = buildBackupPayload(db);
+  const photoFileCount = result.photoFileCount;
+  const json = JSON.stringify(result, null, 2);
   const dir = ensureBackupDir();
   const file = new File(dir, timestampedFilename());
   if (file.exists) {
@@ -50,14 +51,14 @@ export async function exportBackup(
 
   const isAvailable = await Sharing.isAvailableAsync();
   if (!isAvailable) {
-    return { kind: "unavailable", uri: file.uri };
+    return { kind: "unavailable", uri: file.uri, photoFileCount };
   }
   await Sharing.shareAsync(file.uri, {
     mimeType: "application/json",
     dialogTitle: "Share LeafCue backup",
     UTI: "public.json",
   });
-  return { kind: "shared", uri: file.uri };
+  return { kind: "shared", uri: file.uri, photoFileCount };
 }
 
 export type PickedBackup =
