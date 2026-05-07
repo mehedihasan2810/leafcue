@@ -35,6 +35,7 @@ type PlantPhotosScreenProps = {
 export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
   const insets = useSafeAreaInsets();
   const accent = useThemeColor("accent");
+  const accentForeground = useThemeColor("accent-foreground");
   const muted = useThemeColor("muted");
   const db = useDatabase();
   const [selected, setSelected] = useState<PlantPhoto | null>(null);
@@ -127,7 +128,7 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
     <View className="flex-1 bg-background">
       <View
         className="flex-row items-center justify-between px-6"
-        style={{ paddingTop: insets.top + 12, paddingBottom: 12 }}
+        style={{ paddingTop: insets.top + 4, paddingBottom: 12 }}
       >
         <Pressable
           hitSlop={8}
@@ -160,7 +161,7 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
         data={photos}
         keyExtractor={(photo) => `photo-${photo.id}`}
         numColumns={2}
-        columnWrapperStyle={{ gap: 12, paddingHorizontal: 24 }}
+        columnWrapperStyle={{ gap: 12, paddingHorizontal: 16 }}
         contentContainerStyle={{
           paddingTop: 8,
           paddingBottom: insets.bottom + 96,
@@ -168,7 +169,7 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
         }}
         ListHeaderComponent={
           showCompare && photos.length >= 2 ? (
-            <View className="px-6 pb-3">
+            <View className="px-4">
               <BeforeAfterCompare
                 photos={photos}
                 onClose={() => setShowCompare(false)}
@@ -177,7 +178,7 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
           ) : null
         }
         ListEmptyComponent={
-          <View className="px-6">
+          <View className="px-4">
             <EmptyState
               icon="camera-outline"
               title="No photos yet"
@@ -210,12 +211,12 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
       />
 
       <View
-        className="absolute right-5"
+        className="absolute right-4"
         style={{ bottom: insets.bottom + 12 }}
         pointerEvents="box-none"
       >
         <Button onPress={() => void handleAddPhoto()}>
-          <Ionicons name="add" size={18} color={accent} />
+          <Ionicons name="add" size={18} color={accentForeground} />
           <Button.Label>Add photo</Button.Label>
         </Button>
       </View>

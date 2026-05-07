@@ -21,10 +21,11 @@ import { ConsistencyCard } from "@/screens/insights/_components/consistency-card
 import { InsightsCard } from "@/screens/insights/_components/insights-card";
 import { PlantRow } from "@/screens/insights/_components/plant-row";
 import { StreakCard } from "@/screens/insights/_components/streak-card";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export function InsightsScreen() {
   const db = useDatabase();
-
+  const insets = useSafeAreaInsets();
   const livePlants = useLiveQuery(db.select().from(plants));
   const liveSchedules = useLiveQuery(db.select().from(plantTaskSchedules));
   const liveLogs = useLiveQuery(db.select().from(careLogs));
@@ -67,8 +68,14 @@ export function InsightsScreen() {
 
   if (summary.totalPlants === 0) {
     return (
-      <Container className="px-6" isScrollable>
-        <View className="gap-6 pt-2">
+      <Container isScrollable scrollViewProps={{
+        contentContainerStyle: {
+          paddingTop: insets.top + 4,
+          paddingHorizontal: 16,
+          paddingBottom: insets.bottom + 96,
+        },
+      }}>
+        <View className="gap-4">
           <Header />
           <EmptyState
             icon="bar-chart-outline"
@@ -83,8 +90,14 @@ export function InsightsScreen() {
   }
 
   return (
-    <Container className="px-6" isScrollable>
-      <View className="gap-4 pt-2 pb-8">
+    <Container isScrollable scrollViewProps={{
+      contentContainerStyle: {
+        paddingTop: insets.top + 4,
+        paddingHorizontal: 16,
+        paddingBottom: insets.bottom + 96,
+      },
+    }}>
+      <View className="gap-4">
         <Header />
         <StreakCard days={summary.careStreakDays} />
         <ConsistencyCard consistency={summary.wateringConsistency} />
@@ -186,8 +199,7 @@ export function InsightsScreen() {
 function Header() {
   return (
     <View className="gap-1">
-      <Text className="text-muted text-sm">Trends and patterns</Text>
-      <Text className="font-bold text-3xl text-foreground">Insights</Text>
+      <Text className="font-bold text-2xl text-foreground">Insights</Text>
     </View>
   );
 }

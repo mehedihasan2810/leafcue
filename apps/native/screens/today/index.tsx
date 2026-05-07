@@ -5,7 +5,7 @@ import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Button, useThemeColor } from "heroui-native";
 import { useMemo } from "react";
-import { FlatList, Pressable, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { CareTaskCard } from "@/components/care-task-card";
@@ -38,6 +38,7 @@ import type { Plant, Room } from "@/lib/db/types";
 export function TodayScreen() {
   const insets = useSafeAreaInsets();
   const accent = useThemeColor("accent");
+  const accentForeground = useThemeColor("accent-foreground");
   const db = useDatabase();
   const now = new Date();
   const sevenDaysAgo = addDays(now, -7);
@@ -119,7 +120,7 @@ export function TodayScreen() {
 
   if (activePlants.length === 0) {
     return (
-      <Container className="px-6" isScrollable>
+      <Container className="px-4" isScrollable>
         <View className="gap-6 pt-2">
           <Header
             greeting={timeOfDayGreeting(now)}
@@ -140,23 +141,24 @@ export function TodayScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <FlatList
-        data={[]}
-        keyExtractor={(_, index) => `slot-${index}`}
-        renderItem={null}
-        contentContainerStyle={{
-          paddingTop: 8,
-          paddingHorizontal: 24,
-          paddingBottom: insets.bottom + 96,
+      <Container
+        isScrollable
+        scrollViewProps={{
+          contentContainerStyle: {
+            paddingTop: insets.top + 4,
+            paddingHorizontal: 16,
+            paddingBottom: insets.bottom + 96,
+          },
         }}
-        ListHeaderComponent={
-          <View className="gap-6">
-            <Header
-              greeting={timeOfDayGreeting(now)}
-              date={formatLongDate(now)}
-              onPressSettings={handleOpenSettings}
-            />
+      >
+        <View className="gap-6">
+          <Header
+            greeting={timeOfDayGreeting(now)}
+            date={formatLongDate(now)}
+            onPressSettings={handleOpenSettings}
+          />
 
+          <View className="gap-2">
             <View className="flex-row gap-2">
               <StatPill
                 icon="leaf-outline"
@@ -169,6 +171,8 @@ export function TodayScreen() {
                 value={todayTasks.length}
                 tone="accent"
               />
+            </View>
+            <View className="flex-row gap-2">
               <StatPill
                 icon="alert-circle-outline"
                 label="Overdue"
@@ -182,135 +186,134 @@ export function TodayScreen() {
                 tone="success"
               />
             </View>
+          </View>
 
-            {activeHealthIssues.length > 0 ? (
-              <HealthBanner
-                rows={activeHealthIssues}
-                onPressRow={(plantId) => {
-                  router.push({
-                    pathname: "/plants/[plantId]/health",
-                    params: { plantId: String(plantId) },
-                  });
-                }}
-              />
-            ) : null}
+          {activeHealthIssues.length > 0 ? (
+            <HealthBanner
+              rows={activeHealthIssues}
+              onPressRow={(plantId) => {
+                router.push({
+                  pathname: "/plants/[plantId]/health",
+                  params: { plantId: String(plantId) },
+                });
+              }}
+            />
+          ) : null}
 
-            {overdueTasks.length > 0 ? (
-              <View className="gap-3">
-                <SectionHeader
-                  title="Overdue"
-                  count={overdueTasks.length}
-                  caption="Catch up to keep things healthy"
-                />
-                <View className="gap-3">
-                  {overdueTasks.map((row) => (
-                    <CareTaskCard
-                      key={`overdue-${row.schedule.id}`}
-                      row={row}
-                      isOverdue
-                      onPressComplete={handleComplete}
-                      onPressSnooze={handleSnooze}
-                      onPressOpen={() => handleOpenPlant(row.plant.id)}
-                    />
-                  ))}
-                </View>
-              </View>
-            ) : null}
-
+          {overdueTasks.length > 0 ? (
             <View className="gap-3">
               <SectionHeader
-                title="Today"
-                count={todayTasks.length}
-                caption={
-                  todayTasks.length > 0
-                    ? "Quick wins waiting for you"
-                    : "Nothing left for today"
-                }
+                title="Overdue"
+                count={overdueTasks.length}
+                caption="Catch up to keep things healthy"
               />
-              {todayTasks.length === 0 ? (
-                <View className="items-center gap-2 rounded-3xl border border-border/40 bg-success-soft/40 p-6">
-                  <Ionicons
-                    name="checkmark-done-circle-outline"
-                    size={28}
-                    color={accent}
+              <View className="gap-3">
+                {overdueTasks.map((row) => (
+                  <CareTaskCard
+                    key={`overdue-${row.schedule.id}`}
+                    row={row}
+                    isOverdue
+                    onPressComplete={handleComplete}
+                    onPressSnooze={handleSnooze}
+                    onPressOpen={() => handleOpenPlant(row.plant.id)}
                   />
-                  <Text className="font-medium text-foreground">
-                    All caught up
-                  </Text>
-                  <Text className="text-center text-muted text-sm leading-5">
-                    Enjoy a calm moment — your plants are happy.
-                  </Text>
-                </View>
-              ) : (
-                <View className="gap-3">
-                  {todayTasks.map((row) => (
-                    <CareTaskCard
-                      key={`today-${row.schedule.id}`}
-                      row={row}
-                      onPressComplete={handleComplete}
-                      onPressSnooze={handleSnooze}
-                      onPressOpen={() => handleOpenPlant(row.plant.id)}
-                    />
-                  ))}
-                </View>
-              )}
+                ))}
+              </View>
             </View>
+          ) : null}
 
-            {upcomingTasks.length > 0 ? (
-              <View className="gap-3">
-                <SectionHeader
-                  title="Coming up next 7 days"
-                  count={upcomingTasks.length}
+          <View className="gap-3">
+            <SectionHeader
+              title="Today"
+              count={todayTasks.length}
+              caption={
+                todayTasks.length > 0
+                  ? "Quick wins waiting for you"
+                  : "Nothing left for today"
+              }
+            />
+            {todayTasks.length === 0 ? (
+              <View className="items-center gap-2 rounded-3xl border border-border/40 bg-success-soft/40 p-6">
+                <Ionicons
+                  name="checkmark-done-circle-outline"
+                  size={28}
+                  color={accent}
                 />
-                <View className="gap-2">
-                  {upcomingTasks.slice(0, 5).map((row) => (
-                    <UpcomingRow
-                      key={`upcoming-${row.schedule.id}`}
-                      row={row}
-                      onPress={() => handleOpenPlant(row.plant.id)}
-                    />
-                  ))}
-                </View>
+                <Text className="font-medium text-foreground">
+                  All caught up
+                </Text>
+                <Text className="text-center text-muted text-sm leading-5">
+                  Enjoy a calm moment — your plants are happy.
+                </Text>
               </View>
-            ) : null}
-
-            {favoritePlants.length > 0 ? (
+            ) : (
               <View className="gap-3">
-                <SectionHeader
-                  title="Favorites"
-                  count={favoritePlants.length}
-                  actionLabel="See all"
-                  onPressAction={() => router.push("/plants")}
-                />
-                <FlatList
-                  horizontal
-                  data={favoritePlants}
-                  keyExtractor={(plant) => `fav-${plant.id}`}
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={{ gap: 12, paddingRight: 8 }}
-                  renderItem={({ item }) => (
-                    <FavoritePlantCard
-                      plant={item}
-                      roomName={
-                        item.roomId ? roomById.get(item.roomId)?.name : null
-                      }
-                      onPress={() => handleOpenPlant(item.id)}
-                    />
-                  )}
-                />
+                {todayTasks.map((row) => (
+                  <CareTaskCard
+                    key={`today-${row.schedule.id}`}
+                    row={row}
+                    onPressComplete={handleComplete}
+                    onPressSnooze={handleSnooze}
+                    onPressOpen={() => handleOpenPlant(row.plant.id)}
+                  />
+                ))}
               </View>
-            ) : null}
+            )}
           </View>
-        }
-      />
+
+          {upcomingTasks.length > 0 ? (
+            <View className="gap-3">
+              <SectionHeader
+                title="Coming up next 7 days"
+                count={upcomingTasks.length}
+              />
+              <View className="gap-2">
+                {upcomingTasks.slice(0, 5).map((row) => (
+                  <UpcomingRow
+                    key={`upcoming-${row.schedule.id}`}
+                    row={row}
+                    onPress={() => handleOpenPlant(row.plant.id)}
+                  />
+                ))}
+              </View>
+            </View>
+          ) : null}
+
+          {favoritePlants.length > 0 ? (
+            <View className="gap-3">
+              <SectionHeader
+                title="Favorites"
+                count={favoritePlants.length}
+                actionLabel="See all"
+                onPressAction={() => router.push("/plants")}
+              />
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 12, paddingRight: 8 }}
+              >
+                {favoritePlants.map((plant) => (
+                  <FavoritePlantCard
+                    key={`fav-${plant.id}`}
+                    plant={plant}
+                    roomName={
+                      plant.roomId ? roomById.get(plant.roomId)?.name : null
+                    }
+                    onPress={() => handleOpenPlant(plant.id)}
+                  />
+                ))}
+              </ScrollView>
+            </View>
+          ) : null}
+        </View>
+      </Container>
 
       <View
-        className="absolute right-5"
-        style={{ bottom: insets.bottom + 12 }}
+        style={{ position: "absolute", bottom: insets.bottom + 12, right: 16 }}
         pointerEvents="box-none"
       >
         <Button onPress={handleAddPlant} feedbackVariant="scale-highlight">
-          <Ionicons name="add" size={18} color={accent} />
+          <Ionicons name="add" size={18} color={accentForeground} />
           <Button.Label>Add plant</Button.Label>
         </Button>
       </View>
@@ -371,8 +374,18 @@ function UpcomingRow({
       onPress={onPress}
       className="flex-row items-center gap-3 rounded-2xl border border-border/30 bg-surface p-3"
     >
-      <View className="size-9 items-center justify-center rounded-lg bg-accent-soft">
-        <Ionicons name="calendar-outline" size={16} color={accent} />
+      <View className="size-9 overflow-hidden rounded-lg bg-accent-soft">
+        {plant.photoUri ? (
+          <Image
+            source={{ uri: plant.photoUri }}
+            style={{ width: "100%", height: "100%" }}
+            contentFit="cover"
+          />
+        ) : (
+          <View className="flex-1 items-center justify-center">
+            <Ionicons name="calendar-outline" size={16} color={accent} />
+          </View>
+        )}
       </View>
       <View className="flex-1 gap-0.5">
         <Text className="font-medium text-foreground" numberOfLines={1}>

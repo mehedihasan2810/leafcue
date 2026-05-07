@@ -32,6 +32,7 @@ type PlantGrowthScreenProps = {
 export function PlantGrowthScreen({ plantId }: PlantGrowthScreenProps) {
   const insets = useSafeAreaInsets();
   const accent = useThemeColor("accent");
+  const accentForeground = useThemeColor("accent-foreground");
   const muted = useThemeColor("muted");
   const danger = useThemeColor("danger");
   const db = useDatabase();
@@ -99,7 +100,7 @@ export function PlantGrowthScreen({ plantId }: PlantGrowthScreenProps) {
     <View className="flex-1 bg-background">
       <View
         className="flex-row items-center justify-between px-6"
-        style={{ paddingTop: insets.top + 12, paddingBottom: 12 }}
+        style={{ paddingTop: insets.top + 4, paddingBottom: 12 }}
       >
         <Pressable
           hitSlop={8}
@@ -121,18 +122,19 @@ export function PlantGrowthScreen({ plantId }: PlantGrowthScreenProps) {
         data={measurements}
         keyExtractor={(m) => `growth-${m.id}`}
         contentContainerStyle={{
-          paddingHorizontal: 24,
+          paddingHorizontal: 16,
+          paddingTop: 8,
           paddingBottom: insets.bottom + 96,
           gap: 12,
         }}
         ListHeaderComponent={
-          <View className="gap-4 pb-2">
+          <View className="gap-4">
             <GrowthProgressCard plant={plant} measurements={measurements} />
             <HeightSparkline measurements={measurements} />
           </View>
         }
         ListEmptyComponent={
-          <View className="pt-2">
+          <View className="">
             <EmptyState
               icon="resize-outline"
               title="No measurements yet"
@@ -174,12 +176,12 @@ export function PlantGrowthScreen({ plantId }: PlantGrowthScreenProps) {
       />
 
       <View
-        className="absolute right-5"
+        className="absolute right-4"
         style={{ bottom: insets.bottom + 12 }}
         pointerEvents="box-none"
       >
         <Button onPress={() => setOpen(true)}>
-          <Ionicons name="add" size={18} color={accent} />
+          <Ionicons name="add" size={18} color={accentForeground} />
           <Button.Label>Log measurement</Button.Label>
         </Button>
       </View>

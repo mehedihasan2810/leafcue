@@ -3,9 +3,10 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
 import { Button, useThemeColor } from "heroui-native";
 import { useMemo, useState } from "react";
-import { Alert, FlatList, Pressable, Text, View } from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { Container } from "@/components/container";
 import { EmptyState } from "@/components/empty-state";
 import { SectionHeader } from "@/components/section-header";
 import { useDatabase } from "@/lib/db";
@@ -149,7 +150,7 @@ export function PlantHealthScreen({ plantId }: PlantHealthScreenProps) {
     <View className="flex-1 bg-background">
       <View
         className="flex-row items-center justify-between px-6"
-        style={{ paddingTop: insets.top + 12, paddingBottom: 12 }}
+        style={{ paddingTop: insets.top + 4, paddingBottom: 12 }}
       >
         <Pressable
           hitSlop={8}
@@ -167,69 +168,68 @@ export function PlantHealthScreen({ plantId }: PlantHealthScreenProps) {
         <View className="w-9" />
       </View>
 
-      <FlatList
-        data={[]}
-        keyExtractor={(_, index) => `slot-${index}`}
-        renderItem={null}
-        contentContainerStyle={{
-          paddingHorizontal: 24,
-          paddingBottom: insets.bottom + 96,
+      <Container
+        isScrollable
+        scrollViewProps={{
+          contentContainerStyle: {
+            paddingHorizontal: 16,
+            paddingBottom: insets.bottom + 96,
+          },
         }}
-        ListHeaderComponent={
-          <View className="gap-6">
-            {observations.length === 0 ? (
-              <EmptyState
-                icon="medkit-outline"
-                title="No observations yet"
-                description="Log a health observation when you notice anything off. Hints are advisory, not diagnostic."
-                ctaLabel="Log observation"
-                onPressCta={() => {
-                  setEditing(null);
-                  setOpen(true);
-                }}
+      >
+        <View className="gap-6">
+          {observations.length === 0 ? (
+            <EmptyState
+              icon="medkit-outline"
+              title="No observations yet"
+              description="Log a health observation when you notice anything off. Hints are advisory, not diagnostic."
+              ctaLabel="Log observation"
+              onPressCta={() => {
+                setEditing(null);
+                setOpen(true);
+              }}
+            />
+          ) : null}
+          {sections.map((section) => (
+            <View key={`section-${section.title}`} className="gap-3">
+              <SectionHeader
+                title={section.title}
+                count={section.items.length}
               />
-            ) : null}
-            {sections.map((section) => (
-              <View key={`section-${section.title}`} className="gap-3">
-                <SectionHeader
-                  title={section.title}
-                  count={section.items.length}
-                />
-                {section.items.length === 0 ? (
-                  <View className="rounded-2xl border border-border/30 bg-surface p-4">
-                    <Text className="text-muted text-sm">
-                      Nothing in {section.title.toLowerCase()}.
-                    </Text>
-                  </View>
-                ) : (
-                  <View className="gap-3">
-                    {section.items.map((obs) => (
-                      <ObservationCard
-                        key={`obs-${obs.id}`}
-                        observation={obs}
-                        onPressEdit={() => {
-                          setEditing(obs);
-                          setOpen(true);
-                        }}
-                        onPressMarkImproving={
-                          obs.status === "active"
-                            ? () => handleStatusChange(obs, "improving")
-                            : undefined
-                        }
-                        onPressMarkResolved={
-                          obs.status !== "resolved"
-                            ? () => handleStatusChange(obs, "resolved")
-                            : undefined
-                        }
-                      />
-                    ))}
-                  </View>
-                )}
-              </View>
-            ))}
-          </View>
-        }
-      />
+              {section.items.length === 0 ? (
+                <View className="rounded-2xl border border-border/30 bg-surface p-4">
+                  <Text className="text-muted text-sm">
+                    Nothing in {section.title.toLowerCase()}.
+                  </Text>
+                </View>
+              ) : (
+                <View className="gap-3">
+                  {section.items.map((obs) => (
+                    <ObservationCard
+                      key={`obs-${obs.id}`}
+                      observation={obs}
+                      onPressEdit={() => {
+                        setEditing(obs);
+                        setOpen(true);
+                      }}
+                      onPressMarkImproving={
+                        obs.status === "active"
+                          ? () => handleStatusChange(obs, "improving")
+                          : undefined
+                      }
+                      onPressMarkResolved={
+                        obs.status !== "resolved"
+                          ? () => handleStatusChange(obs, "resolved")
+                          : undefined
+                      }
+                    />
+                  ))}
+                </View>
+              )}
+            </View>
+          ))}
+        </View>
+      </Container>
 
       <View
         className="absolute right-5"

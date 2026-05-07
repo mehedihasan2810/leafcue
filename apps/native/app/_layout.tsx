@@ -23,7 +23,7 @@ function StackLayout() {
       <Stack.Screen
         name="plants/new"
         options={{
-          presentation: "modal",
+          presentation: "fullScreenModal",
           headerShown: false,
         }}
       />
@@ -34,14 +34,14 @@ function StackLayout() {
       <Stack.Screen
         name="plants/[plantId]/edit"
         options={{
-          presentation: "modal",
+          presentation: "fullScreenModal",
           headerShown: false,
         }}
       />
       <Stack.Screen
         name="plants/[plantId]/schedules"
         options={{
-          presentation: "modal",
+          presentation: "fullScreenModal",
           headerShown: false,
         }}
       />
@@ -81,7 +81,7 @@ function StackLayout() {
       <Stack.Screen
         name="settings/reminders"
         options={{
-          presentation: "modal",
+          presentation: "fullScreenModal",
           headerShown: false,
         }}
       />

@@ -3,9 +3,10 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
 import { useThemeColor } from "heroui-native";
 import { useMemo, useState } from "react";
-import { Alert, FlatList, Pressable, Text, View } from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { Container } from "@/components/container";
 import { TaskActionSheets } from "@/components/task-action-sheets";
 import { useTaskHandlers } from "@/hooks/use-task-handlers";
 import { performComplete } from "@/lib/care/task-actions";
@@ -320,7 +321,7 @@ export function PlantDetailScreen({ plantId }: PlantDetailScreenProps) {
     <View className="flex-1 bg-background">
       <View
         className="flex-row items-center justify-between px-6"
-        style={{ paddingTop: insets.top + 12, paddingBottom: 12 }}
+        style={{ paddingTop: insets.top + 4, paddingBottom: 12 }}
       >
         <Pressable
           hitSlop={8}
@@ -351,82 +352,81 @@ export function PlantDetailScreen({ plantId }: PlantDetailScreenProps) {
         </Pressable>
       </View>
 
-      <FlatList
-        data={[]}
-        keyExtractor={(_, index) => `slot-${index}`}
-        renderItem={null}
-        contentContainerStyle={{
-          paddingHorizontal: 24,
-          paddingBottom: insets.bottom + 96,
-          gap: 24,
+      <Container
+        isScrollable
+        scrollViewProps={{
+          contentContainerStyle: {
+            paddingHorizontal: 16,
+            paddingBottom: insets.bottom + 96,
+            gap: 24,
+          },
         }}
-        ListHeaderComponent={
-          <View className="gap-6">
-            <HeroCard
-              plant={plant}
-              room={room}
-              shelf={shelfRow}
-              nextDueAt={nextDueAt}
-              nextDueLabel={
-                nextDueAt ? `Next: ${relativeDueLabel(nextDueAt)}` : null
-              }
-              status={heroStatus}
-              onToggleFavorite={handleToggleFavorite}
-            />
-            <QuickActions actions={quickActions} onPress={handleQuickAction} />
-            <TodayTasksSection
-              rows={dueRows}
-              handlers={handlers}
-              onPressOpenPlant={(id) =>
-                router.push({
-                  pathname: "/plants/[plantId]",
-                  params: { plantId: String(id) },
-                })
-              }
-            />
-            <HealthBanner
-              observations={observations}
-              onPress={() =>
-                router.push({
-                  pathname: "/plants/[plantId]/health",
-                  params: { plantId: String(plantId) },
-                })
-              }
-            />
-            <PhotosStrip
-              photos={photos}
-              onAddPhoto={() =>
-                router.push({
-                  pathname: "/plants/[plantId]/photos",
-                  params: { plantId: String(plantId) },
-                })
-              }
-              onPressSeeAll={() =>
-                router.push({
-                  pathname: "/plants/[plantId]/photos",
-                  params: { plantId: String(plantId) },
-                })
-              }
-            />
-            <GrowthSnippet
-              measurements={measurements}
-              onPressSeeAll={() =>
-                router.push({
-                  pathname: "/plants/[plantId]/growth",
-                  params: { plantId: String(plantId) },
-                })
-              }
-            />
-            <CareProfileSection plant={plant} preset={preset} />
-            <NotesSection notes={plant.notes} />
-            <TimelineSection
-              items={timeline}
-              filter={filter}
-              onFilterChange={setFilter}
-            />
-          </View>
-        }
-      />
+      >
+        <View className="gap-6">
+          <HeroCard
+            plant={plant}
+            room={room}
+            shelf={shelfRow}
+            nextDueAt={nextDueAt}
+            nextDueLabel={
+              nextDueAt ? `Next: ${relativeDueLabel(nextDueAt)}` : null
+            }
+            status={heroStatus}
+            onToggleFavorite={handleToggleFavorite}
+          />
+          <QuickActions actions={quickActions} onPress={handleQuickAction} />
+          <TodayTasksSection
+            rows={dueRows}
+            handlers={handlers}
+            onPressOpenPlant={(id) =>
+              router.push({
+                pathname: "/plants/[plantId]",
+                params: { plantId: String(id) },
+              })
+            }
+          />
+          <HealthBanner
+            observations={observations}
+            onPress={() =>
+              router.push({
+                pathname: "/plants/[plantId]/health",
+                params: { plantId: String(plantId) },
+              })
+            }
+          />
+          <PhotosStrip
+            photos={photos}
+            onAddPhoto={() =>
+              router.push({
+                pathname: "/plants/[plantId]/photos",
+                params: { plantId: String(plantId) },
+              })
+            }
+            onPressSeeAll={() =>
+              router.push({
+                pathname: "/plants/[plantId]/photos",
+                params: { plantId: String(plantId) },
+              })
+            }
+          />
+          <GrowthSnippet
+            measurements={measurements}
+            onPressSeeAll={() =>
+              router.push({
+                pathname: "/plants/[plantId]/growth",
+                params: { plantId: String(plantId) },
+              })
+            }
+          />
+          <CareProfileSection plant={plant} preset={preset} />
+          <NotesSection notes={plant.notes} />
+          <TimelineSection
+            items={timeline}
+            filter={filter}
+            onFilterChange={setFilter}
+          />
+        </View>
+      </Container>
 
       <TaskActionSheets handlers={handlers} />
     </View>

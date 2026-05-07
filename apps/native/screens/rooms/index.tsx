@@ -167,8 +167,8 @@ export function RoomsScreen() {
 
   if (rooms.length === 0) {
     return (
-      <KeyboardAwareScreen contentClassName="gap-6">
-        <View className="gap-1" style={{ paddingTop: insets.top > 0 ? 0 : 8 }}>
+      <KeyboardAwareScreen contentClassName="gap-4">
+        <View className="gap-1" style={{ paddingTop: insets.top > 0 ? 0 : 4 }}>
           <Text className="font-bold text-2xl text-foreground">Rooms</Text>
           <Text className="text-muted text-sm">
             Group plants by room and shelf to keep care routines tidy.
@@ -187,8 +187,8 @@ export function RoomsScreen() {
   }
 
   return (
-    <KeyboardAwareScreen contentClassName="gap-5">
-      <View className="gap-1" style={{ paddingTop: insets.top > 0 ? 0 : 8 }}>
+    <KeyboardAwareScreen contentClassName="gap-4">
+      <View className="gap-1" style={{ paddingTop: insets.top > 0 ? 0 : 4 }}>
         <Text className="font-bold text-2xl text-foreground">Rooms</Text>
         <Text className="text-muted text-sm">
           {rooms.length} room{rooms.length === 1 ? "" : "s"} ·{" "}

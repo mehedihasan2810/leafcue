@@ -155,7 +155,7 @@ function Row({
           </Text>
         ) : null}
         {photoUri ? (
-          <View className="mt-1 h-20 w-full overflow-hidden rounded-xl bg-muted/15">
+          <View className="mt-1 h-40 w-full overflow-hidden rounded-xl bg-muted/15">
             <Image
               source={{ uri: photoUri }}
               style={{ width: "100%", height: "100%" }}

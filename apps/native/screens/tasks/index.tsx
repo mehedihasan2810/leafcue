@@ -3,9 +3,10 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router, useLocalSearchParams } from "expo-router";
 import { useThemeColor } from "heroui-native";
 import { useEffect, useMemo } from "react";
-import { FlatList, Pressable, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { Container } from "@/components/container";
 import { EmptyState } from "@/components/empty-state";
 import { TaskActionSheets } from "@/components/task-action-sheets";
 import { useTaskHandlers } from "@/hooks/use-task-handlers";
@@ -139,77 +140,73 @@ export function TasksScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <FlatList
-        data={[]}
-        keyExtractor={(_, index) => `tasks-${index}`}
-        renderItem={null}
-        contentContainerStyle={{
-          paddingTop: 8,
-          paddingHorizontal: 24,
-          paddingBottom: insets.bottom + 96,
+      <Container
+        isScrollable
+        scrollViewProps={{
+          contentContainerStyle: {
+            paddingTop: insets.top + 4,
+            paddingHorizontal: 16,
+            paddingBottom: insets.bottom + 96,
+          },
         }}
-        ListHeaderComponent={
-          <View className="gap-5">
-            <View className="flex-row items-center justify-between">
-              <View className="gap-1">
-                <Text className="text-muted text-sm">Care queue</Text>
-                <Text className="font-bold text-3xl text-foreground">
-                  Tasks
-                </Text>
-              </View>
-              <Pressable
-                onPress={handleOpenReminders}
-                hitSlop={8}
-                className="size-10 items-center justify-center rounded-full bg-surface"
-                accessibilityLabel="Reminder settings"
-              >
-                <Ionicons
-                  name="notifications-outline"
-                  size={18}
-                  color={accent}
-                />
-              </Pressable>
-            </View>
-
-            <TaskFilterTabs
-              value={filter}
-              onChange={(next) => {
-                const result = taskFilterSchema.safeParse(next);
-                if (result.success) setFilter(result.data);
-              }}
-              counts={counts}
-            />
-
-            {isEmpty ? (
-              <EmptyState
-                icon={
-                  filter === "overdue"
-                    ? "checkmark-done-outline"
-                    : filter === "completed"
-                      ? "calendar-outline"
-                      : "leaf-outline"
-                }
-                title={emptyTitle(filter)}
-                description={emptyDescription(filter)}
+      >
+        <View className="gap-4">
+          <View className="flex-row items-center justify-between">
+              <Text className="font-bold text-2xl text-foreground">
+                Tasks
+              </Text>
+            <Pressable
+              onPress={handleOpenReminders}
+              hitSlop={8}
+              className="size-10 items-center justify-center rounded-full bg-surface"
+              accessibilityLabel="Reminder settings"
+            >
+              <Ionicons
+                name="notifications-outline"
+                size={18}
+                color={accent}
               />
-            ) : (
-              <TaskSectionList
-                schedules={data.schedules}
-                completed={data.completed}
-                filter={filter}
-                now={now}
-                roomById={roomById}
-                shelfById={shelfById}
-                onPressComplete={handlers.handleQuickComplete}
-                onLongPressComplete={handlers.handleAddDetails}
-                onPressMenu={handlers.openMenu}
-                onPressOpenPlant={handleOpenPlant}
-                onPressCompletedPlant={handleOpenSchedules}
-              />
-            )}
+            </Pressable>
           </View>
-        }
-      />
+
+          <TaskFilterTabs
+            value={filter}
+            onChange={(next) => {
+              const result = taskFilterSchema.safeParse(next);
+              if (result.success) setFilter(result.data);
+            }}
+            counts={counts}
+          />
+
+          {isEmpty ? (
+            <EmptyState
+              icon={
+                filter === "overdue"
+                  ? "checkmark-done-outline"
+                  : filter === "completed"
+                    ? "calendar-outline"
+                    : "leaf-outline"
+              }
+              title={emptyTitle(filter)}
+              description={emptyDescription(filter)}
+            />
+          ) : (
+            <TaskSectionList
+              schedules={data.schedules}
+              completed={data.completed}
+              filter={filter}
+              now={now}
+              roomById={roomById}
+              shelfById={shelfById}
+              onPressComplete={handlers.handleQuickComplete}
+              onLongPressComplete={handlers.handleAddDetails}
+              onPressMenu={handlers.openMenu}
+              onPressOpenPlant={handleOpenPlant}
+              onPressCompletedPlant={handleOpenSchedules}
+            />
+          )}
+        </View>
+      </Container>
 
       <TaskActionSheets handlers={handlers} />
     </View>

@@ -30,6 +30,7 @@ type ViewMode = "grid" | "list";
 export function PlantLibraryScreen() {
   const insets = useSafeAreaInsets();
   const accent = useThemeColor("accent");
+  const accentForeground = useThemeColor("accent-foreground");
   const muted = useThemeColor("muted");
   const db = useDatabase();
   const [search, setSearch] = useState("");
@@ -158,7 +159,7 @@ export function PlantLibraryScreen() {
     return (
       <View
         className="flex-1 bg-background"
-        style={{ paddingTop: 8, paddingHorizontal: 24 }}
+        style={{ paddingTop: insets.top + 4, paddingHorizontal: 16 }}
       >
         <EmptyState
           icon="leaf-outline"
@@ -182,7 +183,7 @@ export function PlantLibraryScreen() {
           viewMode === "grid" ? { gap: 12, paddingHorizontal: 24 } : undefined
         }
         contentContainerStyle={{
-          paddingTop: 12,
+          paddingTop: insets.top + 4,
           paddingBottom: insets.bottom + 96,
           gap: 12,
         }}
@@ -215,7 +216,7 @@ export function PlantLibraryScreen() {
           )
         }
         ListHeaderComponent={
-          <View className="gap-3 px-6 pb-3">
+          <View className="gap-3 px-4">
             <View className="gap-1">
               <Text className="font-bold text-2xl text-foreground">
                 Your plants
@@ -310,7 +311,7 @@ export function PlantLibraryScreen() {
           </View>
         }
         ListEmptyComponent={
-          <View className="px-6">
+          <View className="px-4">
             <EmptyState
               icon="search-outline"
               title="No plants match"
@@ -327,12 +328,12 @@ export function PlantLibraryScreen() {
       />
 
       <View
-        className="absolute right-5"
+        className="absolute right-4"
         style={{ bottom: insets.bottom + 12 }}
         pointerEvents="box-none"
       >
         <Button onPress={() => router.push("/plants/new")}>
-          <Ionicons name="add" size={18} color={accent} />
+          <Ionicons name="add" size={18} color={accentForeground} />
           <Button.Label>Add plant</Button.Label>
         </Button>
       </View>
