@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { format } from "date-fns";
 import {
   cn,
   FieldError,
@@ -11,7 +12,11 @@ import {
   useThemeColor,
 } from "heroui-native";
 import type { ComponentProps, ReactNode } from "react";
-import { Text, View } from "react-native";
+import { useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import DatePicker from "react-native-date-picker";
+
+import { formatIsoDate, parseIsoDate } from "@/lib/dates";
 
 type FieldErrors = ReadonlyArray<unknown>;
 
@@ -366,6 +371,106 @@ export function FormSelectField({
         <Text className="text-danger text-xs">{errorMessage}</Text>
       ) : null}
     </View>
+  );
+}
+
+type FormDatePickerFieldProps = BaseFieldProps & {
+  /** ISO date string (YYYY-MM-DD) or empty */
+  value: string;
+  /** Called with the new ISO date string, or empty string if cleared */
+  onChange: (value: string) => void;
+};
+
+export function FormDatePickerField({
+  label,
+  description,
+  errors,
+  isRequired,
+  className,
+  value,
+  onChange,
+}: FormDatePickerFieldProps) {
+  const [open, setOpen] = useState(false);
+  const errorMessage = firstErrorMessage(errors ?? []);
+  const isInvalid = Boolean(errorMessage);
+  const accent = useThemeColor("accent");
+  const muted = useThemeColor("muted");
+
+  const selectedDate = value.trim().length > 0 ? parseIsoDate(value) : null;
+  const pickerDate = selectedDate ?? new Date();
+  const displayText = selectedDate ? format(selectedDate, "MMM d, yyyy") : null;
+
+  const handleConfirm = (date: Date) => {
+    setOpen(false);
+    onChange(formatIsoDate(date));
+  };
+
+  const handleClear = () => {
+    onChange("");
+  };
+
+  return (
+    <>
+      <View className={cn("gap-1.5", className)}>
+        <Label>
+          <Label.Text>{label}</Label.Text>
+        </Label>
+
+        <PressableFeedback onPress={() => setOpen(true)}>
+          <View
+            className={cn(
+              "flex-row items-center justify-between rounded-2xl border bg-surface px-4 py-3.5",
+              isInvalid
+                ? "border-danger"
+                : displayText
+                  ? "border-accent/50"
+                  : "border-border/60",
+            )}
+          >
+            <View className="flex-1 flex-row items-center gap-2.5">
+              <Ionicons
+                name="calendar-outline"
+                size={18}
+                color={displayText ? accent : muted}
+              />
+              {displayText ? (
+                <Text className="font-medium text-base text-foreground">
+                  {displayText}
+                </Text>
+              ) : (
+                <Text className="text-base text-muted">Select date</Text>
+              )}
+            </View>
+            {displayText ? (
+              <TouchableOpacity
+                onPress={handleClear}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons name="close-circle" size={18} color={muted} />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        </PressableFeedback>
+
+        {description && !isInvalid ? (
+          <Text className="text-muted text-xs">{description}</Text>
+        ) : null}
+        {isInvalid ? <FieldError>{errorMessage}</FieldError> : null}
+      </View>
+
+      <DatePicker
+        modal
+        open={open}
+        date={pickerDate}
+        mode="date"
+        theme="auto"
+        title={null}
+        confirmText="Done"
+        cancelText="Cancel"
+        onConfirm={handleConfirm}
+        onCancel={() => setOpen(false)}
+      />
+    </>
   );
 }
 

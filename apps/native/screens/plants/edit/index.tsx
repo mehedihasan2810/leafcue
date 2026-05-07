@@ -17,6 +17,7 @@ import { PhotoPickerField } from "@/components/photo-picker-field";
 import {
   FormChipGroupField,
   type FormChipOption,
+  FormDatePickerField,
   FormSection,
   FormSelectField,
   FormSwitchField,
@@ -548,27 +549,14 @@ export function EditPlantScreen({ mode, plantId }: EditPlantScreenProps) {
         </form.Field>
 
         <form.Field name="acquiredAtIso">
-          {(field) => {
-            const trimmed = field.state.value.trim();
-            const errors: string[] =
-              trimmed.length > 0 && parseIsoDate(trimmed) === null
-                ? ["Use the format YYYY-MM-DD."]
-                : [];
-            return (
-              <FormTextField
-                label="Acquired date"
-                description="Optional. Format YYYY-MM-DD."
-                placeholder="2025-04-26"
-                value={field.state.value}
-                onChangeText={field.handleChange}
-                onBlur={field.handleBlur}
-                errors={errors}
-                keyboardType="numbers-and-punctuation"
-                autoCorrect={false}
-                maxLength={10}
-              />
-            );
-          }}
+          {(field) => (
+            <FormDatePickerField
+              label="Acquired date"
+              description="When you got this plant."
+              value={field.state.value}
+              onChange={field.handleChange}
+            />
+          )}
         </form.Field>
 
         <form.Field name="isFavorite">
