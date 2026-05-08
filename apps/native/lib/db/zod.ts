@@ -1,6 +1,10 @@
 import { z } from "zod";
 
 import {
+  MAX_BACKUP_PHOTO_BASE64_CHARS,
+  MAX_BACKUP_TABLE_ROWS,
+} from "@/lib/backup/limits";
+import {
   careDifficultyValues,
   careTaskTemplateKeyValues,
   healthIssueTypeValues,
@@ -29,6 +33,15 @@ export const healthIssueTypeSchema = z.enum(healthIssueTypeValues);
 export const careTaskTemplateKeySchema = z.enum(careTaskTemplateKeyValues);
 
 const trimmedString = (max: number) => z.string().trim().min(1).max(max);
+const optionalString = (max: number) => z.string().trim().max(max);
+const localPhotoUriSchema = z
+  .string()
+  .trim()
+  .max(2048)
+  .refine(
+    (value) => value.startsWith("file://") || value.startsWith("content://"),
+    { message: "Photo URI must be a local file." },
+  );
 
 export const plantInsertSchema = z.object({
   nickname: trimmedString(120),
@@ -189,57 +202,280 @@ export type PlantPresetInsertInput = z.infer<typeof plantPresetInsertSchema>;
 
 export const settingsKeySchema = z.string().min(1).max(80);
 
-const tableRowSchema = z.record(z.string(), z.unknown());
+const backupDateSchema = z
+  .union([z.string().datetime(), z.number().finite(), z.date()])
+  .nullable()
+  .optional();
+const backupIdSchema = idSchema.optional();
+const nullableBackupIdSchema = idSchema.nullable().optional();
+const backupNumberSchema = z.number().finite().nullable().optional();
+const backupIntegerSchema = z.number().int().nullable().optional();
+const backupBooleanSchema = z
+  .union([
+    z.boolean(),
+    z
+      .number()
+      .int()
+      .min(0)
+      .max(1)
+      .transform((value) => value === 1),
+  ])
+  .nullable()
+  .optional();
+const backupRows = <TSchema extends z.ZodTypeAny>(schema: TSchema) =>
+  z.array(schema).max(MAX_BACKUP_TABLE_ROWS);
+
+const backupPlantPresetRowSchema = z.object({
+  id: backupIdSchema,
+  commonName: trimmedString(120),
+  scientificName: optionalString(160).nullable().optional(),
+  careDifficulty: careDifficultySchema.nullable().optional(),
+  light: optionalString(120).nullable().optional(),
+  water: optionalString(200).nullable().optional(),
+  humidity: optionalString(80).nullable().optional(),
+  temperature: optionalString(80).nullable().optional(),
+  soil: optionalString(160).nullable().optional(),
+  fertilizer: optionalString(160).nullable().optional(),
+  petToxicity: toxicitySchema.nullable().optional(),
+  careSummary: z.string().max(2000).nullable().optional(),
+  createdAt: backupDateSchema,
+});
+
+const backupRoomRowSchema = z.object({
+  id: backupIdSchema,
+  name: trimmedString(80),
+  icon: z.string().max(60).nullable().optional(),
+  sortOrder: z.number().int().min(0).optional(),
+  createdAt: backupDateSchema,
+  updatedAt: backupDateSchema,
+});
+
+const backupShelfRowSchema = z.object({
+  id: backupIdSchema,
+  roomId: idSchema,
+  name: trimmedString(80),
+  icon: z.string().max(60).nullable().optional(),
+  sortOrder: z.number().int().min(0).optional(),
+  createdAt: backupDateSchema,
+  updatedAt: backupDateSchema,
+});
+
+const backupPlantRowSchema = z.object({
+  id: backupIdSchema,
+  nickname: trimmedString(120),
+  commonName: optionalString(120).nullable().optional(),
+  scientificName: optionalString(160).nullable().optional(),
+  speciesPresetId: nullableBackupIdSchema,
+  photoUri: localPhotoUriSchema.nullable().optional(),
+  roomId: nullableBackupIdSchema,
+  shelfId: nullableBackupIdSchema,
+  notes: z.string().max(4000).nullable().optional(),
+  acquiredAt: backupDateSchema,
+  createdAt: backupDateSchema,
+  updatedAt: backupDateSchema,
+  archivedAt: backupDateSchema,
+  careDifficulty: careDifficultySchema.nullable().optional(),
+  toxicity: toxicitySchema.nullable().optional(),
+  lightPreference: lightPreferenceSchema.nullable().optional(),
+  wateringPreference: wateringPreferenceSchema.nullable().optional(),
+  soilType: optionalString(120).nullable().optional(),
+  potType: optionalString(120).nullable().optional(),
+  potSize: optionalString(60).nullable().optional(),
+  hasDrainage: backupBooleanSchema,
+  isFavorite: backupBooleanSchema,
+});
+
+const backupPlantPhotoRowSchema = z.object({
+  id: backupIdSchema,
+  plantId: idSchema,
+  uri: localPhotoUriSchema,
+  caption: z.string().max(500).nullable().optional(),
+  takenAt: backupDateSchema,
+  createdAt: backupDateSchema,
+  type: photoTypeSchema.optional(),
+});
+
+const backupCareTaskTemplateRowSchema = z.object({
+  id: backupIdSchema,
+  key: careTaskTemplateKeySchema,
+  name: trimmedString(60),
+  icon: z.string().max(60).nullable().optional(),
+  defaultIntervalDays: z.number().int().positive().nullable().optional(),
+  defaultInstructions: z.string().max(2000).nullable().optional(),
+  colorKey: z.string().max(40).nullable().optional(),
+  isBuiltIn: backupBooleanSchema,
+});
+
+const backupPlantTaskScheduleRowSchema = z.object({
+  id: backupIdSchema,
+  plantId: idSchema,
+  templateId: nullableBackupIdSchema,
+  customName: z.string().max(80).nullable().optional(),
+  intervalDays: z.number().int().positive().nullable().optional(),
+  nextDueAt: backupDateSchema,
+  lastCompletedAt: backupDateSchema,
+  snoozedUntil: backupDateSchema,
+  isEnabled: backupBooleanSchema,
+  instructions: z.string().max(2000).nullable().optional(),
+  notificationId: z.string().max(200).nullable().optional(),
+  preferredHour: hourSchema.nullable().optional(),
+  preferredMinute: minuteSchema.nullable().optional(),
+  createdAt: backupDateSchema,
+  updatedAt: backupDateSchema,
+});
+
+const backupCareLogRowSchema = z.object({
+  id: backupIdSchema,
+  plantId: idSchema,
+  scheduleId: nullableBackupIdSchema,
+  templateId: nullableBackupIdSchema,
+  type: trimmedString(40),
+  title: z.string().max(120).nullable().optional(),
+  notes: z.string().max(4000).nullable().optional(),
+  completedAt: backupDateSchema,
+  amount: backupNumberSchema,
+  unit: z.string().max(20).nullable().optional(),
+  createdAt: backupDateSchema,
+});
+
+const backupJournalEntryRowSchema = z.object({
+  id: backupIdSchema,
+  plantId: nullableBackupIdSchema,
+  title: z.string().max(120).nullable().optional(),
+  body: trimmedString(8000),
+  mood: z.string().max(40).nullable().optional(),
+  entryType: journalEntryTypeSchema.optional(),
+  photoUri: localPhotoUriSchema.nullable().optional(),
+  createdAt: backupDateSchema,
+  updatedAt: backupDateSchema,
+});
+
+const backupGrowthMeasurementRowSchema = z.object({
+  id: backupIdSchema,
+  plantId: idSchema,
+  measuredAt: backupDateSchema,
+  heightCm: backupNumberSchema,
+  leafCount: backupIntegerSchema,
+  bloomCount: backupIntegerSchema,
+  notes: z.string().max(2000).nullable().optional(),
+  createdAt: backupDateSchema,
+});
+
+const backupHealthObservationRowSchema = z.object({
+  id: backupIdSchema,
+  plantId: idSchema,
+  observedAt: backupDateSchema,
+  issueType: trimmedString(60),
+  severity: healthSeveritySchema,
+  notes: z.string().max(2000).nullable().optional(),
+  status: healthStatusSchema.optional(),
+  createdAt: backupDateSchema,
+  updatedAt: backupDateSchema,
+});
 
 export const backupTablesSchema = z.object({
-  plantPresets: z.array(tableRowSchema),
-  rooms: z.array(tableRowSchema),
-  shelves: z.array(tableRowSchema),
-  plants: z.array(tableRowSchema),
-  plantPhotos: z.array(tableRowSchema),
-  careTaskTemplates: z.array(tableRowSchema),
-  plantTaskSchedules: z.array(tableRowSchema),
-  careLogs: z.array(tableRowSchema),
-  journalEntries: z.array(tableRowSchema),
-  growthMeasurements: z.array(tableRowSchema),
-  healthObservations: z.array(tableRowSchema),
+  plantPresets: backupRows(backupPlantPresetRowSchema),
+  rooms: backupRows(backupRoomRowSchema),
+  shelves: backupRows(backupShelfRowSchema),
+  plants: backupRows(backupPlantRowSchema),
+  plantPhotos: backupRows(backupPlantPhotoRowSchema),
+  careTaskTemplates: backupRows(backupCareTaskTemplateRowSchema),
+  plantTaskSchedules: backupRows(backupPlantTaskScheduleRowSchema),
+  careLogs: backupRows(backupCareLogRowSchema),
+  journalEntries: backupRows(backupJournalEntryRowSchema),
+  growthMeasurements: backupRows(backupGrowthMeasurementRowSchema),
+  healthObservations: backupRows(backupHealthObservationRowSchema),
 });
 export type BackupTables = z.infer<typeof backupTablesSchema>;
 
+const jsonStringSchema = z
+  .string()
+  .max(20_000)
+  .refine((value) => {
+    try {
+      JSON.parse(value);
+      return true;
+    } catch {
+      return false;
+    }
+  }, "Value must be valid JSON.");
+
 export const backupSettingsRowSchema = z.object({
-  key: z.string(),
-  value: z.string(),
+  key: settingsKeySchema,
+  value: jsonStringSchema,
   updatedAt: z.string().datetime().optional(),
 });
 export type BackupSettingsRow = z.infer<typeof backupSettingsRowSchema>;
 
 export const backupMetadataSchema = z.object({
-  appVersion: z.string().optional(),
-  platform: z.string().optional(),
-  deviceLabel: z.string().optional(),
+  appVersion: z.string().max(80).optional(),
+  platform: z.string().max(40).optional(),
+  deviceLabel: z.string().max(120).optional(),
 });
 export type BackupMetadata = z.infer<typeof backupMetadataSchema>;
 
+const backupPhotoFilenameSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(160)
+  .regex(/^[A-Za-z0-9._-]+$/)
+  .refine((filename) => {
+    const extension = filename.split(".").pop()?.toLowerCase();
+    return (
+      extension === "jpg" ||
+      extension === "jpeg" ||
+      extension === "png" ||
+      extension === "gif" ||
+      extension === "webp" ||
+      extension === "heic" ||
+      extension === "heif"
+    );
+  }, "Photo filename must use a supported image extension.");
+
+const backupPhotoMimeTypeSchema = z.enum([
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+]);
+
+const base64Schema = z
+  .string()
+  .min(1)
+  .max(MAX_BACKUP_PHOTO_BASE64_CHARS)
+  .regex(/^[A-Za-z0-9+/]*={0,2}$/)
+  .refine((value) => value.length % 4 === 0, "Invalid base64 encoding.");
+
 export const backupPhotoFileSchema = z.object({
-  path: z.string(),
-  filename: z.string(),
-  mimeType: z.string(),
-  data: z.string(),
+  path: localPhotoUriSchema,
+  filename: backupPhotoFilenameSchema,
+  mimeType: backupPhotoMimeTypeSchema,
+  data: base64Schema,
 });
 export type BackupPhotoFile = z.infer<typeof backupPhotoFileSchema>;
+
+const backupPhotoFilesSchema = z
+  .record(localPhotoUriSchema, backupPhotoFileSchema)
+  .refine(
+    (files) => Object.keys(files).length <= MAX_BACKUP_TABLE_ROWS,
+    "Backup includes too many photo files.",
+  );
 
 export const backupPayloadSchema = z.object({
   version: z.union([z.literal(1), z.literal(2)]),
   exportedAt: z.string().datetime(),
   metadata: backupMetadataSchema.default({}),
   tables: backupTablesSchema,
-  settings: z.array(backupSettingsRowSchema),
-  onboardingState: z.array(backupSettingsRowSchema),
+  settings: z.array(backupSettingsRowSchema).max(MAX_BACKUP_TABLE_ROWS),
+  onboardingState: z.array(backupSettingsRowSchema).max(MAX_BACKUP_TABLE_ROWS),
   /**
    * Base64-encoded photo files bundled with the export.
    * Keyed by the URI path stored in the database.
    */
-  photoFiles: z.record(z.string(), backupPhotoFileSchema).optional(),
+  photoFiles: backupPhotoFilesSchema.optional(),
 });
 export type BackupPayload = z.infer<typeof backupPayloadSchema>;
 

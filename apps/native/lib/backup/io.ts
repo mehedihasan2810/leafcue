@@ -1,12 +1,17 @@
 import * as DocumentPicker from "expo-document-picker";
 import { Directory, File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
-
 import { buildBackupPayload, parseBackupJson } from "@/lib/backup";
+import { MAX_BACKUP_FILE_BYTES } from "@/lib/backup/limits";
 import type { LeafCueDatabase } from "@/lib/db";
 import type { BackupPayload } from "@/lib/db/zod";
 
 const BACKUP_DIR_NAME = "backups";
+const ALLOWED_BACKUP_MIME_TYPES = new Set([
+  "application/json",
+  "text/json",
+  "text/plain",
+]);
 
 function ensureBackupDir(): Directory {
   const dir = new Directory(Paths.cache, BACKUP_DIR_NAME);
@@ -65,12 +70,30 @@ export type PickedBackup =
   | { canceled: true }
   | { canceled: false; payload: BackupPayload; sourceUri: string };
 
+function validatePickedBackupAsset(
+  asset: DocumentPicker.DocumentPickerAsset,
+  file: File,
+): void {
+  const mimeType = asset.mimeType?.split(";")[0]?.toLowerCase() ?? null;
+  const hasAllowedMime =
+    mimeType !== null && ALLOWED_BACKUP_MIME_TYPES.has(mimeType);
+  const hasJsonExtension = asset.name.toLowerCase().endsWith(".json");
+  if (!hasAllowedMime && !hasJsonExtension) {
+    throw new Error("Choose a LeafCue JSON backup file.");
+  }
+
+  const size = asset.size ?? file.size;
+  if (size > MAX_BACKUP_FILE_BYTES) {
+    throw new Error("Backup file is too large to import.");
+  }
+}
+
 /**
  * Open the system file picker, parse JSON content, and validate the schema.
  */
 export async function pickBackupFile(): Promise<PickedBackup> {
   const result = await DocumentPicker.getDocumentAsync({
-    type: ["application/json", "text/plain", "*/*"],
+    type: ["application/json", "text/json", "text/plain"],
     copyToCacheDirectory: true,
     multiple: false,
   });
@@ -81,6 +104,7 @@ export async function pickBackupFile(): Promise<PickedBackup> {
 
   const asset = result.assets[0];
   const file = new File(asset.uri);
+  validatePickedBackupAsset(asset, file);
   const text = await file.text();
   const payload = parseBackupJson(text);
   return { canceled: false, payload, sourceUri: asset.uri };

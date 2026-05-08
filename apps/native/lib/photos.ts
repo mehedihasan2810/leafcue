@@ -1,7 +1,29 @@
 import { Directory, File, Paths } from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 
+import {
+  MAX_BACKUP_PHOTO_BASE64_CHARS,
+  MAX_BACKUP_PHOTO_BYTES,
+} from "@/lib/backup/limits";
+
 export const PHOTO_DIR_NAME = "plant-photos";
+export type SupportedPhotoMimeType =
+  | "image/jpeg"
+  | "image/png"
+  | "image/gif"
+  | "image/webp"
+  | "image/heic"
+  | "image/heif";
+
+const SUPPORTED_PHOTO_EXTENSIONS = new Set([
+  "jpg",
+  "jpeg",
+  "png",
+  "gif",
+  "webp",
+  "heic",
+  "heif",
+]);
 
 export function ensurePhotoDir(): Directory {
   const dir = new Directory(Paths.document, PHOTO_DIR_NAME);
@@ -15,7 +37,8 @@ function inferExtension(uri: string): string {
   const queryStripped = uri.split("?")[0] ?? uri;
   const match = queryStripped.match(/\.([a-zA-Z0-9]+)$/);
   if (!match?.[1]) return "jpg";
-  return match[1].toLowerCase();
+  const extension = match[1].toLowerCase();
+  return SUPPORTED_PHOTO_EXTENSIONS.has(extension) ? extension : "jpg";
 }
 
 export function persistPickedPhoto(sourceUri: string): string {
@@ -87,10 +110,11 @@ function resolveResult(result: ImagePicker.ImagePickerResult): PickPhotoResult {
 /** Read a persisted photo file and return its base64-encoded content + mime type. */
 export function readPhotoAsBase64(
   uri: string,
-): { base64: string; mimeType: string } | null {
+): { base64: string; mimeType: SupportedPhotoMimeType } | null {
   try {
     const file = new File(uri);
     if (!file.exists) return null;
+    if (file.size > MAX_BACKUP_PHOTO_BYTES) return null;
     const extension = inferExtension(uri);
     const mimeType = mimeFromExtension(extension);
     const base64 = file.base64Sync();
@@ -102,12 +126,15 @@ export function readPhotoAsBase64(
 
 /** Write a base64-encoded photo to a file. */
 export function writePhotoBase64(file: File, base64Data: string): void {
+  if (base64Data.length > MAX_BACKUP_PHOTO_BASE64_CHARS) {
+    throw new Error("Photo file is too large to restore.");
+  }
   file.write(base64Data, { encoding: "base64" });
 }
 
 /** Infer a MIME type from a file extension. */
-function mimeFromExtension(ext: string): string {
-  const map: Record<string, string> = {
+function mimeFromExtension(ext: string): SupportedPhotoMimeType {
+  const map: Record<string, SupportedPhotoMimeType> = {
     jpg: "image/jpeg",
     jpeg: "image/jpeg",
     png: "image/png",

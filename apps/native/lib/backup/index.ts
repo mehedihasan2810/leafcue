@@ -1,7 +1,8 @@
 import { sql } from "drizzle-orm";
 import { File } from "expo-file-system";
 
-import type { LeafCueDatabase } from "@/lib/db";
+import { MAX_BACKUP_FILE_BYTES } from "@/lib/backup/limits";
+import type { LeafCueDatabase, LeafCueDbOrTx } from "@/lib/db";
 import {
   appSettings,
   careLogs,
@@ -22,6 +23,7 @@ import {
   type BackupPhotoFile,
   type BackupTables,
   backupPayloadSchema,
+  backupTablesSchema,
 } from "@/lib/db/zod";
 import {
   ensurePhotoDir,
@@ -56,16 +58,19 @@ function collectPhotoUris(tables: BackupTables): string[] {
   const uris = new Set<string>();
 
   for (const row of tables.plants) {
-    const uri = typeof row.photoUri === "string" ? row.photoUri : null;
-    if (uri?.includes(`/${PHOTO_DIR_NAME}/`)) uris.add(uri);
+    if (row.photoUri?.includes(`/${PHOTO_DIR_NAME}/`)) {
+      uris.add(row.photoUri);
+    }
   }
   for (const row of tables.plantPhotos) {
-    const uri = typeof row.uri === "string" ? row.uri : null;
-    if (uri?.includes(`/${PHOTO_DIR_NAME}/`)) uris.add(uri);
+    if (row.uri.includes(`/${PHOTO_DIR_NAME}/`)) {
+      uris.add(row.uri);
+    }
   }
   for (const row of tables.journalEntries) {
-    const uri = typeof row.photoUri === "string" ? row.photoUri : null;
-    if (uri?.includes(`/${PHOTO_DIR_NAME}/`)) uris.add(uri);
+    if (row.photoUri?.includes(`/${PHOTO_DIR_NAME}/`)) {
+      uris.add(row.photoUri);
+    }
   }
 
   return [...uris];
@@ -91,7 +96,7 @@ export type BackupCounts = {
 export function buildBackupPayload(
   db: LeafCueDatabase,
 ): BackupPayload & { photoFileCount: number } {
-  const tables: BackupTables = {
+  const tables = backupTablesSchema.parse({
     plantPresets: serializeRows(db.select().from(plantPresets).all()),
     rooms: serializeRows(db.select().from(rooms).all()),
     shelves: serializeRows(db.select().from(shelves).all()),
@@ -109,7 +114,7 @@ export function buildBackupPayload(
     healthObservations: serializeRows(
       db.select().from(healthObservations).all(),
     ),
-  };
+  });
 
   const settingsRows = db
     .select()
@@ -161,6 +166,9 @@ export function buildBackupPayload(
 }
 
 export function parseBackupJson(raw: string): BackupPayload {
+  if (raw.length > MAX_BACKUP_FILE_BYTES) {
+    throw new Error("Backup file is too large to import.");
+  }
   const parsed: unknown = JSON.parse(raw);
   return backupPayloadSchema.parse(parsed);
 }
@@ -188,26 +196,61 @@ export function previewBackupCounts(payload: BackupPayload): BackupCounts {
 type CsvSummary = BackupCounts;
 
 /** Write bundled photo files from the payload back to the device directory. */
-function restorePhotoFiles(payload: BackupPayload): void {
-  if (!payload.photoFiles) return;
+function restorePhotoFiles(payload: BackupPayload): Map<string, string> {
+  const restoredUris = new Map<string, string>();
+  if (!payload.photoFiles) return restoredUris;
   ensurePhotoDir();
   for (const [uri, photoFile] of Object.entries(payload.photoFiles)) {
-    writePhotoFromBase64File(uri, photoFile);
+    const restoredUri = writePhotoFromBase64File(photoFile);
+    if (restoredUri) {
+      restoredUris.set(uri, restoredUri);
+    }
+  }
+  return restoredUris;
+}
+
+function writePhotoFromBase64File(photoFile: BackupPhotoFile): string | null {
+  try {
+    const dir = ensurePhotoDir();
+    const file = makeRestoredPhotoFile(dir, photoFile.filename);
+    writePhotoBase64(file, photoFile.data);
+    return file.uri;
+  } catch {
+    // Best-effort restore; the import can still work with missing photo files.
+    return null;
   }
 }
 
-function writePhotoFromBase64File(
-  _targetUri: string,
-  photoFile: BackupPhotoFile,
-): void {
-  try {
-    const dir = ensurePhotoDir();
-    const filename = photoFile.filename;
-    const file = new File(dir, filename);
-    writePhotoBase64(file, photoFile.data);
-  } catch {
-    // Best-effort restore; the import can still work with missing photo files.
+function makeRestoredPhotoFile(
+  dir: ReturnType<typeof ensurePhotoDir>,
+  filename: string,
+): File {
+  const extension = filename.split(".").pop()?.toLowerCase() ?? "jpg";
+  const basename = filename
+    .slice(0, -(extension.length + 1))
+    .replace(/[^A-Za-z0-9_-]/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 64);
+  const safeBasename = basename.length > 0 ? basename : "photo";
+
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const candidate = new File(
+      dir,
+      `${safeBasename}-${suffix}-${attempt}.${extension}`,
+    );
+    if (!candidate.exists) return candidate;
   }
+
+  throw new Error("Could not create a unique restored photo filename.");
+}
+
+function resolveImportedPhotoUri(
+  uri: string | null | undefined,
+  restoredUris: Map<string, string>,
+): string | null {
+  if (!uri) return null;
+  return restoredUris.get(uri) ?? uri;
 }
 
 export type ImportSummary = CsvSummary;
@@ -224,8 +267,8 @@ export function importBackupReplace(
   const validated = backupPayloadSchema.parse(payload);
   const counts: ImportSummary = previewBackupCounts(validated);
 
-  // Restore bundled photo files to the device first.
-  restorePhotoFiles(validated);
+  // Restore bundled photo files to this device and remap imported URIs.
+  const restoredPhotoUris = restorePhotoFiles(validated);
 
   db.transaction((tx) => {
     // Wipe in dependency-safe order (FKs use cascade where possible).
@@ -243,8 +286,9 @@ export function importBackupReplace(
     tx.delete(appSettings).where(sql`1 = 1`).run();
     tx.delete(onboardingState).where(sql`1 = 1`).run();
 
-    insertAll(tx as unknown as LeafCueDatabase, validated, {
+    insertAll(tx, validated, {
       remapIds: false,
+      restoredPhotoUris,
     });
   });
 
@@ -262,22 +306,26 @@ export function importBackupMerge(
   const validated = backupPayloadSchema.parse(payload);
   const counts: ImportSummary = previewBackupCounts(validated);
 
-  // Restore bundled photo files to the device first.
-  restorePhotoFiles(validated);
+  // Restore bundled photo files to this device and remap imported URIs.
+  const restoredPhotoUris = restorePhotoFiles(validated);
 
   db.transaction((tx) => {
-    insertAll(tx as unknown as LeafCueDatabase, validated, {
+    insertAll(tx, validated, {
       remapIds: true,
+      restoredPhotoUris,
     });
   });
 
   return counts;
 }
 
-type InsertOptions = { remapIds: boolean };
+type InsertOptions = {
+  remapIds: boolean;
+  restoredPhotoUris: Map<string, string>;
+};
 
 function insertAll(
-  db: LeafCueDatabase,
+  db: LeafCueDbOrTx,
   payload: BackupPayload,
   options: InsertOptions,
 ): void {
@@ -286,33 +334,19 @@ function insertAll(
 
   // Plant presets (dedupe by common+scientific when merging).
   for (const row of t.plantPresets) {
-    const oldId = getNumber(row, "id");
-    const commonName = getString(row, "commonName");
-    if (commonName === null) continue;
+    const oldId = row.id ?? null;
     const insertValues = {
-      commonName,
-      scientificName: getNullableString(row, "scientificName"),
-      careDifficulty:
-        (getNullableString(row, "careDifficulty") as
-          | "easy"
-          | "moderate"
-          | "hard"
-          | null) ?? undefined,
-      light: getNullableString(row, "light"),
-      water: getNullableString(row, "water"),
-      humidity: getNullableString(row, "humidity"),
-      temperature: getNullableString(row, "temperature"),
-      soil: getNullableString(row, "soil"),
-      fertilizer: getNullableString(row, "fertilizer"),
-      petToxicity:
-        (getNullableString(row, "petToxicity") as
-          | "non-toxic"
-          | "toxic-pets"
-          | "toxic-children"
-          | "toxic-all"
-          | "unknown"
-          | null) ?? undefined,
-      careSummary: getNullableString(row, "careSummary"),
+      commonName: row.commonName,
+      scientificName: row.scientificName ?? null,
+      careDifficulty: row.careDifficulty ?? null,
+      light: row.light ?? null,
+      water: row.water ?? null,
+      humidity: row.humidity ?? null,
+      temperature: row.temperature ?? null,
+      soil: row.soil ?? null,
+      fertilizer: row.fertilizer ?? null,
+      petToxicity: row.petToxicity ?? null,
+      careSummary: row.careSummary ?? null,
     };
     const inserted = db
       .insert(plantPresets)
@@ -327,15 +361,13 @@ function insertAll(
 
   // Rooms
   for (const row of t.rooms) {
-    const oldId = getNumber(row, "id");
-    const name = getString(row, "name");
-    if (name === null) continue;
+    const oldId = row.id ?? null;
     const inserted = db
       .insert(rooms)
       .values({
-        name,
-        icon: getNullableString(row, "icon"),
-        sortOrder: getNumber(row, "sortOrder") ?? 0,
+        name: row.name,
+        icon: row.icon ?? null,
+        sortOrder: row.sortOrder ?? 0,
       })
       .returning({ id: rooms.id })
       .get();
@@ -346,10 +378,8 @@ function insertAll(
 
   // Shelves
   for (const row of t.shelves) {
-    const oldId = getNumber(row, "id");
-    const name = getString(row, "name");
-    const oldRoomId = getNumber(row, "roomId");
-    if (name === null || oldRoomId === null) continue;
+    const oldId = row.id ?? null;
+    const oldRoomId = row.roomId;
     const newRoomId = options.remapIds
       ? (remap.rooms.get(oldRoomId) ?? null)
       : oldRoomId;
@@ -357,10 +387,10 @@ function insertAll(
     const inserted = db
       .insert(shelves)
       .values({
-        name,
+        name: row.name,
         roomId: newRoomId,
-        icon: getNullableString(row, "icon"),
-        sortOrder: getNumber(row, "sortOrder") ?? 0,
+        icon: row.icon ?? null,
+        sortOrder: row.sortOrder ?? 0,
       })
       .returning({ id: shelves.id })
       .get();
@@ -371,12 +401,10 @@ function insertAll(
 
   // Plants
   for (const row of t.plants) {
-    const oldId = getNumber(row, "id");
-    const nickname = getString(row, "nickname");
-    if (nickname === null) continue;
-    const oldRoomId = getNumber(row, "roomId");
-    const oldShelfId = getNumber(row, "shelfId");
-    const oldPresetId = getNumber(row, "speciesPresetId");
+    const oldId = row.id ?? null;
+    const oldRoomId = row.roomId ?? null;
+    const oldShelfId = row.shelfId ?? null;
+    const oldPresetId = row.speciesPresetId ?? null;
     const newRoomId =
       oldRoomId === null
         ? null
@@ -398,17 +426,28 @@ function insertAll(
     const inserted = db
       .insert(plants)
       .values({
-        nickname,
-        commonName: getNullableString(row, "commonName"),
-        scientificName: getNullableString(row, "scientificName"),
+        nickname: row.nickname,
+        commonName: row.commonName ?? null,
+        scientificName: row.scientificName ?? null,
         speciesPresetId: newPresetId,
-        photoUri: getNullableString(row, "photoUri"),
+        photoUri: resolveImportedPhotoUri(
+          row.photoUri,
+          options.restoredPhotoUris,
+        ),
         roomId: newRoomId,
         shelfId: newShelfId,
-        notes: getNullableString(row, "notes"),
+        notes: row.notes ?? null,
         acquiredAt: getDate(row, "acquiredAt"),
         archivedAt: getDate(row, "archivedAt"),
-        isFavorite: getBool(row, "isFavorite") ?? false,
+        careDifficulty: row.careDifficulty ?? null,
+        toxicity: row.toxicity ?? null,
+        lightPreference: row.lightPreference ?? null,
+        wateringPreference: row.wateringPreference ?? null,
+        soilType: row.soilType ?? null,
+        potType: row.potType ?? null,
+        potSize: row.potSize ?? null,
+        hasDrainage: row.hasDrainage ?? null,
+        isFavorite: row.isFavorite ?? false,
       })
       .returning({ id: plants.id })
       .get();
@@ -419,9 +458,7 @@ function insertAll(
 
   // Photos: URIs point to bundled photo files that were restored above.
   for (const row of t.plantPhotos) {
-    const oldPlantId = getNumber(row, "plantId");
-    const uri = getString(row, "uri");
-    if (oldPlantId === null || uri === null) continue;
+    const oldPlantId = row.plantId;
     const newPlantId = options.remapIds
       ? (remap.plants.get(oldPlantId) ?? null)
       : oldPlantId;
@@ -429,44 +466,35 @@ function insertAll(
     db.insert(plantPhotos)
       .values({
         plantId: newPlantId,
-        uri,
-        caption: getNullableString(row, "caption"),
+        uri:
+          resolveImportedPhotoUri(row.uri, options.restoredPhotoUris) ??
+          row.uri,
+        caption: row.caption ?? null,
         takenAt: getDate(row, "takenAt") ?? new Date(),
-        type:
-          (getNullableString(row, "type") as
-            | "cover"
-            | "journal"
-            | "growth"
-            | "health"
-            | "other"
-            | null) ?? "journal",
+        type: row.type ?? "journal",
       })
       .run();
   }
 
   // Care task templates: dedupe by `key`.
   for (const row of t.careTaskTemplates) {
-    const oldId = getNumber(row, "id");
-    const key = getString(row, "key");
-    const name = getString(row, "name");
-    if (key === null || name === null) continue;
+    const oldId = row.id ?? null;
     db.insert(careTaskTemplates)
       .values({
-        // biome-ignore lint/suspicious/noExplicitAny: enum widened by JSON
-        key: key as any,
-        name,
-        icon: getNullableString(row, "icon"),
-        defaultIntervalDays: getNumber(row, "defaultIntervalDays"),
-        defaultInstructions: getNullableString(row, "defaultInstructions"),
-        colorKey: getNullableString(row, "colorKey"),
-        isBuiltIn: getBool(row, "isBuiltIn") ?? false,
+        key: row.key,
+        name: row.name,
+        icon: row.icon ?? null,
+        defaultIntervalDays: row.defaultIntervalDays ?? null,
+        defaultInstructions: row.defaultInstructions ?? null,
+        colorKey: row.colorKey ?? null,
+        isBuiltIn: row.isBuiltIn ?? false,
       })
       .onConflictDoNothing()
       .run();
     const found = db
       .select({ id: careTaskTemplates.id })
       .from(careTaskTemplates)
-      .where(sql`${careTaskTemplates.key} = ${key}`)
+      .where(sql`${careTaskTemplates.key} = ${row.key}`)
       .get();
     if (oldId !== null && found) {
       remap.templates.set(oldId, found.id);
@@ -475,14 +503,13 @@ function insertAll(
 
   // Plant task schedules
   for (const row of t.plantTaskSchedules) {
-    const oldId = getNumber(row, "id");
-    const oldPlantId = getNumber(row, "plantId");
-    if (oldPlantId === null) continue;
+    const oldId = row.id ?? null;
+    const oldPlantId = row.plantId;
     const newPlantId = options.remapIds
       ? (remap.plants.get(oldPlantId) ?? null)
       : oldPlantId;
     if (newPlantId === null) continue;
-    const oldTemplateId = getNumber(row, "templateId");
+    const oldTemplateId = row.templateId ?? null;
     const newTemplateId =
       oldTemplateId === null
         ? null
@@ -494,17 +521,17 @@ function insertAll(
       .values({
         plantId: newPlantId,
         templateId: newTemplateId,
-        customName: getNullableString(row, "customName"),
-        intervalDays: getNumber(row, "intervalDays"),
+        customName: row.customName ?? null,
+        intervalDays: row.intervalDays ?? null,
         nextDueAt: getDate(row, "nextDueAt"),
         lastCompletedAt: getDate(row, "lastCompletedAt"),
         snoozedUntil: getDate(row, "snoozedUntil"),
-        isEnabled: getBool(row, "isEnabled") ?? true,
-        instructions: getNullableString(row, "instructions"),
+        isEnabled: row.isEnabled ?? true,
+        instructions: row.instructions ?? null,
         // Notification IDs are device-bound; clear them so they get re-synced.
         notificationId: null,
-        preferredHour: getNumber(row, "preferredHour"),
-        preferredMinute: getNumber(row, "preferredMinute"),
+        preferredHour: row.preferredHour ?? null,
+        preferredMinute: row.preferredMinute ?? null,
       })
       .returning({ id: plantTaskSchedules.id })
       .get();
@@ -515,15 +542,13 @@ function insertAll(
 
   // Care logs
   for (const row of t.careLogs) {
-    const oldPlantId = getNumber(row, "plantId");
-    const type = getString(row, "type");
-    if (oldPlantId === null || type === null) continue;
+    const oldPlantId = row.plantId;
     const newPlantId = options.remapIds
       ? (remap.plants.get(oldPlantId) ?? null)
       : oldPlantId;
     if (newPlantId === null) continue;
-    const oldScheduleId = getNumber(row, "scheduleId");
-    const oldTemplateId = getNumber(row, "templateId");
+    const oldScheduleId = row.scheduleId ?? null;
+    const oldTemplateId = row.templateId ?? null;
     db.insert(careLogs)
       .values({
         plantId: newPlantId,
@@ -539,21 +564,19 @@ function insertAll(
             : options.remapIds
               ? (remap.templates.get(oldTemplateId) ?? null)
               : oldTemplateId,
-        type,
-        title: getNullableString(row, "title"),
-        notes: getNullableString(row, "notes"),
+        type: row.type,
+        title: row.title ?? null,
+        notes: row.notes ?? null,
         completedAt: getDate(row, "completedAt") ?? new Date(),
-        amount: getNumber(row, "amount"),
-        unit: getNullableString(row, "unit"),
+        amount: row.amount ?? null,
+        unit: row.unit ?? null,
       })
       .run();
   }
 
   // Journal entries
   for (const row of t.journalEntries) {
-    const body = getString(row, "body");
-    if (body === null) continue;
-    const oldPlantId = getNumber(row, "plantId");
+    const oldPlantId = row.plantId ?? null;
     const newPlantId =
       oldPlantId === null
         ? null
@@ -563,20 +586,21 @@ function insertAll(
     db.insert(journalEntries)
       .values({
         plantId: newPlantId,
-        title: getNullableString(row, "title"),
-        body,
-        mood: getNullableString(row, "mood"),
-        // biome-ignore lint/suspicious/noExplicitAny: enum widened by JSON
-        entryType: (getNullableString(row, "entryType") as any) ?? "note",
-        photoUri: getNullableString(row, "photoUri"),
+        title: row.title ?? null,
+        body: row.body,
+        mood: row.mood ?? null,
+        entryType: row.entryType ?? "note",
+        photoUri: resolveImportedPhotoUri(
+          row.photoUri,
+          options.restoredPhotoUris,
+        ),
       })
       .run();
   }
 
   // Growth measurements
   for (const row of t.growthMeasurements) {
-    const oldPlantId = getNumber(row, "plantId");
-    if (oldPlantId === null) continue;
+    const oldPlantId = row.plantId;
     const newPlantId = options.remapIds
       ? (remap.plants.get(oldPlantId) ?? null)
       : oldPlantId;
@@ -585,21 +609,17 @@ function insertAll(
       .values({
         plantId: newPlantId,
         measuredAt: getDate(row, "measuredAt") ?? new Date(),
-        heightCm: getNumber(row, "heightCm"),
-        leafCount: getNumber(row, "leafCount"),
-        bloomCount: getNumber(row, "bloomCount"),
-        notes: getNullableString(row, "notes"),
+        heightCm: row.heightCm ?? null,
+        leafCount: row.leafCount ?? null,
+        bloomCount: row.bloomCount ?? null,
+        notes: row.notes ?? null,
       })
       .run();
   }
 
   // Health observations
   for (const row of t.healthObservations) {
-    const oldPlantId = getNumber(row, "plantId");
-    const issueType = getString(row, "issueType");
-    const severity = getString(row, "severity");
-    if (oldPlantId === null || issueType === null || severity === null)
-      continue;
+    const oldPlantId = row.plantId;
     const newPlantId = options.remapIds
       ? (remap.plants.get(oldPlantId) ?? null)
       : oldPlantId;
@@ -608,12 +628,10 @@ function insertAll(
       .values({
         plantId: newPlantId,
         observedAt: getDate(row, "observedAt") ?? new Date(),
-        issueType,
-        // biome-ignore lint/suspicious/noExplicitAny: enum widened by JSON
-        severity: severity as any,
-        notes: getNullableString(row, "notes"),
-        // biome-ignore lint/suspicious/noExplicitAny: enum widened by JSON
-        status: (getNullableString(row, "status") as any) ?? "active",
+        issueType: row.issueType,
+        severity: row.severity,
+        notes: row.notes ?? null,
+        status: row.status ?? "active",
       })
       .run();
   }
@@ -649,36 +667,14 @@ function insertAll(
   }
 }
 
-function getNumber(row: Record<string, unknown>, key: string): number | null {
-  const v = row[key];
-  if (typeof v === "number" && Number.isFinite(v)) return v;
-  return null;
+function getRowValue(row: object, key: string): unknown {
+  return Object.hasOwn(row, key)
+    ? (row as Record<string, unknown>)[key]
+    : undefined;
 }
 
-function getString(row: Record<string, unknown>, key: string): string | null {
-  const v = row[key];
-  if (typeof v === "string") return v;
-  return null;
-}
-
-function getNullableString(
-  row: Record<string, unknown>,
-  key: string,
-): string | null {
-  const v = row[key];
-  if (typeof v === "string") return v;
-  return null;
-}
-
-function getBool(row: Record<string, unknown>, key: string): boolean | null {
-  const v = row[key];
-  if (typeof v === "boolean") return v;
-  if (typeof v === "number") return v !== 0;
-  return null;
-}
-
-function getDate(row: Record<string, unknown>, key: string): Date | null {
-  const v = row[key];
+function getDate(row: object, key: string): Date | null {
+  const v = getRowValue(row, key);
   if (typeof v === "string") {
     const d = new Date(v);
     if (!Number.isNaN(d.getTime())) return d;

@@ -1,0 +1,5 @@
+export const MAX_BACKUP_FILE_BYTES = 75 * 1024 * 1024;
+export const MAX_BACKUP_TABLE_ROWS = 50_000;
+export const MAX_BACKUP_PHOTO_BYTES = 12 * 1024 * 1024;
+export const MAX_BACKUP_PHOTO_BASE64_CHARS =
+  Math.ceil(MAX_BACKUP_PHOTO_BYTES / 3) * 4;
