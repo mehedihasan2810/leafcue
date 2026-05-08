@@ -4,6 +4,7 @@ import { useThemeColor } from "heroui-native";
 import { Text, View } from "react-native";
 
 import { OnboardingShell } from "@/screens/onboarding/_components/onboarding-shell";
+import { Image } from "expo-image";
 
 const CAPABILITIES: ReadonlyArray<{
   icon: keyof typeof Ionicons.glyphMap;
@@ -51,8 +52,12 @@ export function OnboardingTrackScreen() {
       title="Track everything that matters"
       subtitle="Build a clear picture of every plant — without the chore-list feel."
       illustration={
-        <View className="size-24 items-center justify-center rounded-3xl bg-accent-soft">
-          <Ionicons name="sparkles-outline" size={52} color={accent} />
+        <View className="">
+          <Image
+            source={require("@/assets/images/plant.png")}
+            style={{ width: 256, height: 256 }}
+            contentFit="contain"
+          />
         </View>
       }
       primaryLabel="Sounds good"

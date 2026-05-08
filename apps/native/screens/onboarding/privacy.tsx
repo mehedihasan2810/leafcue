@@ -4,6 +4,7 @@ import { useThemeColor } from "heroui-native";
 import { Text, View } from "react-native";
 
 import { OnboardingShell } from "@/screens/onboarding/_components/onboarding-shell";
+import { Image } from "expo-image";
 
 const PROMISES: ReadonlyArray<{
   icon: keyof typeof Ionicons.glyphMap;
@@ -45,8 +46,12 @@ export function OnboardingPrivacyScreen() {
       title="Private by design"
       subtitle="LeafCue protects your plant care notes the same way it protects you."
       illustration={
-        <View className="size-24 items-center justify-center rounded-3xl bg-accent-soft">
-          <Ionicons name="shield-checkmark-outline" size={52} color={accent} />
+        <View className="">
+          <Image
+            source={require("@/assets/images/plant.png")}
+            style={{ width: 256, height: 256 }}
+            contentFit="contain"
+          />
         </View>
       }
       primaryLabel="That sounds great"

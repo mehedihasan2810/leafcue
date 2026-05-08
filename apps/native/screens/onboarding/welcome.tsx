@@ -4,6 +4,7 @@ import { useThemeColor } from "heroui-native";
 import { Text, View } from "react-native";
 
 import { OnboardingShell } from "@/screens/onboarding/_components/onboarding-shell";
+import { Image } from "expo-image";
 
 export function OnboardingWelcomeScreen() {
   const accent = useThemeColor("accent");
@@ -14,8 +15,12 @@ export function OnboardingWelcomeScreen() {
       title="Welcome to LeafCue"
       subtitle="A calm, private place to keep your plants thriving — no accounts, no clouds, just gentle reminders."
       illustration={
-        <View className="size-32 items-center justify-center rounded-3xl bg-accent-soft">
-          <Ionicons name="leaf-outline" size={64} color={accent} />
+        <View className="">
+          <Image
+            source={require("@/assets/images/plant.png")}
+            style={{ width: 256, height: 256 }}
+            contentFit="contain"
+          />
         </View>
       }
       primaryLabel="Get started"

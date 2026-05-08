@@ -6,6 +6,7 @@ import { Text, View } from "react-native";
 import { useDatabase } from "@/lib/db";
 import { OnboardingShell } from "@/screens/onboarding/_components/onboarding-shell";
 import { useOnboardingStore } from "@/stores/use-onboarding-store";
+import { Image } from "expo-image";
 
 export function OnboardingFinishScreen() {
   const accent = useThemeColor("accent");
@@ -30,8 +31,12 @@ export function OnboardingFinishScreen() {
       title="You're all set"
       subtitle="LeafCue is ready. Add your first plant now or explore the app first — you can always come back."
       illustration={
-        <View className="size-32 items-center justify-center rounded-3xl bg-success-soft">
-          <Ionicons name="happy-outline" size={64} color={success} />
+        <View className="">
+          <Image
+            source={require("@/assets/images/plant.png")}
+            style={{ width: 256, height: 256 }}
+            contentFit="contain"
+          />
         </View>
       }
       primaryLabel="Add my first plant"

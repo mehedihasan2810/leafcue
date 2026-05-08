@@ -14,6 +14,7 @@ import { useDatabase } from "@/lib/db";
 import { createRoom, deleteRoom } from "@/lib/db/repositories";
 import { rooms } from "@/lib/db/schema";
 import { OnboardingShell } from "@/screens/onboarding/_components/onboarding-shell";
+import { Image } from "expo-image";
 
 export function OnboardingRoomScreen() {
   const accent = useThemeColor("accent");
@@ -43,8 +44,12 @@ export function OnboardingRoomScreen() {
       title="Where do your plants live?"
       subtitle="Tap to remove rooms you don't need, or add your own. You can edit them later."
       illustration={
-        <View className="size-24 items-center justify-center rounded-3xl bg-accent-soft">
-          <Ionicons name="home-outline" size={48} color={accent} />
+        <View className="">
+          <Image
+            source={require("@/assets/images/plant.png")}
+            style={{ width: 256, height: 256 }}
+            contentFit="contain"
+          />
         </View>
       }
       primaryLabel="Looks good"
