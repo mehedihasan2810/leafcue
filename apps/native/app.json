@@ -40,7 +40,11 @@
       "bundleIdentifier": "com.galaxywayai.leafcue"
     },
     "android": {
-      "package": "com.galaxywayai.leafcue"
+      "package": "com.galaxywayai.leafcue",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/android-adaptive-icon.png",
+        "backgroundColor": "#f3e7d3"
+      }
     }
   }
 }
