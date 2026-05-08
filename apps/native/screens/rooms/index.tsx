@@ -169,7 +169,7 @@ export function RoomsScreen() {
     return (
       <KeyboardAwareScreen contentClassName="gap-4">
         <View className="gap-1" style={{ paddingTop: insets.top > 0 ? 0 : 4 }}>
-          <Text className="font-bold text-2xl text-foreground">Rooms</Text>
+          <Text className="font-display text-2xl text-foreground">Rooms</Text>
           <Text className="text-muted text-sm">
             Group plants by room and shelf to keep care routines tidy.
           </Text>
@@ -189,7 +189,7 @@ export function RoomsScreen() {
   return (
     <KeyboardAwareScreen contentClassName="gap-4">
       <View className="gap-1" style={{ paddingTop: insets.top > 0 ? 0 : 4 }}>
-        <Text className="font-bold text-2xl text-foreground">Rooms</Text>
+        <Text className="font-display text-2xl text-foreground">Rooms</Text>
         <Text className="text-muted text-sm">
           {rooms.length} room{rooms.length === 1 ? "" : "s"} ·{" "}
           {Array.from(plantCounts.values()).reduce((a, b) => a + b, 0)} plant

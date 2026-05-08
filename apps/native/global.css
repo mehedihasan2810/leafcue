@@ -41,10 +41,6 @@
     /* Border Radius */
     --radius: 0.75rem;
     --field-radius: 0.125rem;
-
-    /* Font Family */
-    /* Make sure to load Varela Round font in your app */
-    --font-sans: var(--font-varela-round);
   }
 
   /* DARK THEME */
@@ -79,5 +75,47 @@
     --surface-tertiary-foreground: oklch(99.11% 0.018 181);
     --warning: oklch(82.03% 0.1438 67.6);
     --warning-foreground: oklch(21.03% 0.0059 67.6);
+
+    --radius: 0.75rem;
+    --field-radius: 0.125rem;
   }
+}
+
+/* Typography: Plus Jakarta Sans (UI) + Fraunces (display). Font files load via AppFontProvider. */
+@theme {
+  --font-sans: PlusJakartaSans_400Regular;
+  --font-display: Fraunces_700Bold;
+  --font-display-semibold: Fraunces_600SemiBold;
+  --font-normal: PlusJakartaSans_400Regular;
+  --font-medium: PlusJakartaSans_500Medium;
+  --font-semibold: PlusJakartaSans_600SemiBold;
+  --font-bold: PlusJakartaSans_700Bold;
+}
+
+/*
+ * React Native maps each weight to a separate font asset; map Tailwind weight utilities to those families.
+ * Use `font-display` / `font-display-semibold` for Fraunces (already weighted — do not combine with `font-bold`).
+ */
+@utility font-normal {
+  font-family: PlusJakartaSans_400Regular, sans-serif;
+}
+
+@utility font-medium {
+  font-family: PlusJakartaSans_500Medium, sans-serif;
+}
+
+@utility font-semibold {
+  font-family: PlusJakartaSans_600SemiBold, sans-serif;
+}
+
+@utility font-bold {
+  font-family: PlusJakartaSans_700Bold, sans-serif;
+}
+
+@utility font-display {
+  font-family: var(--font-display), serif;
+}
+
+@utility font-display-semibold {
+  font-family: var(--font-display-semibold), serif;
 }

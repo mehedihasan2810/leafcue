@@ -146,7 +146,7 @@ export function TasksScreen() {
       >
         <View className="gap-4">
           <View className="flex-row items-center justify-between">
-            <Text className="font-bold text-2xl text-foreground">Tasks</Text>
+            <Text className="font-display text-2xl text-foreground">Tasks</Text>
             <PressableFeedback
               onPress={handleOpenReminders}
               className="size-10 items-center justify-center rounded-full bg-surface"

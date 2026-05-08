@@ -191,7 +191,9 @@ export function CalendarScreen() {
         }}
       >
         <View className="gap-4">
-          <Text className="font-bold text-2xl text-foreground">Calendar</Text>
+          <Text className="font-display text-2xl text-foreground">
+            Calendar
+          </Text>
 
           <MonthGrid
             monthAnchor={monthAnchor}

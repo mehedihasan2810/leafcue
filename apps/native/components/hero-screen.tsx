@@ -55,7 +55,7 @@ export function HeroScreen({
         <View className="gap-3">
           {eyebrow ? <View className="self-start">{eyebrow}</View> : null}
           {title ? (
-            <Text className="font-bold text-4xl text-foreground leading-tight">
+            <Text className="font-display text-4xl text-foreground leading-tight">
               {title}
             </Text>
           ) : null}

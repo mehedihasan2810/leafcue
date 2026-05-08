@@ -206,7 +206,7 @@ export function InsightsScreen() {
 function Header() {
   return (
     <View className="gap-1">
-      <Text className="font-bold text-2xl text-foreground">Insights</Text>
+      <Text className="font-display text-2xl text-foreground">Insights</Text>
     </View>
   );
 }

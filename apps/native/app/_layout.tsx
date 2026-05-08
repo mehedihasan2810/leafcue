@@ -6,6 +6,7 @@ import { ToastProvider } from "heroui-native/toast";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
+import { AppFontProvider } from "@/components/app-font-provider";
 import { OnboardingGate } from "@/components/onboarding-gate";
 import { ThemeStoreSync } from "@/components/theme-store-sync";
 import { DatabaseProvider } from "@/lib/db/provider";
@@ -100,18 +101,20 @@ function StackLayout() {
 export default function Layout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <KeyboardProvider>
-        <ThemeStoreSync />
-        <HeroUINativeProvider>
-          <DatabaseProvider>
-            <ToastProvider>
-              <OnboardingGate>
-                <StackLayout />
-              </OnboardingGate>
-            </ToastProvider>
-          </DatabaseProvider>
-        </HeroUINativeProvider>
-      </KeyboardProvider>
+      <AppFontProvider>
+        <KeyboardProvider>
+          <ThemeStoreSync />
+          <HeroUINativeProvider>
+            <DatabaseProvider>
+              <ToastProvider>
+                <OnboardingGate>
+                  <StackLayout />
+                </OnboardingGate>
+              </ToastProvider>
+            </DatabaseProvider>
+          </HeroUINativeProvider>
+        </KeyboardProvider>
+      </AppFontProvider>
     </GestureHandlerRootView>
   );
 }

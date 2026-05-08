@@ -212,7 +212,7 @@ export function PlantLibraryScreen() {
         ListHeaderComponent={
           <View className="gap-3 px-4">
             <View className="gap-1">
-              <Text className="font-bold text-2xl text-foreground">
+              <Text className="font-display text-2xl text-foreground">
                 Your plants
               </Text>
               <Text className="text-muted text-sm">

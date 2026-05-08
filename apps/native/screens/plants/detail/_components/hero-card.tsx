@@ -81,7 +81,7 @@ export function HeroCard({
       <View className="gap-3 px-4 py-4">
         <View className="gap-1">
           <Text
-            className="font-bold text-2xl text-foreground"
+            className="font-display text-2xl text-foreground"
             numberOfLines={1}
           >
             {plant.nickname}

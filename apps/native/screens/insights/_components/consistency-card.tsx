@@ -32,7 +32,7 @@ export function ConsistencyCard({ consistency }: ConsistencyCardProps) {
           Watering consistency
         </Text>
       </View>
-      <Text className="font-bold text-foreground text-xl">
+      <Text className="font-display text-foreground text-xl">
         {consistency ? LABEL[consistency] : "Not enough data yet"}
       </Text>
       <Text className="text-muted text-sm leading-5">
