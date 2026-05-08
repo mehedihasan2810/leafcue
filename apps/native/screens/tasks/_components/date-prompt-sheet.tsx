@@ -1,18 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { addDays } from "date-fns";
-import {
-  BottomSheet,
-  Button,
-  Chip,
-  FieldError,
-  Input,
-  Label,
-  TextField,
-  useThemeColor,
-} from "heroui-native";
-import { useEffect, useState } from "react";
+import { BottomSheet, Button, Chip, useThemeColor } from "heroui-native";
+import { useState } from "react";
 import { Text, View } from "react-native";
 
+import { FormDatePickerField } from "@/components/tanstack-form-fields";
 import { formatIsoDate, parseIsoDate } from "@/lib/dates";
 
 type DatePromptSheetProps = {
@@ -48,11 +40,12 @@ export function DatePromptSheet({
     formatIsoDate(initialDate ?? new Date()),
   );
 
-  useEffect(() => {
-    if (isOpen) {
+  const handleSheetOpenChange = (open: boolean) => {
+    if (open) {
       setValue(formatIsoDate(initialDate ?? new Date()));
     }
-  }, [isOpen, initialDate]);
+    onOpenChange(open);
+  };
 
   const parsed = parseIsoDate(value);
   const tooEarly =
@@ -62,27 +55,30 @@ export function DatePromptSheet({
   const errorMessage = !value
     ? undefined
     : parsed === null
-      ? "Use the format YYYY-MM-DD."
+      ? "Choose a valid date."
       : tooEarly
-        ? "Choose a date in the future."
+        ? "Choose a later date."
         : undefined;
 
   const handleQuick = (days: number) => {
-    const next = addDays(new Date(), days);
+    let next = addDays(new Date(), days);
+    if (minDate && next.getTime() < minDate.getTime()) {
+      next = minDate;
+    }
     setValue(formatIsoDate(next));
   };
 
   const handleSubmit = () => {
     if (!parsed || tooEarly) return;
     onSubmit(parsed);
-    onOpenChange(false);
+    handleSheetOpenChange(false);
   };
 
   return (
-    <BottomSheet isOpen={isOpen} onOpenChange={onOpenChange}>
+    <BottomSheet isOpen={isOpen} onOpenChange={handleSheetOpenChange}>
       <BottomSheet.Portal>
         <BottomSheet.Overlay />
-        <BottomSheet.Content>
+        <BottomSheet.Content snapPoints={["75%", "92%"]}>
           <View className="gap-3">
             <BottomSheet.Title className="text-foreground">
               {title}
@@ -108,29 +104,21 @@ export function DatePromptSheet({
               ))}
             </View>
 
-            <TextField
-              isInvalid={Boolean(errorMessage)}
-              className="mt-1 gap-1.5"
-            >
-              <Label>
-                <Label.Text>Date (YYYY-MM-DD)</Label.Text>
-              </Label>
-              <Input
-                value={value}
-                onChangeText={setValue}
-                placeholder="2026-05-04"
-                keyboardType="numbers-and-punctuation"
-                autoCorrect={false}
-                maxLength={10}
-              />
-              {errorMessage ? <FieldError>{errorMessage}</FieldError> : null}
-            </TextField>
+            <FormDatePickerField
+              className="mt-1"
+              label="Date"
+              presentation="inline"
+              value={value}
+              onChange={setValue}
+              minimumDate={minDate}
+              errors={errorMessage ? [errorMessage] : undefined}
+            />
 
             <View className="mt-1 flex-row gap-2">
               <Button
                 variant="ghost"
                 className="flex-1"
-                onPress={() => onOpenChange(false)}
+                onPress={() => handleSheetOpenChange(false)}
               >
                 <Button.Label>Cancel</Button.Label>
               </Button>

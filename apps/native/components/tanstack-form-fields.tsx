@@ -379,6 +379,14 @@ type FormDatePickerFieldProps = BaseFieldProps & {
   value: string;
   /** Called with the new ISO date string, or empty string if cleared */
   onChange: (value: string) => void;
+  /** Passed through to `react-native-date-picker` when set */
+  minimumDate?: Date;
+  maximumDate?: Date;
+  /**
+   * Use `inline` inside stacked surfaces (e.g. another bottom sheet): the library modal
+   * often renders beneath those overlays on iOS.
+   */
+  presentation?: "modal" | "inline";
 };
 
 export function FormDatePickerField({
@@ -388,6 +396,9 @@ export function FormDatePickerField({
   className,
   value,
   onChange,
+  minimumDate,
+  maximumDate,
+  presentation = "modal",
 }: FormDatePickerFieldProps) {
   const [open, setOpen] = useState(false);
   const errorMessage = firstErrorMessage(errors ?? []);
@@ -396,7 +407,19 @@ export function FormDatePickerField({
   const muted = useThemeColor("muted");
 
   const selectedDate = value.trim().length > 0 ? parseIsoDate(value) : null;
-  const pickerDate = selectedDate ?? new Date();
+  let pickerDate = selectedDate ?? new Date();
+  if (
+    minimumDate !== undefined &&
+    pickerDate.getTime() < minimumDate.getTime()
+  ) {
+    pickerDate = minimumDate;
+  }
+  if (
+    maximumDate !== undefined &&
+    pickerDate.getTime() > maximumDate.getTime()
+  ) {
+    pickerDate = maximumDate;
+  }
   const displayText = selectedDate ? format(selectedDate, "MMM d, yyyy") : null;
 
   const handleConfirm = (date: Date) => {
@@ -415,10 +438,46 @@ export function FormDatePickerField({
           <Label.Text>{label}</Label.Text>
         </Label>
 
-        <PressableFeedback onPress={() => setOpen(true)}>
+        {presentation === "modal" ? (
+          <PressableFeedback onPress={() => setOpen(true)}>
+            <View
+              className={cn(
+                "flex-row items-center justify-between rounded-2xl border bg-surface px-4 py-3.5",
+                isInvalid
+                  ? "border-danger"
+                  : displayText
+                    ? "border-accent/50"
+                    : "border-border/60",
+              )}
+            >
+              <View className="flex-1 flex-row items-center gap-2.5">
+                <Ionicons
+                  name="calendar-outline"
+                  size={18}
+                  color={displayText ? accent : muted}
+                />
+                {displayText ? (
+                  <Text className="font-medium text-base text-foreground">
+                    {displayText}
+                  </Text>
+                ) : (
+                  <Text className="text-base text-muted">Select date</Text>
+                )}
+              </View>
+              {displayText ? (
+                <TouchableOpacity
+                  onPress={handleClear}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <Ionicons name="close-circle" size={18} color={muted} />
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          </PressableFeedback>
+        ) : (
           <View
             className={cn(
-              "flex-row items-center justify-between rounded-2xl border bg-surface px-4 py-3.5",
+              "overflow-hidden rounded-2xl border bg-surface",
               isInvalid
                 ? "border-danger"
                 : displayText
@@ -426,30 +485,16 @@ export function FormDatePickerField({
                   : "border-border/60",
             )}
           >
-            <View className="flex-1 flex-row items-center gap-2.5">
-              <Ionicons
-                name="calendar-outline"
-                size={18}
-                color={displayText ? accent : muted}
-              />
-              {displayText ? (
-                <Text className="font-medium text-base text-foreground">
-                  {displayText}
-                </Text>
-              ) : (
-                <Text className="text-base text-muted">Select date</Text>
-              )}
-            </View>
-            {displayText ? (
-              <TouchableOpacity
-                onPress={handleClear}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Ionicons name="close-circle" size={18} color={muted} />
-              </TouchableOpacity>
-            ) : null}
+            <DatePicker
+              date={pickerDate}
+              mode="date"
+              theme="auto"
+              minimumDate={minimumDate}
+              maximumDate={maximumDate}
+              onDateChange={(date) => onChange(formatIsoDate(date))}
+            />
           </View>
-        </PressableFeedback>
+        )}
 
         {description && !isInvalid ? (
           <Text className="text-muted text-xs">{description}</Text>
@@ -457,18 +502,22 @@ export function FormDatePickerField({
         {isInvalid ? <FieldError>{errorMessage}</FieldError> : null}
       </View>
 
-      <DatePicker
-        modal
-        open={open}
-        date={pickerDate}
-        mode="date"
-        theme="auto"
-        title={null}
-        confirmText="Done"
-        cancelText="Cancel"
-        onConfirm={handleConfirm}
-        onCancel={() => setOpen(false)}
-      />
+      {presentation === "modal" ? (
+        <DatePicker
+          modal
+          open={open}
+          date={pickerDate}
+          mode="date"
+          theme="auto"
+          title={null}
+          confirmText="Done"
+          cancelText="Cancel"
+          minimumDate={minimumDate}
+          maximumDate={maximumDate}
+          onConfirm={handleConfirm}
+          onCancel={() => setOpen(false)}
+        />
+      ) : null}
     </>
   );
 }
