@@ -17,19 +17,20 @@ import { Container } from "@/components/container";
 import { EmptyState } from "@/components/empty-state";
 import { SectionHeader } from "@/components/section-header";
 import { buildSmartHints, type CareHint } from "@/lib/care/hints";
-import { performToggleEnabled } from "@/lib/care/task-actions";
+import {
+  performDeleteSchedule,
+  performSaveSchedule,
+  performToggleEnabled,
+} from "@/lib/care/task-actions";
 import { relativeDueLabel } from "@/lib/dates";
 import { useDatabase } from "@/lib/db";
 import {
-  createSchedule,
-  deleteSchedule,
   getCareLogsForPlant,
   getCareLogsForSchedule,
   getCareTaskTemplates,
   getPlantById,
   getPresetById,
   getSchedulesForPlant,
-  updateSchedule,
 } from "@/lib/db/repositories";
 import {
   careLogs as careLogsTable,
@@ -42,7 +43,6 @@ import type {
   PlantPreset,
   PlantTaskSchedule,
 } from "@/lib/db/types";
-import { resyncScheduleById } from "@/lib/notifications/schedule";
 
 import { ScheduleFormSheet } from "@/screens/plants/schedules/_components/schedule-form-sheet";
 
@@ -112,37 +112,17 @@ export function SchedulesScreen({ plantId }: SchedulesScreenProps) {
     preferredMinute: number | null;
     instructions: string | null;
   }) => {
-    try {
-      if (editing) {
-        updateSchedule(db, editing.id, {
-          templateId: input.templateId,
-          customName: input.customName,
-          intervalDays: input.intervalDays,
-          nextDueAt: input.nextDueAt,
-          preferredHour: input.preferredHour,
-          preferredMinute: input.preferredMinute,
-          instructions: input.instructions,
-        });
-        await resyncScheduleById(db, editing.id);
-      } else {
-        const created = createSchedule(db, {
-          plantId,
-          templateId: input.templateId,
-          customName: input.customName,
-          intervalDays: input.intervalDays,
-          nextDueAt: input.nextDueAt,
-          preferredHour: input.preferredHour,
-          preferredMinute: input.preferredMinute,
-          instructions: input.instructions,
-          isEnabled: true,
-        });
-        await resyncScheduleById(db, created.id);
-      }
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Could not save schedule";
-      Alert.alert("Couldn't save", message);
-    }
+    await performSaveSchedule(db, {
+      plantId,
+      scheduleId: editing?.id,
+      templateId: input.templateId,
+      customName: input.customName,
+      intervalDays: input.intervalDays,
+      nextDueAt: input.nextDueAt,
+      preferredHour: input.preferredHour,
+      preferredMinute: input.preferredMinute,
+      instructions: input.instructions,
+    });
   };
 
   const handleDelete = (schedule: PlantTaskSchedule) => {
@@ -155,8 +135,9 @@ export function SchedulesScreen({ plantId }: SchedulesScreenProps) {
           text: "Delete",
           style: "destructive",
           onPress: () => {
-            deleteSchedule(db, schedule.id);
-            setFormOpen(false);
+            void performDeleteSchedule(db, schedule.id).then((deleted) => {
+              if (deleted) setFormOpen(false);
+            });
           },
         },
       ],

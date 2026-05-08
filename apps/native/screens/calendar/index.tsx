@@ -1,15 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
-import {
-  endOfMonth,
-  format,
-  isSameDay,
-  startOfDay,
-  startOfMonth,
-} from "date-fns";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { format, isSameDay, startOfDay } from "date-fns";
 import { router } from "expo-router";
 import { Chip, PressableFeedback, useThemeColor } from "heroui-native";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { z } from "zod";
@@ -19,31 +12,13 @@ import { EmptyState } from "@/components/empty-state";
 import { GroupedTaskCard } from "@/components/grouped-task-card";
 import { SectionHeader } from "@/components/section-header";
 import { TaskActionSheets } from "@/components/task-action-sheets";
+import { useCalendarReadModel } from "@/hooks/use-care-read-models";
 import { useTaskHandlers } from "@/hooks/use-task-handlers";
 import { isOverdue } from "@/lib/dates";
 import { useDatabase } from "@/lib/db";
-import {
-  type CompletedLogRow,
-  type DueTaskRow,
-  getAllActiveScheduleRows,
-  getCompletedTaskLogs,
-  getOverdueTasks,
-  getRooms,
-  getShelves,
-} from "@/lib/db/repositories";
-import {
-  careLogs,
-  plants,
-  plantTaskSchedules,
-  rooms as roomsTable,
-  shelves as shelvesTable,
-} from "@/lib/db/schema";
-import type { Room, Shelf } from "@/lib/db/types";
+import type { DueTaskRow } from "@/lib/db/repositories";
 
-import {
-  MonthGrid,
-  type MonthGridDayMeta,
-} from "@/screens/calendar/_components/month-grid";
+import { MonthGrid } from "@/screens/calendar/_components/month-grid";
 
 const calendarSegmentValues = ["upcoming", "overdue", "history"] as const;
 type CalendarSegment = (typeof calendarSegmentValues)[number];
@@ -61,93 +36,16 @@ export function CalendarScreen() {
   );
   const [segment, setSegment] = useState<CalendarSegment>("upcoming");
 
-  const livePlants = useLiveQuery(db.select().from(plants));
-  const liveSchedules = useLiveQuery(db.select().from(plantTaskSchedules));
-  const liveLogs = useLiveQuery(db.select().from(careLogs));
-  const liveRooms = useLiveQuery(db.select().from(roomsTable));
-  const liveShelves = useLiveQuery(db.select().from(shelvesTable));
-
   const now = new Date();
-
-  const allSchedules = useMemo<DueTaskRow[]>(() => {
-    // Reactivity signal: re-run when underlying tables change
-    void liveSchedules.data;
-    void livePlants.data;
-    return getAllActiveScheduleRows(db);
-  }, [db, liveSchedules.data, livePlants.data]);
-
-  const overdueRows = useMemo<DueTaskRow[]>(() => {
-    void liveSchedules.data;
-    void livePlants.data;
-    return getOverdueTasks(db, now);
-  }, [db, liveSchedules.data, livePlants.data, now]);
-
-  const completedRows = useMemo<CompletedLogRow[]>(() => {
-    void liveLogs.data;
-    void livePlants.data;
-    return getCompletedTaskLogs(db, {
-      from: startOfMonth(monthAnchor),
-      to: endOfMonth(monthAnchor),
-      limit: 200,
-    });
-  }, [db, monthAnchor, liveLogs.data, livePlants.data]);
-
-  const roomList = useMemo<Room[]>(() => {
-    void liveRooms.data;
-    return getRooms(db);
-  }, [db, liveRooms.data]);
-  const shelfList = useMemo<Shelf[]>(() => {
-    void liveShelves.data;
-    return getShelves(db);
-  }, [db, liveShelves.data]);
-  const roomById = useMemo(() => {
-    const map = new Map<number, Room>();
-    for (const room of roomList) map.set(room.id, room);
-    return map;
-  }, [roomList]);
-  const shelfById = useMemo(() => {
-    const map = new Map<number, Shelf>();
-    for (const shelf of shelfList) map.set(shelf.id, shelf);
-    return map;
-  }, [shelfList]);
-
-  const metaByKey = useMemo(() => {
-    const map = new Map<string, MonthGridDayMeta>();
-    for (const row of allSchedules) {
-      const due = row.schedule.nextDueAt;
-      if (!due) continue;
-      const key = format(due, "yyyy-MM-dd");
-      const existing = map.get(key) ?? {};
-      map.set(key, {
-        ...existing,
-        taskCount: (existing.taskCount ?? 0) + 1,
-        isOverdue: existing.isOverdue || isOverdue(due, now),
-      });
-    }
-    for (const row of completedRows) {
-      const key = format(row.log.completedAt, "yyyy-MM-dd");
-      const existing = map.get(key) ?? {};
-      map.set(key, {
-        ...existing,
-        completedCount: (existing.completedCount ?? 0) + 1,
-      });
-    }
-    return map;
-  }, [allSchedules, completedRows, now]);
-
-  const tasksForSelectedDay = useMemo<DueTaskRow[]>(() => {
-    return allSchedules.filter((row) => {
-      const due = row.schedule.nextDueAt;
-      if (!due) return false;
-      return isSameDay(due, selectedDate);
-    });
-  }, [allSchedules, selectedDate]);
-
-  const completedForSelectedDay = useMemo<CompletedLogRow[]>(() => {
-    return completedRows.filter((row) =>
-      isSameDay(row.log.completedAt, selectedDate),
-    );
-  }, [completedRows, selectedDate]);
+  const {
+    overdueRows,
+    completedRows,
+    roomById,
+    shelfById,
+    metaByKey,
+    tasksForSelectedDay,
+    completedForSelectedDay,
+  } = useCalendarReadModel(db, { monthAnchor, selectedDate, now });
 
   const handlers = useTaskHandlers();
 

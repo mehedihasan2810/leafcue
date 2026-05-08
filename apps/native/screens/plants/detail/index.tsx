@@ -1,5 +1,4 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
 import { PressableFeedback, useThemeColor } from "heroui-native";
 import { useToast } from "heroui-native/toast";
@@ -10,42 +9,16 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Container } from "@/components/container";
 import { PhotoViewerDialog } from "@/components/photo-viewer-dialog";
 import { TaskActionSheets } from "@/components/task-action-sheets";
+import { usePlantDetailReadModel } from "@/hooks/use-care-read-models";
 import { useTaskHandlers } from "@/hooks/use-task-handlers";
 import { performComplete } from "@/lib/care/task-actions";
 import { relativeDueLabel } from "@/lib/dates";
 import { useDatabase } from "@/lib/db";
-import {
-  getCareTaskTemplates,
-  getDueTasks,
-  getGrowthMeasurements,
-  getHealthObservations,
-  getPlantById,
-  getPlantPhotos,
-  getPlantTimeline,
-  getPresetById,
-  getRoomById,
-  getSchedulesForPlant,
-  type PlantTimelineKind,
-  updatePlant,
-} from "@/lib/db/repositories";
-import {
-  careLogs,
-  careTaskTemplates,
-  growthMeasurements,
-  healthObservations,
-  journalEntries,
-  plantPhotos,
-  plants as plantsTable,
-  plantTaskSchedules,
-  rooms as roomsTable,
-  shelves as shelvesTable,
-} from "@/lib/db/schema";
+import { type PlantTimelineKind, updatePlant } from "@/lib/db/repositories";
 import type {
   CareTaskTemplate,
   PlantPhoto,
   PlantTaskSchedule,
-  Room,
-  Shelf,
 } from "@/lib/db/types";
 
 import { CareProfileSection } from "@/screens/plants/detail/_components/care-profile-section";
@@ -86,103 +59,27 @@ export function PlantDetailScreen({ plantId }: PlantDetailScreenProps) {
   const [filter, setFilter] = useState<TimelineFilter>("all");
   const [viewerPhoto, setViewerPhoto] = useState<PlantPhoto | null>(null);
 
-  const livePlants = useLiveQuery(db.select().from(plantsTable));
-  const liveSchedules = useLiveQuery(db.select().from(plantTaskSchedules));
-  const liveLogs = useLiveQuery(db.select().from(careLogs));
-  const liveJournal = useLiveQuery(db.select().from(journalEntries));
-  const livePhotos = useLiveQuery(db.select().from(plantPhotos));
-  const liveGrowth = useLiveQuery(db.select().from(growthMeasurements));
-  const liveHealth = useLiveQuery(db.select().from(healthObservations));
-  const liveRooms = useLiveQuery(db.select().from(roomsTable));
-  const liveShelves = useLiveQuery(db.select().from(shelvesTable));
-  const liveTemplates = useLiveQuery(db.select().from(careTaskTemplates));
-
-  const plant = useMemo(() => {
-    void livePlants.data;
-    return getPlantById(db, plantId);
-  }, [db, plantId, livePlants.data]);
-
-  const room = useMemo<Room | null>(() => {
-    void liveRooms.data;
-    if (!plant?.roomId) return null;
-    return getRoomById(db, plant.roomId) ?? null;
-  }, [db, plant?.roomId, liveRooms.data]);
-
-  const shelfRow = useMemo<Shelf | null>(() => {
-    if (!plant?.shelfId) return null;
-    return liveShelves.data.find((s) => s.id === plant.shelfId) ?? null;
-  }, [plant?.shelfId, liveShelves.data]);
-
-  const schedules = useMemo(() => {
-    void liveSchedules.data;
-    return getSchedulesForPlant(db, plantId);
-  }, [db, plantId, liveSchedules.data]);
-
-  const dueRows = useMemo(() => {
-    void liveSchedules.data;
-    void liveLogs.data;
-    return getDueTasks(db).filter((row) => row.plant.id === plantId);
-  }, [db, plantId, liveSchedules.data, liveLogs.data]);
-
-  const photos = useMemo(() => {
-    void livePhotos.data;
-    return getPlantPhotos(db, plantId);
-  }, [db, plantId, livePhotos.data]);
-
-  const measurements = useMemo(() => {
-    void liveGrowth.data;
-    return getGrowthMeasurements(db, plantId);
-  }, [db, plantId, liveGrowth.data]);
-
-  const observations = useMemo(() => {
-    void liveHealth.data;
-    return getHealthObservations(db, plantId);
-  }, [db, plantId, liveHealth.data]);
-
-  const templates = useMemo<CareTaskTemplate[]>(() => {
-    void liveTemplates.data;
-    return getCareTaskTemplates(db);
-  }, [db, liveTemplates.data]);
-
-  const preset = useMemo(() => {
-    if (!plant?.speciesPresetId) return null;
-    return getPresetById(db, plant.speciesPresetId) ?? null;
-  }, [db, plant?.speciesPresetId]);
-
   const timelineKinds = useMemo<PlantTimelineKind[] | undefined>(() => {
     if (filter === "all") return undefined;
     return [TIMELINE_KIND_FROM_FILTER[filter]];
   }, [filter]);
-
-  const timeline = useMemo(() => {
-    void liveLogs.data;
-    void liveJournal.data;
-    void livePhotos.data;
-    void liveGrowth.data;
-    void liveHealth.data;
-    return getPlantTimeline(db, plantId, { kinds: timelineKinds, limit: 200 });
-  }, [
-    db,
-    plantId,
-    timelineKinds,
-    liveLogs.data,
-    liveJournal.data,
-    livePhotos.data,
-    liveGrowth.data,
-    liveHealth.data,
-  ]);
+  const {
+    plant,
+    room,
+    shelf: shelfRow,
+    schedules,
+    dueRows,
+    photos,
+    measurements,
+    observations,
+    templates,
+    preset,
+    timeline,
+    nextDueAt,
+  } = usePlantDetailReadModel(db, { plantId, timelineKinds });
 
   const handlers = useTaskHandlers();
   const { toast } = useToast();
-
-  const nextDueAt = useMemo<Date | null>(() => {
-    let next: Date | null = null;
-    for (const schedule of schedules) {
-      if (!schedule.isEnabled || !schedule.nextDueAt) continue;
-      if (!next || schedule.nextDueAt < next) next = schedule.nextDueAt;
-    }
-    return next;
-  }, [schedules]);
 
   if (!plant) {
     return (

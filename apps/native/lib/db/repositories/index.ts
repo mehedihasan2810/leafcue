@@ -10,3 +10,4 @@ export * from "@/lib/db/repositories/rooms";
 export * from "@/lib/db/repositories/settings";
 export * from "@/lib/db/repositories/tasks";
 export * from "@/lib/db/repositories/templates";
+export * from "@/lib/db/repositories/timeline";

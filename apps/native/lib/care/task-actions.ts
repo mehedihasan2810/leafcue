@@ -4,6 +4,8 @@ import type { LeafCueDatabase } from "@/lib/db";
 import {
   type CompleteTaskInput,
   completeTask,
+  createSchedule,
+  deleteSchedule,
   disableSchedule,
   enableSchedule,
   rescheduleTask,
@@ -11,9 +13,14 @@ import {
   snoozeTask,
   snoozeTaskByDays,
   undoCompletion,
+  updateSchedule,
 } from "@/lib/db/repositories";
 import type { CareLog, PlantTaskSchedule } from "@/lib/db/types";
-import { resyncScheduleById } from "@/lib/notifications/schedule";
+import type { PlantTaskScheduleInsertInput } from "@/lib/db/zod";
+import {
+  cancelScheduleReminder,
+  resyncScheduleById,
+} from "@/lib/notifications/schedule";
 
 export type CompleteTaskSnapshot = {
   log: CareLog;
@@ -23,9 +30,72 @@ export type CompleteTaskSnapshot = {
   previousSnoozedUntil: Date | null;
 };
 
+export type SaveTaskScheduleInput = Pick<
+  PlantTaskScheduleInsertInput,
+  | "plantId"
+  | "templateId"
+  | "customName"
+  | "intervalDays"
+  | "nextDueAt"
+  | "preferredHour"
+  | "preferredMinute"
+  | "instructions"
+> & {
+  scheduleId?: number;
+};
+
 function reportError(action: string, error: unknown): void {
   const message = error instanceof Error ? error.message : "Please try again.";
   Alert.alert(`Couldn't ${action}`, message);
+}
+
+export async function performSaveSchedule(
+  db: LeafCueDatabase,
+  input: SaveTaskScheduleInput,
+): Promise<PlantTaskSchedule | null> {
+  try {
+    const saved =
+      input.scheduleId !== undefined
+        ? updateSchedule(db, input.scheduleId, {
+            templateId: input.templateId,
+            customName: input.customName,
+            intervalDays: input.intervalDays,
+            nextDueAt: input.nextDueAt,
+            preferredHour: input.preferredHour,
+            preferredMinute: input.preferredMinute,
+            instructions: input.instructions,
+          })
+        : createSchedule(db, {
+            plantId: input.plantId,
+            templateId: input.templateId,
+            customName: input.customName,
+            intervalDays: input.intervalDays,
+            nextDueAt: input.nextDueAt,
+            preferredHour: input.preferredHour,
+            preferredMinute: input.preferredMinute,
+            instructions: input.instructions,
+            isEnabled: true,
+          });
+    await resyncScheduleById(db, saved.id);
+    return saved;
+  } catch (error) {
+    reportError("save", error);
+    return null;
+  }
+}
+
+export async function performDeleteSchedule(
+  db: LeafCueDatabase,
+  scheduleId: number,
+): Promise<boolean> {
+  try {
+    await cancelScheduleReminder(db, scheduleId);
+    deleteSchedule(db, scheduleId);
+    return true;
+  } catch (error) {
+    reportError("delete", error);
+    return false;
+  }
 }
 
 export async function performComplete(

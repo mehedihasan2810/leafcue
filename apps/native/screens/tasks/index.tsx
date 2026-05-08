@@ -1,5 +1,4 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router, useLocalSearchParams } from "expo-router";
 import { PressableFeedback, useThemeColor } from "heroui-native";
 import { useEffect, useMemo } from "react";
@@ -9,23 +8,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Container } from "@/components/container";
 import { EmptyState } from "@/components/empty-state";
 import { TaskActionSheets } from "@/components/task-action-sheets";
+import { useTaskQueueReadModel } from "@/hooks/use-care-read-models";
 import { useTaskHandlers } from "@/hooks/use-task-handlers";
 import { useDatabase } from "@/lib/db";
-import {
-  type CompletedLogRow,
-  type DueTaskRow,
-  getRooms,
-  getShelves,
-  getTasksByFilter,
-} from "@/lib/db/repositories";
-import {
-  careLogs,
-  plants,
-  plantTaskSchedules,
-  rooms,
-  shelves,
-} from "@/lib/db/schema";
-import type { Room, Shelf } from "@/lib/db/types";
 import {
   type TaskFilter,
   taskFilterSchema,
@@ -55,57 +40,11 @@ export function TasksScreen() {
     }
   }, [initialFilter, filter, setFilter]);
 
-  const livePlants = useLiveQuery(db.select().from(plants));
-  const liveSchedules = useLiveQuery(db.select().from(plantTaskSchedules));
-  const liveLogs = useLiveQuery(db.select().from(careLogs));
-  const liveRooms = useLiveQuery(db.select().from(rooms));
-  const liveShelves = useLiveQuery(db.select().from(shelves));
-
   const now = new Date();
-
-  const data = useMemo<{
-    schedules: DueTaskRow[];
-    completed: CompletedLogRow[];
-  }>(() => {
-    void liveSchedules.data;
-    void livePlants.data;
-    void liveLogs.data;
-    return getTasksByFilter(db, filter);
-  }, [db, filter, liveSchedules.data, livePlants.data, liveLogs.data]);
-
-  const counts = useMemo(() => {
-    void liveSchedules.data;
-    void livePlants.data;
-    const today = getTasksByFilter(db, "today");
-    const overdue = getTasksByFilter(db, "overdue");
-    const upcoming = getTasksByFilter(db, "upcoming");
-    return {
-      today: today.schedules.length,
-      overdue: overdue.schedules.length,
-      upcoming: upcoming.schedules.length,
-    } satisfies Partial<Record<TaskFilter, number>>;
-  }, [db, liveSchedules.data, livePlants.data]);
-
-  const roomList = useMemo<Room[]>(() => {
-    void liveRooms.data;
-    return getRooms(db);
-  }, [db, liveRooms.data]);
-  const shelfList = useMemo<Shelf[]>(() => {
-    void liveShelves.data;
-    return getShelves(db);
-  }, [db, liveShelves.data]);
-
-  const roomById = useMemo(() => {
-    const map = new Map<number, Room>();
-    for (const room of roomList) map.set(room.id, room);
-    return map;
-  }, [roomList]);
-
-  const shelfById = useMemo(() => {
-    const map = new Map<number, Shelf>();
-    for (const shelf of shelfList) map.set(shelf.id, shelf);
-    return map;
-  }, [shelfList]);
+  const { data, counts, roomById, shelfById } = useTaskQueueReadModel(
+    db,
+    filter,
+  );
 
   const handlers = useTaskHandlers();
 

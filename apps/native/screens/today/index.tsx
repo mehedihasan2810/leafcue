@@ -1,10 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
-import { addDays, isAfter } from "date-fns";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { addDays } from "date-fns";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Button, PressableFeedback, useThemeColor } from "heroui-native";
-import { useMemo } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -14,26 +12,16 @@ import { EmptyState } from "@/components/empty-state";
 import { SectionHeader } from "@/components/section-header";
 import { StatPill } from "@/components/stat-pill";
 import { TaskActionSheets } from "@/components/task-action-sheets";
+import { useTodayReadModel } from "@/hooks/use-care-read-models";
 import { useTaskHandlers } from "@/hooks/use-task-handlers";
 import { getHealthIssueLabel } from "@/lib/care/health-hints";
-import { formatLongDate, isOverdue, timeOfDayGreeting } from "@/lib/dates";
+import { formatLongDate, timeOfDayGreeting } from "@/lib/dates";
 import { useDatabase } from "@/lib/db";
-import {
-  type ActiveHealthObservationRow,
-  type DueTaskRow,
-  getActiveHealthObservationsAcrossPlants,
-  getDueTasks,
-  getRooms,
-  getUpcomingTasks,
+import type {
+  ActiveHealthObservationRow,
+  DueTaskRow,
 } from "@/lib/db/repositories";
-import {
-  healthObservations,
-  journalEntries,
-  plantPhotos,
-  plants,
-  plantTaskSchedules,
-} from "@/lib/db/schema";
-import type { Plant, Room } from "@/lib/db/types";
+import type { Plant } from "@/lib/db/types";
 
 export function TodayScreen() {
   const insets = useSafeAreaInsets();
@@ -43,54 +31,16 @@ export function TodayScreen() {
   const now = new Date();
   const sevenDaysAgo = addDays(now, -7);
 
-  const livePlants = useLiveQuery(db.select().from(plants));
-  const liveSchedules = useLiveQuery(db.select().from(plantTaskSchedules));
-  const liveJournal = useLiveQuery(db.select().from(journalEntries));
-  const livePhotos = useLiveQuery(db.select().from(plantPhotos));
-  const liveHealth = useLiveQuery(db.select().from(healthObservations));
-
-  const activeHealthIssues = useMemo(() => {
-    void liveHealth.data;
-    void livePlants.data;
-    return getActiveHealthObservationsAcrossPlants(db);
-  }, [db, liveHealth.data, livePlants.data]);
-
-  const allDueTasks = useMemo(() => {
-    void liveSchedules.data;
-    void livePlants.data;
-    return getDueTasks(db);
-  }, [db, liveSchedules.data, livePlants.data]);
-  const upcomingTasks = useMemo(() => {
-    void liveSchedules.data;
-    void livePlants.data;
-    return getUpcomingTasks(db, 7);
-  }, [db, liveSchedules.data, livePlants.data]);
-
-  const overdueTasks = allDueTasks.filter((row) =>
-    isOverdue(row.schedule.nextDueAt, now),
-  );
-  const todayTasks = allDueTasks.filter(
-    (row) => !isOverdue(row.schedule.nextDueAt, now),
-  );
-
-  const activePlants = livePlants.data.filter((plant) => !plant.archivedAt);
-  const favoritePlants = activePlants.filter((plant) => plant.isFavorite);
-
-  const recentActivityCount =
-    liveJournal.data.filter((entry) => isAfter(entry.createdAt, sevenDaysAgo))
-      .length +
-    livePhotos.data.filter((photo) => isAfter(photo.takenAt, sevenDaysAgo))
-      .length;
-
-  const rooms = useMemo(() => {
-    void livePlants.data;
-    return getRooms(db);
-  }, [db, livePlants.data]);
-  const roomById = useMemo(() => {
-    const map = new Map<number, Room>();
-    for (const room of rooms) map.set(room.id, room);
-    return map;
-  }, [rooms]);
+  const {
+    activeHealthIssues,
+    upcomingTasks,
+    overdueTasks,
+    todayTasks,
+    activePlants,
+    favoritePlants,
+    recentActivityCount,
+    roomById,
+  } = useTodayReadModel(db, { now, recentSince: sevenDaysAgo });
 
   const handlers = useTaskHandlers();
 
