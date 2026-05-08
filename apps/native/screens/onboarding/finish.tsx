@@ -1,22 +1,23 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useThemeColor } from "heroui-native";
-import { Text, View } from "react-native";
+import { InteractionManager, Text, View } from "react-native";
 import { useDatabase } from "@/lib/db";
+import { OnboardingIllustration } from "@/screens/onboarding/_components/onboarding-illustration";
 import { OnboardingShell } from "@/screens/onboarding/_components/onboarding-shell";
 import { useOnboardingStore } from "@/stores/use-onboarding-store";
 
 export function OnboardingFinishScreen() {
   const accent = useThemeColor("accent");
-  const _success = useThemeColor("success");
   const db = useDatabase();
   const completeOnboarding = useOnboardingStore((state) => state.complete);
 
   const handleAddFirstPlant = () => {
     completeOnboarding(db);
     router.replace("/(tabs)");
-    router.push("/plants/new");
+    void InteractionManager.runAfterInteractions(() => {
+      router.push("/plants/new");
+    });
   };
 
   const handleDone = () => {
@@ -29,15 +30,7 @@ export function OnboardingFinishScreen() {
       step={5}
       title="You're all set"
       subtitle="LeafCue is ready. Add your first plant now or explore the app first — you can always come back."
-      illustration={
-        <View className="">
-          <Image
-            source={require("@/assets/images/plant.png")}
-            style={{ width: 256, height: 256 }}
-            contentFit="contain"
-          />
-        </View>
-      }
+      illustration={<OnboardingIllustration variant="finish" />}
       primaryLabel="Add my first plant"
       primaryIcon="add-circle-outline"
       onPressPrimary={handleAddFirstPlant}

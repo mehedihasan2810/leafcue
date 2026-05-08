@@ -22,7 +22,6 @@ type OnboardingShellProps = PropsWithChildren<{
   secondaryLabel?: string;
   onPressSecondary?: () => void;
   showSkip?: boolean;
-  onAfterFinish?: () => void;
 }>;
 
 export function OnboardingShell({
@@ -43,9 +42,17 @@ export function OnboardingShell({
   const db = useDatabase();
   const completeOnboarding = useOnboardingStore((state) => state.complete);
 
+  const skipLabel = step <= 3 ? "Skip intro" : "Skip setup";
+
   const handleSkip = () => {
-    completeOnboarding(db);
-    router.replace("/(tabs)");
+    if (step <= 3) {
+      router.replace("/onboarding/room");
+      return;
+    }
+    if (step === 4) {
+      completeOnboarding(db);
+      router.replace("/(tabs)");
+    }
   };
 
   const eyebrow = (
@@ -53,7 +60,7 @@ export function OnboardingShell({
       <ProgressDots step={step} totalSteps={ONBOARDING_STEPS} />
       {showSkip ? (
         <PressableFeedback onPress={handleSkip}>
-          <Text className="font-medium text-muted text-sm">Skip</Text>
+          <Text className="font-medium text-muted text-sm">{skipLabel}</Text>
         </PressableFeedback>
       ) : null}
     </View>

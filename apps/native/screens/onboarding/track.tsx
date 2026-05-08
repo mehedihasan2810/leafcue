@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useThemeColor } from "heroui-native";
 import { Text, View } from "react-native";
+import { OnboardingIllustration } from "@/screens/onboarding/_components/onboarding-illustration";
 import { OnboardingShell } from "@/screens/onboarding/_components/onboarding-shell";
 
 const CAPABILITIES: ReadonlyArray<{
@@ -50,15 +50,7 @@ export function OnboardingTrackScreen() {
       step={3}
       title="Track everything that matters"
       subtitle="Build a clear picture of every plant — without the chore-list feel."
-      illustration={
-        <View className="">
-          <Image
-            source={require("@/assets/images/plant.png")}
-            style={{ width: 256, height: 256 }}
-            contentFit="contain"
-          />
-        </View>
-      }
+      illustration={<OnboardingIllustration variant="track" />}
       primaryLabel="Sounds good"
       primaryIcon="arrow-forward-outline"
       onPressPrimary={() => router.push("/onboarding/room")}

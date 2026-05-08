@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useThemeColor } from "heroui-native";
 import { Text, View } from "react-native";
+import { OnboardingIllustration } from "@/screens/onboarding/_components/onboarding-illustration";
 import { OnboardingShell } from "@/screens/onboarding/_components/onboarding-shell";
 
 const PROMISES: ReadonlyArray<{
@@ -22,12 +22,12 @@ const PROMISES: ReadonlyArray<{
     description:
       "Skip sign-ups, passwords, and emails. LeafCue works offline from the very first launch.",
   },
-  {
-    icon: "eye-off-outline",
-    title: "Zero tracking",
-    description:
-      "No analytics, no ads, no third-party SDKs watching what you do.",
-  },
+  // {
+  //   icon: "eye-off-outline",
+  //   title: "Zero tracking",
+  //   description:
+  //     "No analytics, no ads, no third-party SDKs watching what you do.",
+  // },
   {
     icon: "cloud-offline-outline",
     title: "Bring your own backup",
@@ -44,15 +44,7 @@ export function OnboardingPrivacyScreen() {
       step={2}
       title="Private by design"
       subtitle="LeafCue protects your plant care notes the same way it protects you."
-      illustration={
-        <View className="">
-          <Image
-            source={require("@/assets/images/plant.png")}
-            style={{ width: 256, height: 256 }}
-            contentFit="contain"
-          />
-        </View>
-      }
+      illustration={<OnboardingIllustration variant="privacy" />}
       primaryLabel="That sounds great"
       primaryIcon="arrow-forward-outline"
       onPressPrimary={() => router.push("/onboarding/track")}

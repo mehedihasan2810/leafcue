@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useThemeColor } from "heroui-native";
 import { Text, View } from "react-native";
+import { OnboardingIllustration } from "@/screens/onboarding/_components/onboarding-illustration";
 import { OnboardingShell } from "@/screens/onboarding/_components/onboarding-shell";
 
 export function OnboardingWelcomeScreen() {
@@ -13,15 +13,7 @@ export function OnboardingWelcomeScreen() {
       step={1}
       title="Welcome to LeafCue"
       subtitle="A calm, private place to keep your plants thriving — no accounts, no clouds, just gentle reminders."
-      illustration={
-        <View className="">
-          <Image
-            source={require("@/assets/images/plant.png")}
-            style={{ width: 256, height: 256 }}
-            contentFit="contain"
-          />
-        </View>
-      }
+      illustration={<OnboardingIllustration variant="welcome" />}
       primaryLabel="Get started"
       primaryIcon="arrow-forward-outline"
       onPressPrimary={() => router.push("/onboarding/privacy")}

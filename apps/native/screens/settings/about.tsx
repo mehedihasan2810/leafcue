@@ -1,17 +1,27 @@
 import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
-import { useThemeColor } from "heroui-native";
+import { router } from "expo-router";
+import { PressableFeedback, useThemeColor } from "heroui-native";
 import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
+import { useDatabase } from "@/lib/db";
 import { SettingsHeader } from "@/screens/settings/settings-header";
+import { useOnboardingStore } from "@/stores/use-onboarding-store";
 
 export function AboutScreen() {
   const insets = useSafeAreaInsets();
   const accent = useThemeColor("accent");
+  const db = useDatabase();
+  const resetOnboarding = useOnboardingStore((state) => state.reset);
 
   const appVersion = Constants.expoConfig?.version ?? "1.0.0";
+
+  const handleReplayOnboarding = () => {
+    resetOnboarding(db);
+    router.replace("/onboarding");
+  };
 
   return (
     <View className="flex-1 bg-background">
@@ -43,6 +53,21 @@ export function AboutScreen() {
               phone. Backups are JSON files you control.
             </Text>
           </View>
+
+          {__DEV__ ? (
+            <PressableFeedback
+              onPress={handleReplayOnboarding}
+              className="rounded-3xl border border-warning/50 border-dashed bg-warning/10 p-4 active:opacity-80"
+            >
+              <Text className="font-medium text-foreground text-sm">
+                Replay onboarding
+              </Text>
+              <Text className="text-muted text-xs leading-4">
+                Development only: clears the “first launch completed” flag and
+                opens the onboarding flow again.
+              </Text>
+            </PressableFeedback>
+          ) : null}
         </View>
       </Container>
     </View>

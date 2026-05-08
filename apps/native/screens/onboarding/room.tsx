@@ -1,6 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { Image } from "expo-image";
 import { router } from "expo-router";
 import {
   Input,
@@ -14,6 +13,7 @@ import { Text, View } from "react-native";
 import { useDatabase } from "@/lib/db";
 import { createRoom, deleteRoom } from "@/lib/db/repositories";
 import { rooms } from "@/lib/db/schema";
+import { OnboardingIllustration } from "@/screens/onboarding/_components/onboarding-illustration";
 import { OnboardingShell } from "@/screens/onboarding/_components/onboarding-shell";
 
 export function OnboardingRoomScreen() {
@@ -38,22 +38,17 @@ export function OnboardingRoomScreen() {
     deleteRoom(db, roomId);
   };
 
+  const hasRooms = liveRooms.data.length > 0;
+
   return (
     <OnboardingShell
       step={4}
       title="Where do your plants live?"
       subtitle="Tap to remove rooms you don't need, or add your own. You can edit them later."
-      illustration={
-        <View className="">
-          <Image
-            source={require("@/assets/images/plant.png")}
-            style={{ width: 256, height: 256 }}
-            contentFit="contain"
-          />
-        </View>
-      }
+      illustration={<OnboardingIllustration variant="room" />}
       primaryLabel="Looks good"
       primaryIcon="arrow-forward-outline"
+      primaryDisabled={!hasRooms}
       onPressPrimary={() => router.push("/onboarding/finish")}
       secondaryLabel="Back"
       onPressSecondary={() => router.back()}
@@ -83,7 +78,8 @@ export function OnboardingRoomScreen() {
           {liveRooms.data.length === 0 ? (
             <View className="rounded-2xl border border-border/60 border-dashed bg-surface px-4 py-3">
               <Text className="text-muted text-sm">
-                No rooms yet — add one below.
+                Add at least one room to continue — type a name below and tap
+                Add room.
               </Text>
             </View>
           ) : null}
