@@ -1,16 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useThemeColor } from "heroui-native";
 import { Text, View } from "react-native";
-
 import { useDatabase } from "@/lib/db";
 import { OnboardingShell } from "@/screens/onboarding/_components/onboarding-shell";
 import { useOnboardingStore } from "@/stores/use-onboarding-store";
-import { Image } from "expo-image";
 
 export function OnboardingFinishScreen() {
   const accent = useThemeColor("accent");
-  const success = useThemeColor("success");
+  const _success = useThemeColor("success");
   const db = useDatabase();
   const completeOnboarding = useOnboardingStore((state) => state.complete);
 

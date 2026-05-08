@@ -13,6 +13,14 @@
       "expo-font",
       "expo-sqlite",
       [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#f3e7d3",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200
+        }
+      ],
+      [
         "expo-camera",
         {
           "cameraPermission": "LeafCue needs access to your camera so you can capture photos of your plants. Photos stay on this device."

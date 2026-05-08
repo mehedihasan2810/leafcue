@@ -1,5 +1,6 @@
 import "@/global.css";
 import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { HeroUINativeProvider } from "heroui-native";
 import { ToastProvider } from "heroui-native/toast";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -8,6 +9,12 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { OnboardingGate } from "@/components/onboarding-gate";
 import { ThemeStoreSync } from "@/components/theme-store-sync";
 import { DatabaseProvider } from "@/lib/db/provider";
+
+// Set splash screen animation options
+SplashScreen.setOptions({
+  duration: 1000,
+  fade: true,
+});
 
 export const unstable_settings = {
   initialRouteName: "(tabs)",

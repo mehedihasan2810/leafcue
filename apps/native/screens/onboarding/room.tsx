@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { Image } from "expo-image";
 import { router } from "expo-router";
 import {
   Input,
@@ -14,7 +15,6 @@ import { useDatabase } from "@/lib/db";
 import { createRoom, deleteRoom } from "@/lib/db/repositories";
 import { rooms } from "@/lib/db/schema";
 import { OnboardingShell } from "@/screens/onboarding/_components/onboarding-shell";
-import { Image } from "expo-image";
 
 export function OnboardingRoomScreen() {
   const accent = useThemeColor("accent");

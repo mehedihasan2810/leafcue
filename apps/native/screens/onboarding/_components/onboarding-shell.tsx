@@ -49,7 +49,7 @@ export function OnboardingShell({
   };
 
   const eyebrow = (
-    <View className="flex-row items-center justify-between w-full">
+    <View className="w-full flex-row items-center justify-between">
       <ProgressDots step={step} totalSteps={ONBOARDING_STEPS} />
       {showSkip ? (
         <PressableFeedback onPress={handleSkip}>
