@@ -119,8 +119,17 @@ export function TodayScreen() {
 
   if (activePlants.length === 0) {
     return (
-      <Container className="px-4" isScrollable>
-        <View className="gap-6 pt-2">
+      <Container
+        isScrollable
+        scrollViewProps={{
+          contentContainerStyle: {
+            paddingTop: insets.top + 4,
+            paddingHorizontal: 16,
+            paddingBottom: insets.bottom + 96,
+          },
+        }}
+      >
+        <View className="gap-4">
           <Header
             greeting={timeOfDayGreeting(now)}
             date={formatLongDate(now)}

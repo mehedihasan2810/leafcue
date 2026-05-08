@@ -15,7 +15,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#f3e7d3",
+          "backgroundColor": "#e9f9f6",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200
         }
@@ -51,7 +51,7 @@
       "package": "com.galaxywayai.leafcue",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android-adaptive-icon.png",
-        "backgroundColor": "#f3e7d3"
+        "backgroundColor": "#e9f9f6"
       }
     }
   }
