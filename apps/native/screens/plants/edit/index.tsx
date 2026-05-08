@@ -262,11 +262,10 @@ export function EditPlantScreen({ mode, plantId }: EditPlantScreenProps) {
   const liveRooms = useLiveQuery(db.select().from(roomsTable));
   const liveShelves = useLiveQuery(db.select().from(shelvesTable));
 
-  const rooms = useMemo(
-    () => getRooms(db),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, liveRooms.data.length],
-  );
+  const rooms = useMemo(() => {
+    void liveRooms.data;
+    return getRooms(db);
+  }, [db, liveRooms.data]);
 
   const presets = useMemo(() => getPresets(db), [db]);
 

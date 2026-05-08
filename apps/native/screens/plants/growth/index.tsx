@@ -31,7 +31,6 @@ type PlantGrowthScreenProps = {
 
 export function PlantGrowthScreen({ plantId }: PlantGrowthScreenProps) {
   const insets = useSafeAreaInsets();
-  const accent = useThemeColor("accent");
   const accentForeground = useThemeColor("accent-foreground");
   const muted = useThemeColor("muted");
   const danger = useThemeColor("danger");
@@ -43,17 +42,15 @@ export function PlantGrowthScreen({ plantId }: PlantGrowthScreenProps) {
     db.select().from(growthMeasurementsTable),
   );
 
-  const plant = useMemo(
-    () => getPlantById(db, plantId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, livePlants.data.length],
-  );
+  const plant = useMemo(() => {
+    void livePlants.data;
+    return getPlantById(db, plantId);
+  }, [db, plantId, livePlants.data]);
 
-  const measurements = useMemo(
-    () => getGrowthMeasurements(db, plantId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, liveMeasurements.data.length],
-  );
+  const measurements = useMemo(() => {
+    void liveMeasurements.data;
+    return getGrowthMeasurements(db, plantId);
+  }, [db, plantId, liveMeasurements.data]);
 
   const handleSubmit = async (input: {
     heightCm: number | null;

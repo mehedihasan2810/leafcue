@@ -63,40 +63,35 @@ export function SchedulesScreen({ plantId }: SchedulesScreenProps) {
   const liveLogs = useLiveQuery(db.select().from(careLogsTable));
   const liveTemplates = useLiveQuery(db.select().from(careTaskTemplatesTable));
 
-  const plant = useMemo(
-    () => getPlantById(db, plantId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, liveSchedules.data.length],
-  );
+  const plant = useMemo(() => {
+    void liveSchedules.data;
+    return getPlantById(db, plantId);
+  }, [db, plantId, liveSchedules.data]);
 
   const preset = useMemo<PlantPreset | null>(() => {
     if (!plant?.speciesPresetId) return null;
     return getPresetById(db, plant.speciesPresetId) ?? null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [db, plant?.speciesPresetId]);
 
-  const schedules = useMemo(
-    () => getSchedulesForPlant(db, plantId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, liveSchedules.data.length],
-  );
+  const schedules = useMemo(() => {
+    void liveSchedules.data;
+    return getSchedulesForPlant(db, plantId);
+  }, [db, plantId, liveSchedules.data]);
 
-  const templates = useMemo<CareTaskTemplate[]>(
-    () => getCareTaskTemplates(db),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, liveTemplates.data.length],
-  );
+  const templates = useMemo<CareTaskTemplate[]>(() => {
+    void liveTemplates.data;
+    return getCareTaskTemplates(db);
+  }, [db, liveTemplates.data]);
   const templateById = useMemo(() => {
     const map = new Map<number, CareTaskTemplate>();
     for (const template of templates) map.set(template.id, template);
     return map;
   }, [templates]);
 
-  const recentLogs = useMemo<CareLog[]>(
-    () => getCareLogsForPlant(db, plantId, 10),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, liveLogs.data.length],
-  );
+  const recentLogs = useMemo<CareLog[]>(() => {
+    void liveLogs.data;
+    return getCareLogsForPlant(db, plantId, 10);
+  }, [db, plantId, liveLogs.data]);
 
   const openCreate = () => {
     setEditing(null);

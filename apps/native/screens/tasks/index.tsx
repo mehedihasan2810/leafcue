@@ -66,40 +66,34 @@ export function TasksScreen() {
   const data = useMemo<{
     schedules: DueTaskRow[];
     completed: CompletedLogRow[];
-  }>(
-    () => getTasksByFilter(db, filter, now),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      db,
-      filter,
-      liveSchedules.data.length,
-      livePlants.data.length,
-      liveLogs.data.length,
-    ],
-  );
+  }>(() => {
+    void liveSchedules.data;
+    void livePlants.data;
+    void liveLogs.data;
+    return getTasksByFilter(db, filter);
+  }, [db, filter, liveSchedules.data, livePlants.data, liveLogs.data]);
 
   const counts = useMemo(() => {
-    const today = getTasksByFilter(db, "today", now);
-    const overdue = getTasksByFilter(db, "overdue", now);
-    const upcoming = getTasksByFilter(db, "upcoming", now);
+    void liveSchedules.data;
+    void livePlants.data;
+    const today = getTasksByFilter(db, "today");
+    const overdue = getTasksByFilter(db, "overdue");
+    const upcoming = getTasksByFilter(db, "upcoming");
     return {
       today: today.schedules.length,
       overdue: overdue.schedules.length,
       upcoming: upcoming.schedules.length,
     } satisfies Partial<Record<TaskFilter, number>>;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [db, liveSchedules.data.length, livePlants.data.length]);
+  }, [db, liveSchedules.data, livePlants.data]);
 
-  const roomList = useMemo<Room[]>(
-    () => getRooms(db),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, liveRooms.data.length],
-  );
-  const shelfList = useMemo<Shelf[]>(
-    () => getShelves(db),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, liveShelves.data.length],
-  );
+  const roomList = useMemo<Room[]>(() => {
+    void liveRooms.data;
+    return getRooms(db);
+  }, [db, liveRooms.data]);
+  const shelfList = useMemo<Shelf[]>(() => {
+    void liveShelves.data;
+    return getShelves(db);
+  }, [db, liveShelves.data]);
 
   const roomById = useMemo(() => {
     const map = new Map<number, Room>();

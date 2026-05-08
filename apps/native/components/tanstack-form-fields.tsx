@@ -385,7 +385,6 @@ export function FormDatePickerField({
   label,
   description,
   errors,
-  isRequired,
   className,
   value,
   onChange,

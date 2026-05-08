@@ -60,11 +60,10 @@ export function RoomsScreen() {
   const liveShelves = useLiveQuery(db.select().from(shelvesTable));
   const livePlants = useLiveQuery(db.select().from(plantsTable));
 
-  const rooms = useMemo(
-    () => getRooms(db),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, liveRooms.data.length],
-  );
+  const rooms = useMemo(() => {
+    void liveRooms.data;
+    return getRooms(db);
+  }, [db, liveRooms.data]);
 
   const plantCounts = useMemo(() => {
     const map = new Map<number, number>();

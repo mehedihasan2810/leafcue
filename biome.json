@@ -38,7 +38,8 @@
       "!**/.claude/skills",
       "!**/.factory/skills",
       "!**/.windsurf/skills",
-      "!**/.trae/skills"
+      "!**/.trae/skills",
+      "!packages/ui/src/components"
     ]
   },
   "formatter": {

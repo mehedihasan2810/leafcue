@@ -30,18 +30,21 @@ export function InsightsScreen() {
   const liveGrowth = useLiveQuery(db.select().from(growthMeasurements));
   const liveHealth = useLiveQuery(db.select().from(healthObservations));
 
-  const summary = useMemo(
-    () => getInsightsSummary(db),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      db,
-      livePlants.data.length,
-      liveSchedules.data.length,
-      liveLogs.data.length,
-      liveGrowth.data.length,
-      liveHealth.data.length,
-    ],
-  );
+  const summary = useMemo(() => {
+    void livePlants.data;
+    void liveSchedules.data;
+    void liveLogs.data;
+    void liveGrowth.data;
+    void liveHealth.data;
+    return getInsightsSummary(db);
+  }, [
+    db,
+    livePlants.data,
+    liveSchedules.data,
+    liveLogs.data,
+    liveGrowth.data,
+    liveHealth.data,
+  ]);
 
   const goToPlant = (plantId: number) => {
     router.push({

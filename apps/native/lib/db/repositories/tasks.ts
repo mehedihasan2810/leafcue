@@ -1,5 +1,16 @@
-import { addDays, isAfter, startOfDay } from "date-fns";
-import { and, asc, desc, eq, gt, gte, isNull, lte, or } from "drizzle-orm";
+import { addDays, startOfDay } from "date-fns";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gt,
+  gte,
+  isNotNull,
+  isNull,
+  lte,
+  or,
+} from "drizzle-orm";
 
 import {
   computeNextDueAt,
@@ -658,7 +669,8 @@ export function getSchedulesNeedingReminders(
   horizonDays = 60,
 ): DueTaskRow[] {
   const horizon = new Date(now.getTime() + horizonDays * MS_PER_DAY);
-  const rows = db
+  const yesterday = addDays(now, -1);
+  return db
     .select({
       schedule: plantTaskSchedules,
       plant: plants,
@@ -671,14 +683,14 @@ export function getSchedulesNeedingReminders(
       eq(careTaskTemplates.id, plantTaskSchedules.templateId),
     )
     .where(
-      and(eq(plantTaskSchedules.isEnabled, true), isNull(plants.archivedAt)),
+      and(
+        eq(plantTaskSchedules.isEnabled, true),
+        isNull(plants.archivedAt),
+        isNotNull(plantTaskSchedules.nextDueAt),
+        gt(plantTaskSchedules.nextDueAt, yesterday),
+        lte(plantTaskSchedules.nextDueAt, horizon),
+      ),
     )
     .orderBy(asc(plantTaskSchedules.nextDueAt))
     .all();
-
-  return rows.filter((row) => {
-    const due = row.schedule.nextDueAt;
-    if (!due) return false;
-    return isAfter(due, addDays(now, -1)) && due.getTime() <= horizon.getTime();
-  });
 }

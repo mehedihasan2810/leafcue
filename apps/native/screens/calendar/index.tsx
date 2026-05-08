@@ -1,12 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import {
-  addMonths,
   endOfMonth,
   format,
   isSameDay,
   startOfDay,
   startOfMonth,
-  subMonths,
 } from "date-fns";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
@@ -72,45 +70,36 @@ export function CalendarScreen() {
   const now = new Date();
 
   const allSchedules = useMemo<DueTaskRow[]>(() => {
-    // Read live data lengths to trigger recomputation on changes
-    void liveSchedules.data.length;
-    void livePlants.data.length;
+    // Reactivity signal: re-run when underlying tables change
+    void liveSchedules.data;
+    void livePlants.data;
     return getAllActiveScheduleRows(db);
-  }, [db, liveSchedules.data.length, livePlants.data.length]);
+  }, [db, liveSchedules.data, livePlants.data]);
 
   const overdueRows = useMemo<DueTaskRow[]>(() => {
-    void liveSchedules.data.length;
-    void livePlants.data.length;
+    void liveSchedules.data;
+    void livePlants.data;
     return getOverdueTasks(db, now);
-  }, [db, liveSchedules.data.length, livePlants.data.length, now]);
-
-  const monthStart = startOfMonth(monthAnchor);
-  const monthEnd = endOfMonth(monthAnchor);
+  }, [db, liveSchedules.data, livePlants.data, now]);
 
   const completedRows = useMemo<CompletedLogRow[]>(() => {
-    void liveLogs.data.length;
-    void livePlants.data.length;
+    void liveLogs.data;
+    void livePlants.data;
     return getCompletedTaskLogs(db, {
-      from: subMonths(monthStart, 0),
-      to: addMonths(monthEnd, 0),
+      from: startOfMonth(monthAnchor),
+      to: endOfMonth(monthAnchor),
       limit: 200,
     });
-  }, [
-    db,
-    monthStart.getTime(),
-    monthEnd.getTime(),
-    liveLogs.data.length,
-    livePlants.data.length,
-  ]);
+  }, [db, monthAnchor, liveLogs.data, livePlants.data]);
 
   const roomList = useMemo<Room[]>(() => {
-    void liveRooms.data.length;
+    void liveRooms.data;
     return getRooms(db);
-  }, [db, liveRooms.data.length]);
+  }, [db, liveRooms.data]);
   const shelfList = useMemo<Shelf[]>(() => {
-    void liveShelves.data.length;
+    void liveShelves.data;
     return getShelves(db);
-  }, [db, liveShelves.data.length]);
+  }, [db, liveShelves.data]);
   const roomById = useMemo(() => {
     const map = new Map<number, Room>();
     for (const room of roomList) map.set(room.id, room);

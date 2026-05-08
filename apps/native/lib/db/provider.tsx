@@ -114,13 +114,17 @@ function useSeed(db: LeafCueDatabase, ready: boolean): SeedState {
     if (state.status !== "idle") return;
 
     setState({ status: "running" });
-    try {
-      runSeeds(db);
-      setState({ status: "done" });
-    } catch (caught) {
-      const err = caught instanceof Error ? caught : new Error(String(caught));
-      setState({ status: "error", error: err });
-    }
+    const timer = setImmediate(() => {
+      try {
+        runSeeds(db);
+        setState({ status: "done" });
+      } catch (caught) {
+        const err =
+          caught instanceof Error ? caught : new Error(String(caught));
+        setState({ status: "error", error: err });
+      }
+    });
+    return () => clearImmediate(timer);
   }, [db, ready, state.status]);
 
   return state;

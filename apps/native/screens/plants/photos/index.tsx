@@ -46,17 +46,15 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
   const livePlants = useLiveQuery(db.select().from(plantsTable));
   const livePhotos = useLiveQuery(db.select().from(plantPhotosTable));
 
-  const plant = useMemo(
-    () => getPlantById(db, plantId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, livePlants.data.length],
-  );
+  const plant = useMemo(() => {
+    void livePlants.data;
+    return getPlantById(db, plantId);
+  }, [db, plantId, livePlants.data]);
 
-  const photos = useMemo(
-    () => getPlantPhotos(db, plantId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, livePhotos.data.length],
-  );
+  const photos = useMemo(() => {
+    void livePhotos.data;
+    return getPlantPhotos(db, plantId);
+  }, [db, plantId, livePhotos.data]);
 
   const handleAddPhoto = async () => {
     try {

@@ -97,58 +97,52 @@ export function PlantDetailScreen({ plantId }: PlantDetailScreenProps) {
   const liveShelves = useLiveQuery(db.select().from(shelvesTable));
   const liveTemplates = useLiveQuery(db.select().from(careTaskTemplates));
 
-  const plant = useMemo(
-    () => getPlantById(db, plantId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, livePlants.data.length],
-  );
+  const plant = useMemo(() => {
+    void livePlants.data;
+    return getPlantById(db, plantId);
+  }, [db, plantId, livePlants.data]);
 
   const room = useMemo<Room | null>(() => {
+    void liveRooms.data;
     if (!plant?.roomId) return null;
     return getRoomById(db, plant.roomId) ?? null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [db, plant?.roomId, liveRooms.data.length]);
+  }, [db, plant?.roomId, liveRooms.data]);
 
   const shelfRow = useMemo<Shelf | null>(() => {
     if (!plant?.shelfId) return null;
     return liveShelves.data.find((s) => s.id === plant.shelfId) ?? null;
   }, [plant?.shelfId, liveShelves.data]);
 
-  const schedules = useMemo(
-    () => getSchedulesForPlant(db, plantId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, liveSchedules.data.length],
-  );
+  const schedules = useMemo(() => {
+    void liveSchedules.data;
+    return getSchedulesForPlant(db, plantId);
+  }, [db, plantId, liveSchedules.data]);
 
-  const dueRows = useMemo(
-    () => getDueTasks(db).filter((row) => row.plant.id === plantId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, liveSchedules.data.length, liveLogs.data.length],
-  );
+  const dueRows = useMemo(() => {
+    void liveSchedules.data;
+    void liveLogs.data;
+    return getDueTasks(db).filter((row) => row.plant.id === plantId);
+  }, [db, plantId, liveSchedules.data, liveLogs.data]);
 
-  const photos = useMemo(
-    () => getPlantPhotos(db, plantId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, livePhotos.data.length],
-  );
+  const photos = useMemo(() => {
+    void livePhotos.data;
+    return getPlantPhotos(db, plantId);
+  }, [db, plantId, livePhotos.data]);
 
-  const measurements = useMemo(
-    () => getGrowthMeasurements(db, plantId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, liveGrowth.data.length],
-  );
+  const measurements = useMemo(() => {
+    void liveGrowth.data;
+    return getGrowthMeasurements(db, plantId);
+  }, [db, plantId, liveGrowth.data]);
 
-  const observations = useMemo(
-    () => getHealthObservations(db, plantId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, liveHealth.data.length],
-  );
+  const observations = useMemo(() => {
+    void liveHealth.data;
+    return getHealthObservations(db, plantId);
+  }, [db, plantId, liveHealth.data]);
 
-  const templates = useMemo<CareTaskTemplate[]>(
-    () => getCareTaskTemplates(db),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, liveTemplates.data.length],
-  );
+  const templates = useMemo<CareTaskTemplate[]>(() => {
+    void liveTemplates.data;
+    return getCareTaskTemplates(db);
+  }, [db, liveTemplates.data]);
 
   const preset = useMemo(() => {
     if (!plant?.speciesPresetId) return null;
@@ -160,20 +154,23 @@ export function PlantDetailScreen({ plantId }: PlantDetailScreenProps) {
     return [TIMELINE_KIND_FROM_FILTER[filter]];
   }, [filter]);
 
-  const timeline = useMemo(
-    () => getPlantTimeline(db, plantId, { kinds: timelineKinds, limit: 200 }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      db,
-      plantId,
-      timelineKinds,
-      liveLogs.data.length,
-      liveJournal.data.length,
-      livePhotos.data.length,
-      liveGrowth.data.length,
-      liveHealth.data.length,
-    ],
-  );
+  const timeline = useMemo(() => {
+    void liveLogs.data;
+    void liveJournal.data;
+    void livePhotos.data;
+    void liveGrowth.data;
+    void liveHealth.data;
+    return getPlantTimeline(db, plantId, { kinds: timelineKinds, limit: 200 });
+  }, [
+    db,
+    plantId,
+    timelineKinds,
+    liveLogs.data,
+    liveJournal.data,
+    livePhotos.data,
+    liveGrowth.data,
+    liveHealth.data,
+  ]);
 
   const handlers = useTaskHandlers();
   const { toast } = useToast();

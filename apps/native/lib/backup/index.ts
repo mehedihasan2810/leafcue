@@ -52,20 +52,20 @@ function serializeRows<T extends Record<string, unknown>>(
 }
 
 /** Collect all unique photo URIs stored in the app photo directory. */
-function collectPhotoUris(payload: BackupPayload): string[] {
+function collectPhotoUris(tables: BackupTables): string[] {
   const uris = new Set<string>();
 
-  for (const row of payload.tables.plants) {
+  for (const row of tables.plants) {
     const uri = typeof row.photoUri === "string" ? row.photoUri : null;
-    if (uri && uri.includes(`/${PHOTO_DIR_NAME}/`)) uris.add(uri);
+    if (uri?.includes(`/${PHOTO_DIR_NAME}/`)) uris.add(uri);
   }
-  for (const row of payload.tables.plantPhotos) {
+  for (const row of tables.plantPhotos) {
     const uri = typeof row.uri === "string" ? row.uri : null;
-    if (uri && uri.includes(`/${PHOTO_DIR_NAME}/`)) uris.add(uri);
+    if (uri?.includes(`/${PHOTO_DIR_NAME}/`)) uris.add(uri);
   }
-  for (const row of payload.tables.journalEntries) {
+  for (const row of tables.journalEntries) {
     const uri = typeof row.photoUri === "string" ? row.photoUri : null;
-    if (uri && uri.includes(`/${PHOTO_DIR_NAME}/`)) uris.add(uri);
+    if (uri?.includes(`/${PHOTO_DIR_NAME}/`)) uris.add(uri);
   }
 
   return [...uris];
@@ -131,18 +131,8 @@ export function buildBackupPayload(
       updatedAt: row.updatedAt.toISOString(),
     }));
 
-  // Build a temporary payload to collect URIs
-  const partialPayload: BackupPayload = backupPayloadSchema.parse({
-    version: 2,
-    exportedAt: new Date().toISOString(),
-    metadata: { appVersion: "1.0.0", platform: "native" },
-    tables,
-    settings: settingsRows,
-    onboardingState: onboardingRows,
-  });
-
   // Bundle photo files as base64
-  const photoUris = collectPhotoUris(partialPayload);
+  const photoUris = collectPhotoUris(tables);
   const photoFiles: Record<string, BackupPhotoFile> = {};
   for (const uri of photoUris) {
     const result = readPhotoAsBase64(uri);
@@ -207,7 +197,7 @@ function restorePhotoFiles(payload: BackupPayload): void {
 }
 
 function writePhotoFromBase64File(
-  targetUri: string,
+  _targetUri: string,
   photoFile: BackupPhotoFile,
 ): void {
   try {

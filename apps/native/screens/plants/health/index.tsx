@@ -44,17 +44,15 @@ export function PlantHealthScreen({ plantId }: PlantHealthScreenProps) {
     db.select().from(healthObservationsTable),
   );
 
-  const plant = useMemo(
-    () => getPlantById(db, plantId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, livePlants.data.length],
-  );
+  const plant = useMemo(() => {
+    void livePlants.data;
+    return getPlantById(db, plantId);
+  }, [db, plantId, livePlants.data]);
 
-  const observations = useMemo(
-    () => getHealthObservations(db, plantId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, liveObservations.data.length],
-  );
+  const observations = useMemo(() => {
+    void liveObservations.data;
+    return getHealthObservations(db, plantId);
+  }, [db, plantId, liveObservations.data]);
 
   const grouped = useMemo(() => {
     const active = observations.filter((obs) => obs.status === "active");

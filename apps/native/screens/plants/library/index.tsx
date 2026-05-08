@@ -51,31 +51,20 @@ export function PlantLibraryScreen() {
   const liveSchedules = useLiveQuery(db.select().from(plantTaskSchedules));
   const liveRooms = useLiveQuery(db.select().from(roomsTable));
 
-  const filteredPlants = useMemo(
-    () =>
-      getPlants(db, {
-        includeArchived: showArchived,
-        search: deferredSearch,
-        favoritesOnly: filter === "favorites" ? true : undefined,
-        roomId:
-          filter === "room" && roomFilter !== null ? roomFilter : undefined,
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      db,
-      deferredSearch,
-      filter,
-      roomFilter,
-      showArchived,
-      livePlants.data.length,
-    ],
-  );
+  const filteredPlants = useMemo(() => {
+    void livePlants.data;
+    return getPlants(db, {
+      includeArchived: showArchived,
+      search: deferredSearch,
+      favoritesOnly: filter === "favorites" ? true : undefined,
+      roomId: filter === "room" && roomFilter !== null ? roomFilter : undefined,
+    });
+  }, [db, deferredSearch, filter, roomFilter, showArchived, livePlants.data]);
 
-  const dueRows = useMemo(
-    () => getDueTasks(db),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, liveSchedules.data.length],
-  );
+  const dueRows = useMemo(() => {
+    void liveSchedules.data;
+    return getDueTasks(db);
+  }, [db, liveSchedules.data]);
 
   const overdueIds = useMemo(() => {
     const ids = new Set<number>();
@@ -109,11 +98,10 @@ export function PlantLibraryScreen() {
     return filteredPlants;
   }, [filteredPlants, filter, todayDueIds, overdueIds]);
 
-  const rooms = useMemo(
-    () => getRooms(db),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, liveRooms.data.length],
-  );
+  const rooms = useMemo(() => {
+    void liveRooms.data;
+    return getRooms(db);
+  }, [db, liveRooms.data]);
 
   const roomById = useMemo(() => {
     const map = new Map<number, Room>();
@@ -122,6 +110,7 @@ export function PlantLibraryScreen() {
   }, [rooms]);
 
   const nextDueByPlant = useMemo(() => {
+    void liveSchedules.data;
     const map = new Map<number, Date | null>();
     for (const plant of visiblePlants) {
       const schedules = getSchedulesForPlant(db, plant.id);
@@ -135,8 +124,7 @@ export function PlantLibraryScreen() {
       map.set(plant.id, nextDue);
     }
     return map;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visiblePlants, liveSchedules.data.length, db]);
+  }, [visiblePlants, liveSchedules.data, db]);
 
   const totalActive = livePlants.data.filter(
     (plant) => !plant.archivedAt,

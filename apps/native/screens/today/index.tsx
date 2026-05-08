@@ -49,22 +49,22 @@ export function TodayScreen() {
   const livePhotos = useLiveQuery(db.select().from(plantPhotos));
   const liveHealth = useLiveQuery(db.select().from(healthObservations));
 
-  const activeHealthIssues = useMemo(
-    () => getActiveHealthObservationsAcrossPlants(db),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, liveHealth.data.length, livePlants.data.length],
-  );
+  const activeHealthIssues = useMemo(() => {
+    void liveHealth.data;
+    void livePlants.data;
+    return getActiveHealthObservationsAcrossPlants(db);
+  }, [db, liveHealth.data, livePlants.data]);
 
-  const allDueTasks = useMemo(
-    () => getDueTasks(db, now),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, liveSchedules.data.length, livePlants.data.length],
-  );
-  const upcomingTasks = useMemo(
-    () => getUpcomingTasks(db, 7, now),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, liveSchedules.data.length, livePlants.data.length],
-  );
+  const allDueTasks = useMemo(() => {
+    void liveSchedules.data;
+    void livePlants.data;
+    return getDueTasks(db);
+  }, [db, liveSchedules.data, livePlants.data]);
+  const upcomingTasks = useMemo(() => {
+    void liveSchedules.data;
+    void livePlants.data;
+    return getUpcomingTasks(db, 7);
+  }, [db, liveSchedules.data, livePlants.data]);
 
   const overdueTasks = allDueTasks.filter((row) =>
     isOverdue(row.schedule.nextDueAt, now),
@@ -82,11 +82,10 @@ export function TodayScreen() {
     livePhotos.data.filter((photo) => isAfter(photo.takenAt, sevenDaysAgo))
       .length;
 
-  const rooms = useMemo(
-    () => getRooms(db),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, livePlants.data.length],
-  );
+  const rooms = useMemo(() => {
+    void livePlants.data;
+    return getRooms(db);
+  }, [db, livePlants.data]);
   const roomById = useMemo(() => {
     const map = new Map<number, Room>();
     for (const room of rooms) map.set(room.id, room);

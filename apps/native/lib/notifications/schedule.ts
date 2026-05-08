@@ -183,14 +183,16 @@ export async function syncAllReminders(db: LeafCueDatabase): Promise<void> {
 
   await Notifications.cancelAllScheduledNotificationsAsync().catch(() => {});
   const rows = getAllActiveScheduleRows(db);
-  for (const row of rows) {
-    await scheduleScheduleReminder(db, {
-      schedule: row.schedule,
-      plant: row.plant,
-      template: row.template,
-      settings,
-    });
-  }
+  await Promise.all(
+    rows.map((row) =>
+      scheduleScheduleReminder(db, {
+        schedule: row.schedule,
+        plant: row.plant,
+        template: row.template,
+        settings,
+      }),
+    ),
+  );
 }
 
 /**

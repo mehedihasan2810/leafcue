@@ -39,17 +39,15 @@ export function PlantJournalScreen({ plantId }: PlantJournalScreenProps) {
   const livePlants = useLiveQuery(db.select().from(plantsTable));
   const liveEntries = useLiveQuery(db.select().from(journalEntriesTable));
 
-  const plant = useMemo(
-    () => getPlantById(db, plantId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, livePlants.data.length],
-  );
+  const plant = useMemo(() => {
+    void livePlants.data;
+    return getPlantById(db, plantId);
+  }, [db, plantId, livePlants.data]);
 
-  const entries = useMemo(
-    () => getJournalEntriesForPlant(db, plantId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [db, plantId, liveEntries.data.length],
-  );
+  const entries = useMemo(() => {
+    void liveEntries.data;
+    return getJournalEntriesForPlant(db, plantId);
+  }, [db, plantId, liveEntries.data]);
 
   const openCreate = () => {
     setEditing(null);
