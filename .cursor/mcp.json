@@ -2,9 +2,7 @@
   "mcpServers": {
     "argent": {
       "command": "argent",
-      "args": [
-        "mcp"
-      ]
+      "args": ["mcp"]
     }
   }
 }

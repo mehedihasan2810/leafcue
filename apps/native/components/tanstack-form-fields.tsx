@@ -1,4 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker, {
+  type DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 import { format } from "date-fns";
 import {
   cn,
@@ -13,8 +16,7 @@ import {
 } from "heroui-native";
 import type { ComponentProps, ReactNode } from "react";
 import { useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
-import DatePicker from "react-native-date-picker";
+import { Platform, Text, TouchableOpacity, View } from "react-native";
 
 import { formatIsoDate, parseIsoDate } from "@/lib/dates";
 
@@ -379,12 +381,12 @@ type FormDatePickerFieldProps = BaseFieldProps & {
   value: string;
   /** Called with the new ISO date string, or empty string if cleared */
   onChange: (value: string) => void;
-  /** Passed through to `react-native-date-picker` when set */
+  /** Passed through to the native date picker when set */
   minimumDate?: Date;
   maximumDate?: Date;
   /**
-   * Use `inline` inside stacked surfaces (e.g. another bottom sheet): the library modal
-   * often renders beneath those overlays on iOS.
+   * Use `inline` inside stacked surfaces on iOS (e.g. another bottom sheet).
+   * Android uses the platform date picker dialog for both presentations.
    */
   presentation?: "modal" | "inline";
 };
@@ -401,10 +403,12 @@ export function FormDatePickerField({
   presentation = "modal",
 }: FormDatePickerFieldProps) {
   const [open, setOpen] = useState(false);
+  const [draftDate, setDraftDate] = useState<Date | null>(null);
   const errorMessage = firstErrorMessage(errors ?? []);
   const isInvalid = Boolean(errorMessage);
   const accent = useThemeColor("accent");
   const muted = useThemeColor("muted");
+  const usesInlinePicker = presentation === "inline" && Platform.OS === "ios";
 
   const selectedDate = value.trim().length > 0 ? parseIsoDate(value) : null;
   let pickerDate = selectedDate ?? new Date();
@@ -422,14 +426,65 @@ export function FormDatePickerField({
   }
   const displayText = selectedDate ? format(selectedDate, "MMM d, yyyy") : null;
 
-  const handleConfirm = (date: Date) => {
+  const handleOpen = () => {
+    setDraftDate(pickerDate);
+    setOpen(true);
+  };
+
+  const handleCancel = () => {
     setOpen(false);
-    onChange(formatIsoDate(date));
+    setDraftDate(null);
+  };
+
+  const handleConfirm = () => {
+    if (draftDate) {
+      onChange(formatIsoDate(draftDate));
+    }
+    setOpen(false);
+    setDraftDate(null);
   };
 
   const handleClear = () => {
     onChange("");
   };
+
+  const handlePickerChange = (event: DateTimePickerEvent, date?: Date) => {
+    if (event.type === "dismissed") {
+      handleCancel();
+      return;
+    }
+    if (!date) {
+      return;
+    }
+    if (usesInlinePicker) {
+      onChange(formatIsoDate(date));
+      return;
+    }
+    if (Platform.OS === "android") {
+      setOpen(false);
+      setDraftDate(null);
+      onChange(formatIsoDate(date));
+      return;
+    }
+    setDraftDate(date);
+  };
+
+  const renderPicker = (date: Date) => (
+    <DateTimePicker
+      value={date}
+      mode="date"
+      display={
+        usesInlinePicker
+          ? "inline"
+          : Platform.OS === "ios"
+            ? "spinner"
+            : "default"
+      }
+      minimumDate={minimumDate}
+      maximumDate={maximumDate}
+      onChange={handlePickerChange}
+    />
+  );
 
   return (
     <>
@@ -438,8 +493,8 @@ export function FormDatePickerField({
           <Label.Text>{label}</Label.Text>
         </Label>
 
-        {presentation === "modal" ? (
-          <PressableFeedback onPress={() => setOpen(true)}>
+        {!usesInlinePicker ? (
+          <PressableFeedback onPress={handleOpen}>
             <View
               className={cn(
                 "flex-row items-center justify-between rounded-2xl border bg-surface px-4 py-3.5",
@@ -485,39 +540,35 @@ export function FormDatePickerField({
                   : "border-border/60",
             )}
           >
-            <DatePicker
-              date={pickerDate}
-              mode="date"
-              theme="auto"
-              minimumDate={minimumDate}
-              maximumDate={maximumDate}
-              onDateChange={(date) => onChange(formatIsoDate(date))}
-            />
+            {renderPicker(pickerDate)}
           </View>
         )}
+
+        {open && !usesInlinePicker ? (
+          Platform.OS === "ios" ? (
+            <View className="overflow-hidden rounded-2xl border border-border/60 bg-surface">
+              {renderPicker(draftDate ?? pickerDate)}
+              <View className="flex-row justify-end gap-4 border-border/40 border-t px-4 py-3">
+                <TouchableOpacity onPress={handleCancel}>
+                  <Text className="font-medium text-muted text-sm">Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleConfirm}>
+                  <Text className="font-semibold text-accent text-sm">
+                    Done
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : (
+            renderPicker(draftDate ?? pickerDate)
+          )
+        ) : null}
 
         {description && !isInvalid ? (
           <Text className="text-muted text-xs">{description}</Text>
         ) : null}
         {isInvalid ? <FieldError>{errorMessage}</FieldError> : null}
       </View>
-
-      {presentation === "modal" ? (
-        <DatePicker
-          modal
-          open={open}
-          date={pickerDate}
-          mode="date"
-          theme="auto"
-          title={null}
-          confirmText="Done"
-          cancelText="Cancel"
-          minimumDate={minimumDate}
-          maximumDate={maximumDate}
-          onConfirm={handleConfirm}
-          onCancel={() => setOpen(false)}
-        />
-      ) : null}
     </>
   );
 }
