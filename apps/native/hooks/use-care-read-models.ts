@@ -1,7 +1,10 @@
 import { endOfMonth, format, isAfter, isSameDay, startOfMonth } from "date-fns";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useMemo } from "react";
-
+import {
+  getPlantSetupProgress,
+  type PlantSetupProgress,
+} from "@/lib/care/setup-progress";
 import { isOverdue } from "@/lib/dates";
 import type { LeafCueDatabase } from "@/lib/db";
 import {
@@ -10,6 +13,7 @@ import {
   type DueTaskRow,
   getActiveHealthObservationsAcrossPlants,
   getAllActiveScheduleRows,
+  getCareLogsForPlant,
   getCareTaskTemplates,
   getCompletedTaskLogs,
   getDueTasks,
@@ -42,6 +46,7 @@ import {
   shelves,
 } from "@/lib/db/schema";
 import type {
+  CareLog,
   CareTaskTemplate,
   GrowthMeasurement,
   HealthObservation,
@@ -246,11 +251,18 @@ export function useTodayReadModel(
   todayTasks: DueTaskRow[];
   activePlants: Plant[];
   favoritePlants: Plant[];
+  plantsWithoutSchedules: Plant[];
+  recentCareLogs: CompletedLogRow[];
   recentActivityCount: number;
+  setupProgressItems: Array<{
+    plant: Plant;
+    progress: PlantSetupProgress;
+  }>;
   roomById: IdMap<Room>;
 } {
   const livePlants = useLiveQuery(db.select().from(plants));
   const liveSchedules = useLiveQuery(db.select().from(plantTaskSchedules));
+  const liveLogs = useLiveQuery(db.select().from(careLogs));
   const liveJournal = useLiveQuery(db.select().from(journalEntries));
   const livePhotos = useLiveQuery(db.select().from(plantPhotos));
   const liveHealth = useLiveQuery(db.select().from(healthObservations));
@@ -291,21 +303,81 @@ export function useTodayReadModel(
     [livePlants.data],
   );
 
+  const plantsWithoutSchedules = useMemo(
+    () =>
+      activePlants.filter(
+        (plant) =>
+          !liveSchedules.data.some(
+            (schedule) => schedule.plantId === plant.id && schedule.isEnabled,
+          ),
+      ),
+    [activePlants, liveSchedules.data],
+  );
+
   const favoritePlants = useMemo(
     () => activePlants.filter((plant) => plant.isFavorite),
     [activePlants],
   );
 
+  const recentCareLogs = useMemo(() => {
+    void liveLogs.data;
+    void livePlants.data;
+    return getCompletedTaskLogs(db, {
+      from: args.recentSince,
+      limit: 5,
+    });
+  }, [db, args.recentSince, liveLogs.data, livePlants.data]);
+
   const recentActivityCount = useMemo(
     () =>
+      liveLogs.data.filter((log) => isAfter(log.completedAt, args.recentSince))
+        .length +
       liveJournal.data.filter((entry) =>
         isAfter(entry.createdAt, args.recentSince),
       ).length +
       livePhotos.data.filter((photo) =>
         isAfter(photo.takenAt, args.recentSince),
       ).length,
-    [liveJournal.data, livePhotos.data, args.recentSince],
+    [liveLogs.data, liveJournal.data, livePhotos.data, args.recentSince],
   );
+
+  const setupProgressItems = useMemo(() => {
+    const schedulesByPlant = new Map<number, PlantTaskSchedule[]>();
+    const photosByPlant = new Map<number, PlantPhoto[]>();
+    const logsByPlant = new Map<number, CareLog[]>();
+
+    for (const schedule of liveSchedules.data) {
+      const list = schedulesByPlant.get(schedule.plantId) ?? [];
+      list.push(schedule);
+      schedulesByPlant.set(schedule.plantId, list);
+    }
+
+    for (const photo of livePhotos.data) {
+      const list = photosByPlant.get(photo.plantId) ?? [];
+      list.push(photo);
+      photosByPlant.set(photo.plantId, list);
+    }
+
+    for (const log of liveLogs.data) {
+      const list = logsByPlant.get(log.plantId) ?? [];
+      list.push(log);
+      logsByPlant.set(log.plantId, list);
+    }
+
+    return activePlants
+      .map((plant) => ({
+        plant,
+        progress: getPlantSetupProgress({
+          plant,
+          schedules: schedulesByPlant.get(plant.id) ?? [],
+          photos: photosByPlant.get(plant.id) ?? [],
+          logs: logsByPlant.get(plant.id) ?? [],
+        }),
+      }))
+      .filter((item) => !item.progress.isComplete)
+      .sort((a, b) => a.progress.completed - b.progress.completed)
+      .slice(0, 3);
+  }, [activePlants, liveSchedules.data, livePhotos.data, liveLogs.data]);
 
   const roomList = useMemo<Room[]>(() => {
     void liveRooms.data;
@@ -322,7 +394,10 @@ export function useTodayReadModel(
     todayTasks,
     activePlants,
     favoritePlants,
+    plantsWithoutSchedules,
+    recentCareLogs,
     recentActivityCount,
+    setupProgressItems,
     roomById,
   };
 }
@@ -339,6 +414,7 @@ export function usePlantDetailReadModel(
   shelf: Shelf | null;
   schedules: PlantTaskSchedule[];
   dueRows: DueTaskRow[];
+  careLogs: CareLog[];
   photos: PlantPhoto[];
   measurements: GrowthMeasurement[];
   observations: HealthObservation[];
@@ -384,6 +460,11 @@ export function usePlantDetailReadModel(
     void livePlants.data;
     return getDueTasks(db).filter((row) => row.plant.id === args.plantId);
   }, [db, args.plantId, liveSchedules.data, livePlants.data]);
+
+  const plantCareLogs = useMemo(() => {
+    void liveLogs.data;
+    return getCareLogsForPlant(db, args.plantId);
+  }, [db, args.plantId, liveLogs.data]);
 
   const photos = useMemo(() => {
     void livePhotos.data;
@@ -446,6 +527,7 @@ export function usePlantDetailReadModel(
     shelf,
     schedules,
     dueRows,
+    careLogs: plantCareLogs,
     photos,
     measurements,
     observations,

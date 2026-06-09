@@ -155,6 +155,12 @@ export type CreatePlantWithDefaultsResult = {
 
 export type CreatePlantWithDefaultsOptions = {
   scheduleKeys?: ReadonlyArray<CareTaskTemplateKey>;
+  scheduleDrafts?: ReadonlyArray<{
+    key: CareTaskTemplateKey;
+    intervalDays?: number | null;
+    instructions?: string | null;
+    nextDueAt?: Date | null;
+  }>;
   startAt?: Date;
 };
 
@@ -163,6 +169,11 @@ function insertDefaultSchedule(
   plantId: number,
   key: CareTaskTemplateKey,
   startAt: Date,
+  draft?: {
+    intervalDays?: number | null;
+    instructions?: string | null;
+    nextDueAt?: Date | null;
+  },
 ): PlantTaskSchedule | null {
   const template = tx
     .select()
@@ -171,11 +182,12 @@ function insertDefaultSchedule(
     .get();
   if (!template) return null;
 
-  const intervalDays = template.defaultIntervalDays;
+  const intervalDays = draft?.intervalDays ?? template.defaultIntervalDays;
   const nextDueAt =
-    intervalDays !== null && intervalDays !== undefined
+    draft?.nextDueAt ??
+    (intervalDays !== null && intervalDays !== undefined
       ? new Date(startAt.getTime() + intervalDays * MS_PER_DAY)
-      : null;
+      : null);
 
   const inserted = tx
     .insert(plantTaskSchedules)
@@ -188,7 +200,7 @@ function insertDefaultSchedule(
       lastCompletedAt: null,
       snoozedUntil: null,
       isEnabled: true,
-      instructions: template.defaultInstructions ?? null,
+      instructions: draft?.instructions ?? template.defaultInstructions ?? null,
       createdAt: startAt,
       updatedAt: startAt,
     })
@@ -206,6 +218,7 @@ export function createPlantWithDefaults(
   const parsed = plantInsertSchema.parse(input);
   const startAt = options.startAt ?? new Date();
   const scheduleKeys = options.scheduleKeys ?? DEFAULT_SCHEDULE_KEYS;
+  const scheduleDrafts = options.scheduleDrafts ?? null;
 
   return db.transaction((tx) => {
     const inserted = tx
@@ -240,8 +253,21 @@ export function createPlantWithDefaults(
     }
 
     const schedules: PlantTaskSchedule[] = [];
-    for (const key of scheduleKeys) {
-      const schedule = insertDefaultSchedule(tx, inserted.id, key, startAt);
+    const drafts =
+      scheduleDrafts ??
+      scheduleKeys.map((key) => ({
+        key,
+      }));
+
+    for (const draft of drafts) {
+      const { key, ...scheduleDraft } = draft;
+      const schedule = insertDefaultSchedule(
+        tx,
+        inserted.id,
+        key,
+        startAt,
+        scheduleDraft,
+      );
       if (schedule) schedules.push(schedule);
     }
 

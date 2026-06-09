@@ -20,7 +20,7 @@ import {
   getDueTasks,
   getPlants,
   getRooms,
-  getSchedulesForPlant,
+  getUpcomingTasks,
 } from "@/lib/db/repositories";
 import {
   plants as plantsTable,
@@ -29,9 +29,10 @@ import {
 } from "@/lib/db/schema";
 import type { Plant, Room } from "@/lib/db/types";
 
-type FilterId = "all" | "favorites" | "today" | "overdue" | "room";
+type FilterId = "all" | "favorites" | "today" | "overdue" | "due-soon" | "room";
 
 type ViewMode = "grid" | "list";
+type SortId = "next-due" | "name" | "recent" | "room";
 
 export function PlantLibraryScreen() {
   const insets = useSafeAreaInsets();
@@ -42,6 +43,7 @@ export function PlantLibraryScreen() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterId>("all");
   const [roomFilter, setRoomFilter] = useState<number | null>(null);
+  const [sort, setSort] = useState<SortId>("next-due");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [showArchived, setShowArchived] = useState(false);
 
@@ -66,6 +68,11 @@ export function PlantLibraryScreen() {
     return getDueTasks(db);
   }, [db, liveSchedules.data]);
 
+  const dueSoonRows = useMemo(() => {
+    void liveSchedules.data;
+    return getUpcomingTasks(db, 7);
+  }, [db, liveSchedules.data]);
+
   const overdueIds = useMemo(() => {
     const ids = new Set<number>();
     const now = new Date();
@@ -88,6 +95,12 @@ export function PlantLibraryScreen() {
     return ids;
   }, [dueRows]);
 
+  const dueSoonIds = useMemo(() => {
+    const ids = new Set<number>();
+    for (const row of dueSoonRows) ids.add(row.plant.id);
+    return ids;
+  }, [dueSoonRows]);
+
   const visiblePlants = useMemo(() => {
     if (filter === "today") {
       return filteredPlants.filter((plant) => todayDueIds.has(plant.id));
@@ -95,8 +108,11 @@ export function PlantLibraryScreen() {
     if (filter === "overdue") {
       return filteredPlants.filter((plant) => overdueIds.has(plant.id));
     }
+    if (filter === "due-soon") {
+      return filteredPlants.filter((plant) => dueSoonIds.has(plant.id));
+    }
     return filteredPlants;
-  }, [filteredPlants, filter, todayDueIds, overdueIds]);
+  }, [filteredPlants, filter, todayDueIds, overdueIds, dueSoonIds]);
 
   const rooms = useMemo(() => {
     void liveRooms.data;
@@ -112,19 +128,43 @@ export function PlantLibraryScreen() {
   const nextDueByPlant = useMemo(() => {
     void liveSchedules.data;
     const map = new Map<number, Date | null>();
-    for (const plant of visiblePlants) {
-      const schedules = getSchedulesForPlant(db, plant.id);
-      let nextDue: Date | null = null;
-      for (const schedule of schedules) {
-        if (!schedule.isEnabled || !schedule.nextDueAt) continue;
-        if (!nextDue || schedule.nextDueAt < nextDue) {
-          nextDue = schedule.nextDueAt;
-        }
+    for (const schedule of liveSchedules.data) {
+      if (!schedule.isEnabled || !schedule.nextDueAt) continue;
+      const current = map.get(schedule.plantId) ?? null;
+      if (!current || schedule.nextDueAt < current) {
+        map.set(schedule.plantId, schedule.nextDueAt);
       }
-      map.set(plant.id, nextDue);
+    }
+    for (const plant of visiblePlants) {
+      if (!map.has(plant.id)) map.set(plant.id, null);
     }
     return map;
-  }, [visiblePlants, liveSchedules.data, db]);
+  }, [visiblePlants, liveSchedules.data]);
+
+  const sortedPlants = useMemo(() => {
+    return [...visiblePlants].sort((left, right) => {
+      if (sort === "name") {
+        return left.nickname.localeCompare(right.nickname);
+      }
+      if (sort === "recent") {
+        return right.createdAt.getTime() - left.createdAt.getTime();
+      }
+      if (sort === "room") {
+        const leftRoom = left.roomId ? roomById.get(left.roomId)?.name : "";
+        const rightRoom = right.roomId ? roomById.get(right.roomId)?.name : "";
+        const roomCompare = (leftRoom ?? "").localeCompare(rightRoom ?? "");
+        return roomCompare !== 0
+          ? roomCompare
+          : left.nickname.localeCompare(right.nickname);
+      }
+      const leftDue =
+        nextDueByPlant.get(left.id)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+      const rightDue =
+        nextDueByPlant.get(right.id)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+      if (leftDue !== rightDue) return leftDue - rightDue;
+      return left.nickname.localeCompare(right.nickname);
+    });
+  }, [visiblePlants, sort, roomById, nextDueByPlant]);
 
   const totalActive = livePlants.data.filter(
     (plant) => !plant.archivedAt,
@@ -170,7 +210,7 @@ export function PlantLibraryScreen() {
     <View className="flex-1 bg-background">
       <FlatList
         key={viewMode}
-        data={visiblePlants}
+        data={sortedPlants}
         keyExtractor={(plant) => `plant-${plant.id}`}
         numColumns={viewMode === "grid" ? 2 : 1}
         columnWrapperStyle={
@@ -216,7 +256,7 @@ export function PlantLibraryScreen() {
                 Your plants
               </Text>
               <Text className="text-muted text-sm">
-                {visiblePlants.length} of {totalActive} showing
+                {sortedPlants.length} of {totalActive} showing
               </Text>
             </View>
 
@@ -229,6 +269,8 @@ export function PlantLibraryScreen() {
             </SearchField>
 
             <FilterChipRow filter={filter} onPress={handleFilterPress} />
+
+            <SortChipRow sort={sort} onPress={setSort} />
 
             {filter === "room" ? (
               <View className="gap-2">
@@ -350,6 +392,7 @@ function FilterChipRow({
     { id: "favorites", label: "Favorites", icon: "star-outline" },
     { id: "today", label: "Due today", icon: "sunny-outline" },
     { id: "overdue", label: "Overdue", icon: "alert-circle-outline" },
+    { id: "due-soon", label: "Due soon", icon: "time-outline" },
     { id: "room", label: "By room", icon: "home-outline" },
   ];
 
@@ -392,6 +435,71 @@ function FilterChipRow({
         );
       }}
     />
+  );
+}
+
+function SortChipRow({
+  sort,
+  onPress,
+}: {
+  sort: SortId;
+  onPress: (id: SortId) => void;
+}) {
+  const items: ReadonlyArray<{
+    id: SortId;
+    label: string;
+    icon: keyof typeof Ionicons.glyphMap;
+  }> = [
+    { id: "next-due", label: "Next due", icon: "time-outline" },
+    { id: "name", label: "Name", icon: "text-outline" },
+    { id: "recent", label: "Newest", icon: "sparkles-outline" },
+    { id: "room", label: "Room", icon: "home-outline" },
+  ];
+
+  const accent = useThemeColor("accent");
+  const muted = useThemeColor("muted");
+
+  return (
+    <View className="gap-2">
+      <Text className="font-medium text-muted text-xs uppercase tracking-wide">
+        Sort
+      </Text>
+      <FlatList
+        horizontal
+        data={items}
+        keyExtractor={(item) => `sort-${item.id}`}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ gap: 8 }}
+        renderItem={({ item }) => {
+          const isActive = sort === item.id;
+          return (
+            <PressableFeedback
+              onPress={() => onPress(item.id)}
+              className={cn(
+                "flex-row items-center gap-1.5 rounded-full border px-3 py-2",
+                isActive
+                  ? "border-accent bg-accent-soft"
+                  : "border-border/60 bg-surface",
+              )}
+            >
+              <Ionicons
+                name={item.icon}
+                size={14}
+                color={isActive ? accent : muted}
+              />
+              <Text
+                className={cn(
+                  "font-medium text-sm",
+                  isActive ? "text-accent-soft-foreground" : "text-foreground",
+                )}
+              >
+                {item.label}
+              </Text>
+            </PressableFeedback>
+          );
+        }}
+      />
+    </View>
   );
 }
 

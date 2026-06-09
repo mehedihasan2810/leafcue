@@ -487,52 +487,16 @@ export function FormDatePickerField({
   );
 
   return (
-    <>
-      <View className={cn("gap-1.5", className)}>
-        <Label>
-          <Label.Text>{label}</Label.Text>
-        </Label>
+    <View className={cn("gap-1.5", className)}>
+      <Label>
+        <Label.Text>{label}</Label.Text>
+      </Label>
 
-        {!usesInlinePicker ? (
-          <PressableFeedback onPress={handleOpen}>
-            <View
-              className={cn(
-                "flex-row items-center justify-between rounded-2xl border bg-surface px-4 py-3.5",
-                isInvalid
-                  ? "border-danger"
-                  : displayText
-                    ? "border-accent/50"
-                    : "border-border/60",
-              )}
-            >
-              <View className="flex-1 flex-row items-center gap-2.5">
-                <Ionicons
-                  name="calendar-outline"
-                  size={18}
-                  color={displayText ? accent : muted}
-                />
-                {displayText ? (
-                  <Text className="font-medium text-base text-foreground">
-                    {displayText}
-                  </Text>
-                ) : (
-                  <Text className="text-base text-muted">Select date</Text>
-                )}
-              </View>
-              {displayText ? (
-                <TouchableOpacity
-                  onPress={handleClear}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                  <Ionicons name="close-circle" size={18} color={muted} />
-                </TouchableOpacity>
-              ) : null}
-            </View>
-          </PressableFeedback>
-        ) : (
+      {!usesInlinePicker ? (
+        <PressableFeedback onPress={handleOpen}>
           <View
             className={cn(
-              "overflow-hidden rounded-2xl border bg-surface",
+              "flex-row items-center justify-between rounded-2xl border bg-surface px-4 py-3.5",
               isInvalid
                 ? "border-danger"
                 : displayText
@@ -540,36 +504,68 @@ export function FormDatePickerField({
                   : "border-border/60",
             )}
           >
-            {renderPicker(pickerDate)}
-          </View>
-        )}
-
-        {open && !usesInlinePicker ? (
-          Platform.OS === "ios" ? (
-            <View className="overflow-hidden rounded-2xl border border-border/60 bg-surface">
-              {renderPicker(draftDate ?? pickerDate)}
-              <View className="flex-row justify-end gap-4 border-border/40 border-t px-4 py-3">
-                <TouchableOpacity onPress={handleCancel}>
-                  <Text className="font-medium text-muted text-sm">Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleConfirm}>
-                  <Text className="font-semibold text-accent text-sm">
-                    Done
-                  </Text>
-                </TouchableOpacity>
-              </View>
+            <View className="flex-1 flex-row items-center gap-2.5">
+              <Ionicons
+                name="calendar-outline"
+                size={18}
+                color={displayText ? accent : muted}
+              />
+              {displayText ? (
+                <Text className="font-medium text-base text-foreground">
+                  {displayText}
+                </Text>
+              ) : (
+                <Text className="text-base text-muted">Select date</Text>
+              )}
             </View>
-          ) : (
-            renderPicker(draftDate ?? pickerDate)
-          )
-        ) : null}
+            {displayText ? (
+              <TouchableOpacity
+                onPress={handleClear}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons name="close-circle" size={18} color={muted} />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        </PressableFeedback>
+      ) : (
+        <View
+          className={cn(
+            "overflow-hidden rounded-2xl border bg-surface",
+            isInvalid
+              ? "border-danger"
+              : displayText
+                ? "border-accent/50"
+                : "border-border/60",
+          )}
+        >
+          {renderPicker(pickerDate)}
+        </View>
+      )}
 
-        {description && !isInvalid ? (
-          <Text className="text-muted text-xs">{description}</Text>
-        ) : null}
-        {isInvalid ? <FieldError>{errorMessage}</FieldError> : null}
-      </View>
-    </>
+      {open && !usesInlinePicker ? (
+        Platform.OS === "ios" ? (
+          <View className="overflow-hidden rounded-2xl border border-border/60 bg-surface">
+            {renderPicker(draftDate ?? pickerDate)}
+            <View className="flex-row justify-end gap-4 border-border/40 border-t px-4 py-3">
+              <TouchableOpacity onPress={handleCancel}>
+                <Text className="font-medium text-muted text-sm">Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleConfirm}>
+                <Text className="font-semibold text-accent text-sm">Done</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          renderPicker(draftDate ?? pickerDate)
+        )
+      ) : null}
+
+      {description && !isInvalid ? (
+        <Text className="text-muted text-xs">{description}</Text>
+      ) : null}
+      {isInvalid ? <FieldError>{errorMessage}</FieldError> : null}
+    </View>
   );
 }
 
