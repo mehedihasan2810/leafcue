@@ -12,7 +12,10 @@ import { useState } from "react";
 import { Alert, Platform, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import type { PurchasesPackage } from "@/lib/billing/revenuecat";
+import {
+  isLeafCuePlusActive,
+  type PurchasesPackage,
+} from "@/lib/billing/revenuecat";
 import {
   selectHasUsableOffering,
   useEntitlementsStore,
@@ -331,7 +334,7 @@ function PaywallContent({ reason }: { reason?: string }) {
     setIsRestoring(true);
     try {
       const customerInfo = await restorePurchases();
-      const restoredPlus = customerInfo?.entitlements.active.plus !== undefined;
+      const restoredPlus = isLeafCuePlusActive(customerInfo);
       if (!restoredPlus) {
         Alert.alert(
           "Nothing to restore",

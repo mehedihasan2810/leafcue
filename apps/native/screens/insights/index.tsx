@@ -6,6 +6,7 @@ import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Container } from "@/components/container";
 import { EmptyState } from "@/components/empty-state";
+import { usePlantLimitGate } from "@/hooks/use-plant-limit-gate";
 import { getHealthIssueLabel } from "@/lib/care/health-hints";
 import { useDatabase } from "@/lib/db";
 import { getInsightsSummary } from "@/lib/db/repositories";
@@ -24,6 +25,7 @@ import { StreakCard } from "@/screens/insights/_components/streak-card";
 export function InsightsScreen() {
   const db = useDatabase();
   const insets = useSafeAreaInsets();
+  const { requestActivePlantSlot } = usePlantLimitGate();
   const livePlants = useLiveQuery(db.select().from(plants));
   const liveSchedules = useLiveQuery(db.select().from(plantTaskSchedules));
   const liveLogs = useLiveQuery(db.select().from(careLogs));
@@ -86,7 +88,11 @@ export function InsightsScreen() {
             title="Insights show up here"
             description="Add plants and start logging care to see streaks, consistency, and what needs attention."
             ctaLabel="Add a plant"
-            onPressCta={() => router.push("/plants/new")}
+            onPressCta={() =>
+              requestActivePlantSlot({
+                onAllow: () => router.push("/plants/new"),
+              })
+            }
           />
         </View>
       </Container>
