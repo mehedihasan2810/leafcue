@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
 import { SettingsHeader } from "@/screens/settings/settings-header";
+import { useEntitlementsStore } from "@/stores/use-entitlements-store";
 
 type HubItem = {
   href: string;
@@ -116,6 +117,8 @@ export function SettingsHubScreen() {
             </View>
           </View>
 
+          <PlusCard accent={accent} muted={muted} />
+
           {SECTIONS.map((section) => (
             <View key={section.title} className="gap-2">
               <Text className="px-1 font-medium text-muted text-xs uppercase tracking-wide">
@@ -155,6 +158,63 @@ export function SettingsHubScreen() {
           </Text>
         </View>
       </Container>
+    </View>
+  );
+}
+
+function PlusCard({ accent, muted }: { accent: string; muted: string }) {
+  const isPlusActive = useEntitlementsStore((state) => state.isPlusActive);
+
+  const caption = isPlusActive
+    ? "Active — thank you for supporting LeafCue."
+    : "Unlimited active plants and deeper local insights.";
+
+  return (
+    <View className="gap-2">
+      <Text className="px-1 font-medium text-muted text-xs uppercase tracking-wide">
+        Plus
+      </Text>
+      <View className="rounded-3xl border border-border/40 bg-surface p-2">
+        <PressableFeedback
+          accessibilityLabel="LeafCue Plus"
+          accessibilityHint={caption}
+          onPress={() => {
+            router.push({
+              pathname: "/settings/plus",
+              params: { reason: "settings" },
+            });
+          }}
+          className="flex-row items-center gap-3 rounded-2xl p-3 active:bg-muted/10"
+        >
+          <View className="size-10 items-center justify-center rounded-2xl bg-accent-soft">
+            <Ionicons name="sparkles-outline" size={18} color={accent} />
+          </View>
+          <View className="flex-1 gap-0.5">
+            <Text className="font-medium text-base text-foreground">
+              LeafCue Plus
+            </Text>
+            <Text className="text-muted text-xs">{caption}</Text>
+          </View>
+          <View
+            className={
+              isPlusActive
+                ? "rounded-full bg-accent-soft px-2.5 py-1"
+                : "rounded-full border border-border/50 px-2.5 py-1"
+            }
+          >
+            <Text
+              className={
+                isPlusActive
+                  ? "font-semibold text-accent text-xs"
+                  : "font-medium text-muted text-xs"
+              }
+            >
+              {isPlusActive ? "Plus" : "Free"}
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={muted} />
+        </PressableFeedback>
+      </View>
     </View>
   );
 }

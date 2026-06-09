@@ -1,4 +1,4 @@
-import { and, desc, eq, isNotNull, isNull, like, or } from "drizzle-orm";
+import { and, count, desc, eq, isNotNull, isNull, like, or } from "drizzle-orm";
 
 import type {
   LeafCueDatabase,
@@ -61,6 +61,16 @@ export function getPlants(
 
 export function getPlantById(db: LeafCueDbOrTx, id: number): Plant | undefined {
   return db.select().from(plants).where(eq(plants.id, id)).get();
+}
+
+/** Count of active (non-archived) plants. Drives the free-tier plant limit. */
+export function countActivePlants(db: LeafCueDbOrTx): number {
+  const row = db
+    .select({ value: count() })
+    .from(plants)
+    .where(isNull(plants.archivedAt))
+    .get();
+  return row?.value ?? 0;
 }
 
 export function createPlant(

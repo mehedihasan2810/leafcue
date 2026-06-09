@@ -90,9 +90,35 @@ EAS development build or production build of `apps/native`.
 - [ ] Destructive actions (delete, replace) have a hint that warns the user.
 - [ ] Text contrasts meet AA in light and dark modes.
 
+## LeafCue Plus (billing)
+
+See `revenuecat-testing.md` for the full matrix and offline steps.
+
+- [ ] App boots with no RevenueCat key set; Settings → Plus shows a calm
+      "billing unavailable / try again" state, never a crash.
+- [ ] With the Test Store key set, the `current` offering loads and the paywall
+      shows monthly + yearly cards with prices from RevenueCat (not hardcoded).
+- [ ] Under 20 active plants, adding a plant never shows the paywall.
+- [ ] At 20 active plants, creating plant #21 shows the paywall and does not
+      create the plant until Plus is purchased.
+- [ ] Purchasing the Test Store product activates `plus`, closes the paywall,
+      and allows plant #21; Settings → Plus shows the active state.
+- [ ] Restore purchases only runs on user tap and updates Plus state.
+- [ ] Offline with no cached Plus at the limit shows the offline dialog, not a
+      broken/empty paywall; no plant is created.
+- [ ] Offline with cached Plus active still allows the gated action.
+- [ ] With Plus inactive and 30 active plants, existing plants remain visible,
+      editable, and exportable; only new active plants are blocked.
+- [ ] Unarchiving over the limit without Plus shows the gate; archiving is never
+      blocked.
+- [ ] Paywall is polished and readable in both light and dark mode.
+
 ## Privacy verification
 
 - [ ] `rg fetch apps/native` returns no plant-data network calls.
 - [ ] `rg trpc apps/native` and `rg better-auth apps/native` return nothing.
-- [ ] `rg revenuecat apps/native` and `rg subscriptions apps/native` return nothing.
+- [ ] RevenueCat is only referenced under `lib/billing`, the billing
+      bootstrapper/store, the paywall, and the plant-limit gate/hook.
+- [ ] No plant names, photos, logs, notes, or care data are passed to
+      RevenueCat (anonymous users only; no custom `appUserID`).
 - [ ] `apps/native/package.json` does not depend on `@leafcue/server`.

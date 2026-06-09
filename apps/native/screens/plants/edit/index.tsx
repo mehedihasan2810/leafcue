@@ -31,6 +31,7 @@ import {
   FormTextArea,
   FormTextField,
 } from "@/components/tanstack-form-fields";
+import { usePlantLimitGate } from "@/hooks/use-plant-limit-gate";
 import { useDatabase } from "@/lib/db";
 import {
   archivePlant as archivePlantRepo,
@@ -246,6 +247,7 @@ export function EditPlantScreen({ mode, plantId }: EditPlantScreenProps) {
   const danger = useThemeColor("danger");
   const muted = useThemeColor("muted");
   const db = useDatabase();
+  const { requestActivePlantSlot } = usePlantLimitGate();
   const [submitting, setSubmitting] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [createStep, setCreateStep] = useState<CreateStep>("start");
@@ -279,28 +281,45 @@ export function EditPlantScreen({ mode, plantId }: EditPlantScreenProps) {
   const form = useForm({
     defaultValues: initialValues,
     onSubmit: async ({ value }) => {
-      setSubmitting(true);
-      try {
-        const input = buildPlantIntakeInput(value);
-        if (mode === "edit" && plantId !== undefined) {
+      const input = buildPlantIntakeInput(value);
+
+      if (mode === "edit" && plantId !== undefined) {
+        setSubmitting(true);
+        try {
           updatePlant(db, plantId, input);
           router.back();
-        } else {
-          const result = createPlantWithDefaults(db, input, {
-            scheduleDrafts: buildCreateScheduleDrafts(value, templates),
-          });
-          router.replace({
-            pathname: "/plants/[plantId]",
-            params: { plantId: String(result.plant.id) },
-          });
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : "Could not save plant";
+          Alert.alert("Couldn't save plant", message);
+        } finally {
+          setSubmitting(false);
         }
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Could not save plant";
-        Alert.alert("Couldn't save plant", message);
-      } finally {
-        setSubmitting(false);
+        return;
       }
+
+      // Create mode: the gate is the final source of truth for the active
+      // plant limit. Form data is preserved when the paywall is shown.
+      await requestActivePlantSlot({
+        onAllow: () => {
+          setSubmitting(true);
+          try {
+            const result = createPlantWithDefaults(db, input, {
+              scheduleDrafts: buildCreateScheduleDrafts(value, templates),
+            });
+            router.replace({
+              pathname: "/plants/[plantId]",
+              params: { plantId: String(result.plant.id) },
+            });
+          } catch (error) {
+            const message =
+              error instanceof Error ? error.message : "Could not save plant";
+            Alert.alert("Couldn't save plant", message);
+          } finally {
+            setSubmitting(false);
+          }
+        },
+      });
     },
   });
 
