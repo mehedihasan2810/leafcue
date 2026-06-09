@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import { AppFontProvider } from "@/components/app-font-provider";
+import { BillingBootstrapper } from "@/components/billing/billing-bootstrapper";
 import { OnboardingGate } from "@/components/onboarding-gate";
 import { ThemeStoreSync } from "@/components/theme-store-sync";
 import { DatabaseProvider } from "@/lib/db/provider";
@@ -87,6 +88,14 @@ function StackLayout() {
       <Stack.Screen name="settings/archive" options={{ headerShown: false }} />
       <Stack.Screen name="settings/about" options={{ headerShown: false }} />
       <Stack.Screen name="settings/privacy" options={{ headerShown: false }} />
+      <Stack.Screen name="settings/terms" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="settings/plus"
+        options={{
+          presentation: "fullScreenModal",
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name="settings/reminders"
         options={{
@@ -107,6 +116,7 @@ export default function Layout() {
           <HeroUINativeProvider>
             <DatabaseProvider>
               <ToastProvider>
+                <BillingBootstrapper />
                 <OnboardingGate>
                   <StackLayout />
                 </OnboardingGate>

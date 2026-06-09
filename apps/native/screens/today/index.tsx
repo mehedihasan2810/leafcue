@@ -13,6 +13,7 @@ import { SectionHeader } from "@/components/section-header";
 import { SetupProgressCard } from "@/components/setup-progress-card";
 import { TaskActionSheets } from "@/components/task-action-sheets";
 import { useTodayReadModel } from "@/hooks/use-care-read-models";
+import { usePlantLimitGate } from "@/hooks/use-plant-limit-gate";
 import { useTaskHandlers } from "@/hooks/use-task-handlers";
 import { getHealthIssueLabel } from "@/lib/care/health-hints";
 import type { PlantSetupAction } from "@/lib/care/setup-progress";
@@ -47,6 +48,7 @@ export function TodayScreen() {
   } = useTodayReadModel(db, { now, recentSince: sevenDaysAgo });
 
   const handlers = useTaskHandlers();
+  const { requestActivePlantSlot } = usePlantLimitGate();
 
   const handleComplete = (row: DueTaskRow) => {
     handlers.handleQuickComplete(row);
@@ -64,7 +66,9 @@ export function TodayScreen() {
   };
 
   const handleAddPlant = () => {
-    router.push("/plants/new");
+    void requestActivePlantSlot({
+      onAllow: () => router.push("/plants/new"),
+    });
   };
 
   const handleOpenSettings = () => {

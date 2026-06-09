@@ -27,12 +27,35 @@ AI.
 
 ### Competitor advantages
 
-- **vs Planta / Greg / Plant Parent**: no subscription, no paywall, no account.
-  All AI/ML work is optional and can run on-device only.
+- **vs Planta / Greg / Plant Parent**: no account, no ads, and no aggressive
+  paywall. LeafCue stays generous and local-first. An optional **LeafCue Plus**
+  subscription only gates power-user features such as unlimited active plants;
+  core care tracking remains free. All AI/ML work is optional and can run
+  on-device only.
 - **vs Ploi**: more thorough data model (rooms, shelves, schedules, growth,
   health, journal) and the timeline view.
 - **For everyone**: import and export are first-class concepts; users can move
   on without losing data.
+
+### LeafCue Plus
+
+LeafCue Plus is an optional, auto-renewing subscription powered by RevenueCat.
+It exists to fund independent, privacy-first development without ads, accounts,
+or a server.
+
+- **Free tier**: up to 20 active plants, unlimited archived plants, and every
+  core feature (care tasks, schedules, reminders, logging, journal, photos,
+  health, growth, rooms, shelves, export/import) — no account, no ads.
+- **Plus unlocks**: unlimited active plants today, plus a foundation for future
+  power-user features (advanced local insights, richer export, themes, vacation
+  mode).
+- **Never held hostage**: subscription state is never persisted as a local
+  "pro" flag — RevenueCat's `CustomerInfo` (entitlement `plus`) is the source of
+  truth. If Plus lapses, existing plants and all their data stay fully visible,
+  editable, and exportable. Only creating or reactivating an active plant beyond
+  the free limit requires Plus.
+- **Offline-safe**: cached `CustomerInfo` can unlock Plus offline; core local
+  flows are never blocked by network errors.
 
 ## Data Model
 

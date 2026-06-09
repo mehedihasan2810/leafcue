@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/empty-state";
 import { PlantCard } from "@/components/plant-card";
+import { usePlantLimitGate } from "@/hooks/use-plant-limit-gate";
 import { isOverdue } from "@/lib/dates";
 import { useDatabase } from "@/lib/db";
 import {
@@ -40,6 +41,12 @@ export function PlantLibraryScreen() {
   const accentForeground = useThemeColor("accent-foreground");
   const muted = useThemeColor("muted");
   const db = useDatabase();
+  const { requestActivePlantSlot } = usePlantLimitGate();
+  const handleAddPlant = () => {
+    void requestActivePlantSlot({
+      onAllow: () => router.push("/plants/new"),
+    });
+  };
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterId>("all");
   const [roomFilter, setRoomFilter] = useState<number | null>(null);
@@ -200,7 +207,7 @@ export function PlantLibraryScreen() {
           title="Your library is empty"
           description="Add your first plant — every entry stays on this device."
           ctaLabel="Add a plant"
-          onPressCta={() => router.push("/plants/new")}
+          onPressCta={handleAddPlant}
         />
       </View>
     );
@@ -356,7 +363,7 @@ export function PlantLibraryScreen() {
                   : "Try a different filter to see more plants."
               }
               ctaLabel="Add a plant"
-              onPressCta={() => router.push("/plants/new")}
+              onPressCta={handleAddPlant}
             />
           </View>
         }
@@ -367,7 +374,7 @@ export function PlantLibraryScreen() {
         style={{ bottom: insets.bottom + 12 }}
         pointerEvents="box-none"
       >
-        <Button onPress={() => router.push("/plants/new")}>
+        <Button onPress={handleAddPlant}>
           <Ionicons name="add" size={18} color={accentForeground} />
           <Button.Label>Add plant</Button.Label>
         </Button>

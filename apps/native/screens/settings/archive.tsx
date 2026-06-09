@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
 import { SectionHeader } from "@/components/section-header";
+import { usePlantLimitGate } from "@/hooks/use-plant-limit-gate";
 import { useDatabase } from "@/lib/db";
 import {
   deletePlantPermanently,
@@ -29,6 +30,7 @@ export function ArchiveSettingsScreen() {
   const danger = useThemeColor("danger");
   const accent = useThemeColor("accent");
   const db = useDatabase();
+  const { requestActivePlantSlot } = usePlantLimitGate();
   const [plants, setPlants] = useState<Plant[]>(() => getArchivedPlants(db));
 
   const refresh = useCallback(() => {
@@ -36,15 +38,22 @@ export function ArchiveSettingsScreen() {
   }, [db]);
 
   const onUnarchive = (plant: Plant) => {
-    try {
-      unarchivePlant(db, plant.id);
-      refresh();
-    } catch (err) {
-      Alert.alert(
-        "Could not unarchive",
-        err instanceof Error ? err.message : "Unknown error",
-      );
-    }
+    // Reactivating an archived plant counts against the free active-plant
+    // limit, so it runs through the same gate as creating a new plant.
+    void requestActivePlantSlot({
+      reason: "unarchive",
+      onAllow: () => {
+        try {
+          unarchivePlant(db, plant.id);
+          refresh();
+        } catch (err) {
+          Alert.alert(
+            "Could not unarchive",
+            err instanceof Error ? err.message : "Unknown error",
+          );
+        }
+      },
+    });
   };
 
   const onDelete = (plant: Plant) => {
