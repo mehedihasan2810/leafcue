@@ -6,6 +6,7 @@ import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Container } from "@/components/container";
 import { EmptyState } from "@/components/empty-state";
+import { SettingsButton } from "@/components/settings-button";
 import { usePlantLimitGate } from "@/hooks/use-plant-limit-gate";
 import { getHealthIssueLabel } from "@/lib/care/health-hints";
 import { useDatabase } from "@/lib/db";
@@ -211,8 +212,11 @@ export function InsightsScreen() {
 
 function Header() {
   return (
-    <View className="gap-1">
-      <Text className="font-display text-2xl text-foreground">Insights</Text>
+    <View className="flex-row items-start justify-between">
+      <View className="gap-1">
+        <Text className="font-display text-2xl text-foreground">Insights</Text>
+      </View>
+      <SettingsButton />
     </View>
   );
 }

@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
 import { EmptyState } from "@/components/empty-state";
+import { SettingsButton } from "@/components/settings-button";
 import { TaskActionSheets } from "@/components/task-action-sheets";
 import { useTaskQueueReadModel } from "@/hooks/use-care-read-models";
 import { useTaskHandlers } from "@/hooks/use-task-handlers";
@@ -86,13 +87,20 @@ export function TasksScreen() {
         <View className="gap-4">
           <View className="flex-row items-center justify-between">
             <Text className="font-display text-2xl text-foreground">Tasks</Text>
-            <PressableFeedback
-              onPress={handleOpenReminders}
-              className="size-10 items-center justify-center rounded-full bg-surface"
-              accessibilityLabel="Reminder settings"
-            >
-              <Ionicons name="notifications-outline" size={18} color={accent} />
-            </PressableFeedback>
+            <View className="flex-row items-center gap-2">
+              <PressableFeedback
+                onPress={handleOpenReminders}
+                className="size-10 items-center justify-center rounded-full bg-surface"
+                accessibilityLabel="Reminder settings"
+              >
+                <Ionicons
+                  name="notifications-outline"
+                  size={18}
+                  color={accent}
+                />
+              </PressableFeedback>
+              <SettingsButton />
+            </View>
           </View>
 
           <TaskFilterTabs

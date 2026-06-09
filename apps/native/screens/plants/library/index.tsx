@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/empty-state";
 import { PlantCard } from "@/components/plant-card";
+import { SettingsButton } from "@/components/settings-button";
 import { usePlantLimitGate } from "@/hooks/use-plant-limit-gate";
 import { isOverdue } from "@/lib/dates";
 import { useDatabase } from "@/lib/db";
@@ -258,13 +259,16 @@ export function PlantLibraryScreen() {
         }
         ListHeaderComponent={
           <View className="gap-3 px-4">
-            <View className="gap-1">
-              <Text className="font-display text-2xl text-foreground">
-                Your plants
-              </Text>
-              <Text className="text-muted text-sm">
-                {sortedPlants.length} of {totalActive} showing
-              </Text>
+            <View className="flex-row items-start justify-between">
+              <View className="gap-1">
+                <Text className="font-display text-2xl text-foreground">
+                  Your plants
+                </Text>
+                <Text className="text-muted text-sm">
+                  {sortedPlants.length} of {totalActive} showing
+                </Text>
+              </View>
+              <SettingsButton />
             </View>
 
             <SearchField value={search} onChange={setSearch}>

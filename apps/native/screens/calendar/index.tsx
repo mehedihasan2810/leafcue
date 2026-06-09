@@ -11,6 +11,7 @@ import { Container } from "@/components/container";
 import { EmptyState } from "@/components/empty-state";
 import { GroupedTaskCard } from "@/components/grouped-task-card";
 import { SectionHeader } from "@/components/section-header";
+import { SettingsButton } from "@/components/settings-button";
 import { TaskActionSheets } from "@/components/task-action-sheets";
 import { useCalendarReadModel } from "@/hooks/use-care-read-models";
 import { useTaskHandlers } from "@/hooks/use-task-handlers";
@@ -89,9 +90,12 @@ export function CalendarScreen() {
         }}
       >
         <View className="gap-4">
-          <Text className="font-display text-2xl text-foreground">
-            Calendar
-          </Text>
+          <View className="flex-row items-center justify-between">
+            <Text className="font-display text-2xl text-foreground">
+              Calendar
+            </Text>
+            <SettingsButton />
+          </View>
 
           <MonthGrid
             monthAnchor={monthAnchor}
