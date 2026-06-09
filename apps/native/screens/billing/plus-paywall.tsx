@@ -284,6 +284,7 @@ function PaywallContent({ reason }: { reason?: string }) {
 
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+  const accentForeground = useThemeColor("accent-foreground");
 
   if (!hasUsableOffering) {
     return <OfflineState />;
@@ -366,7 +367,11 @@ function PaywallContent({ reason }: { reason?: string }) {
         onPress={handlePurchase}
         accessibilityLabel={ctaLabel}
       >
-        {isPurchasing ? <Spinner /> : <Button.Label>{ctaLabel}</Button.Label>}
+        {isPurchasing ? (
+          <Spinner color={accentForeground} />
+        ) : (
+          <Button.Label>{ctaLabel}</Button.Label>
+        )}
       </Button>
       <View className="flex-row items-center justify-center gap-4">
         <PressableFeedback
