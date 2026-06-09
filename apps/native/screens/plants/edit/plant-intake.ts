@@ -7,6 +7,7 @@ import type {
 } from "@/lib/db/schema";
 import type { Plant, PlantPreset } from "@/lib/db/types";
 import { type PlantInsertInput, plantInsertSchema } from "@/lib/db/zod";
+import type { CareStyle } from "@/screens/plants/edit/care-style";
 
 export type PlantIntakeFormValues = {
   nickname: string;
@@ -27,6 +28,13 @@ export type PlantIntakeFormValues = {
   soilType: string;
   isFavorite: boolean;
   notes: string;
+  careStyle: CareStyle;
+  scheduleWater: boolean;
+  scheduleFertilize: boolean;
+  scheduleMist: boolean;
+  waterIntervalDays: string;
+  fertilizeIntervalDays: string;
+  mistIntervalDays: string;
 };
 
 const careDifficultyKeywords: ReadonlyArray<{
@@ -139,6 +147,13 @@ export function buildPlantIntakeValues(plant?: Plant): PlantIntakeFormValues {
       soilType: plant.soilType ?? "",
       isFavorite: plant.isFavorite,
       notes: plant.notes ?? "",
+      careStyle: "balanced",
+      scheduleWater: true,
+      scheduleFertilize: true,
+      scheduleMist: false,
+      waterIntervalDays: "",
+      fertilizeIntervalDays: "",
+      mistIntervalDays: "",
     };
   }
 
@@ -161,6 +176,13 @@ export function buildPlantIntakeValues(plant?: Plant): PlantIntakeFormValues {
     soilType: "",
     isFavorite: false,
     notes: "",
+    careStyle: "balanced",
+    scheduleWater: true,
+    scheduleFertilize: true,
+    scheduleMist: false,
+    waterIntervalDays: "",
+    fertilizeIntervalDays: "",
+    mistIntervalDays: "",
   };
 }
 

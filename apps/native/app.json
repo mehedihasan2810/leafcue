@@ -50,14 +50,28 @@
       "reactCompiler": true
     },
     "ios": {
-      "bundleIdentifier": "com.galaxywayai.leafcue"
+      "bundleIdentifier": "com.galaxywayai.leafcue",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.galaxywayai.leafcue",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android-adaptive-icon.png",
         "backgroundColor": "#e9f9f6"
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ef54e35d-e30e-40b2-8c34-79b18342d077"
       }
-    }
+    },
+    "owner": "galaxyway-ai"
   }
 }

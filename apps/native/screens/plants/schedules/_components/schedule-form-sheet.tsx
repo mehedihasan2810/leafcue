@@ -1,5 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
+import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { useForm } from "@tanstack/react-form";
+import { addDays, format } from "date-fns";
 import {
   BottomSheet,
   Button,
@@ -14,13 +16,20 @@ import {
 } from "heroui-native";
 import { useEffect, useMemo } from "react";
 import { Text, View } from "react-native";
+import { z } from "zod";
 
 import { getCareTaskIcon } from "@/components/care-task-icons";
-import { formatIsoDate, parseIsoDate } from "@/lib/dates";
+import { formatIsoDate, parseIsoDate, relativeDueLabel } from "@/lib/dates";
 import type { CareTaskTemplate, PlantTaskSchedule } from "@/lib/db/types";
+import {
+  applyCareStyleInterval,
+  type CareStyle,
+  careStyleOptions,
+} from "@/screens/plants/edit/care-style";
 
 export type ScheduleFormValues = {
   templateId: number | null;
+  careStyle: CareStyle;
   customName: string;
   intervalDays: string;
   nextDueAtIso: string;
@@ -28,6 +37,44 @@ export type ScheduleFormValues = {
   preferredMinute: string;
   instructions: string;
 };
+
+const optionalPositiveIntTextSchema = z.string().refine((value) => {
+  const trimmed = value.trim();
+  if (!trimmed) return true;
+  const parsed = Number(trimmed);
+  return Number.isInteger(parsed) && parsed > 0 && parsed <= 365;
+}, "Use a whole number from 1 to 365.");
+
+const optionalHourTextSchema = z.string().refine((value) => {
+  const trimmed = value.trim();
+  if (!trimmed) return true;
+  const parsed = Number(trimmed);
+  return Number.isInteger(parsed) && parsed >= 0 && parsed <= 23;
+}, "Hour must be 0-23.");
+
+const optionalMinuteTextSchema = z.string().refine((value) => {
+  const trimmed = value.trim();
+  if (!trimmed) return true;
+  const parsed = Number(trimmed);
+  return Number.isInteger(parsed) && parsed >= 0 && parsed <= 59;
+}, "Minute must be 0-59.");
+
+const optionalIsoDateTextSchema = z.string().refine((value) => {
+  const trimmed = value.trim();
+  if (!trimmed) return true;
+  return parseIsoDate(trimmed) !== null;
+}, "Use the format YYYY-MM-DD.");
+
+const scheduleFormSchema = z.object({
+  templateId: z.number().int().positive().nullable(),
+  careStyle: z.enum(["ease", "balanced", "growth"]),
+  customName: z.string().max(80),
+  intervalDays: optionalPositiveIntTextSchema,
+  nextDueAtIso: optionalIsoDateTextSchema,
+  preferredHour: optionalHourTextSchema,
+  preferredMinute: optionalMinuteTextSchema,
+  instructions: z.string().max(2000),
+});
 
 type ScheduleFormSheetProps = {
   isOpen: boolean;
@@ -53,6 +100,7 @@ function buildInitial(
   if (initial) {
     return {
       templateId: initial.templateId ?? null,
+      careStyle: "balanced",
       customName: initial.customName ?? "",
       intervalDays:
         initial.intervalDays !== null ? String(initial.intervalDays) : "",
@@ -67,6 +115,7 @@ function buildInitial(
   const defaultTemplate = templates.find((t) => t.key === "water") ?? null;
   return {
     templateId: defaultTemplate?.id ?? null,
+    careStyle: "balanced",
     customName: "",
     intervalDays:
       defaultTemplate?.defaultIntervalDays !== null &&
@@ -78,6 +127,34 @@ function buildInitial(
     preferredMinute: "",
     instructions: defaultTemplate?.defaultInstructions ?? "",
   };
+}
+
+function parseOptionalInteger(value: string): number | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const parsed = Number(trimmed);
+  return Number.isInteger(parsed) ? parsed : null;
+}
+
+function selectedTemplate(
+  templates: ReadonlyArray<CareTaskTemplate>,
+  templateId: number | null,
+): CareTaskTemplate | null {
+  if (templateId === null) return null;
+  return templates.find((template) => template.id === templateId) ?? null;
+}
+
+function resolvePreviewInterval(
+  values: ScheduleFormValues,
+  template: CareTaskTemplate | null,
+): number | null {
+  return (
+    parseOptionalInteger(values.intervalDays) ??
+    applyCareStyleInterval(
+      template?.defaultIntervalDays ?? null,
+      values.careStyle,
+    )
+  );
 }
 
 export function ScheduleFormSheet({
@@ -100,42 +177,27 @@ export function ScheduleFormSheet({
   const form = useForm({
     defaultValues: defaults,
     onSubmit: async ({ value }) => {
-      const interval = value.intervalDays.trim()
-        ? Number(value.intervalDays.trim())
-        : null;
-      const nextDueAt = value.nextDueAtIso.trim()
-        ? parseIsoDate(value.nextDueAtIso.trim())
-        : null;
-      const preferredHour = value.preferredHour.trim()
-        ? Number(value.preferredHour.trim())
-        : null;
-      const preferredMinute = value.preferredMinute.trim()
-        ? Number(value.preferredMinute.trim())
-        : null;
+      const parsed = scheduleFormSchema.safeParse(value);
+      if (!parsed.success) return;
+
+      const template = selectedTemplate(templates, parsed.data.templateId);
+      const interval = resolvePreviewInterval(parsed.data, template);
+      const nextDueAt = parsed.data.nextDueAtIso.trim()
+        ? parseIsoDate(parsed.data.nextDueAtIso.trim())
+        : interval
+          ? addDays(new Date(), interval)
+          : null;
+      const preferredHour = parseOptionalInteger(parsed.data.preferredHour);
+      const preferredMinute = parseOptionalInteger(parsed.data.preferredMinute);
 
       await onSubmit({
-        templateId: value.templateId,
-        customName: value.customName.trim() || null,
-        intervalDays:
-          interval !== null && Number.isFinite(interval) && interval > 0
-            ? interval
-            : null,
+        templateId: parsed.data.templateId,
+        customName: parsed.data.customName.trim() || null,
+        intervalDays: interval,
         nextDueAt,
-        preferredHour:
-          preferredHour !== null &&
-          Number.isFinite(preferredHour) &&
-          preferredHour >= 0 &&
-          preferredHour <= 23
-            ? preferredHour
-            : null,
-        preferredMinute:
-          preferredMinute !== null &&
-          Number.isFinite(preferredMinute) &&
-          preferredMinute >= 0 &&
-          preferredMinute <= 59
-            ? preferredMinute
-            : null,
-        instructions: value.instructions.trim() || null,
+        preferredHour,
+        preferredMinute,
+        instructions: parsed.data.instructions.trim() || null,
       });
       onOpenChange(false);
     },
@@ -153,8 +215,17 @@ export function ScheduleFormSheet({
     <BottomSheet isOpen={isOpen} onOpenChange={onOpenChange}>
       <BottomSheet.Portal>
         <BottomSheet.Overlay />
-        <BottomSheet.Content snapPoints={["75%", "92%"]}>
-          <View className="gap-4">
+        <BottomSheet.Content
+          snapPoints={["75%", "92%"]}
+          enableOverDrag={false}
+          enableDynamicSizing={false}
+          contentContainerClassName="h-full"
+          keyboardBehavior="extend"
+        >
+          <BottomSheetScrollView
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ gap: 16, paddingBottom: 24 }}
+          >
             <View>
               <BottomSheet.Title className="text-foreground">
                 {isEdit ? "Edit schedule" : "Add care schedule"}
@@ -182,11 +253,13 @@ export function ScheduleFormSheet({
                           onPress={() => {
                             field.handleChange(template.id);
                             if (!form.state.values.intervalDays.trim()) {
+                              const interval = applyCareStyleInterval(
+                                template.defaultIntervalDays,
+                                form.state.values.careStyle,
+                              );
                               form.setFieldValue(
                                 "intervalDays",
-                                template.defaultIntervalDays !== null
-                                  ? String(template.defaultIntervalDays)
-                                  : "",
+                                interval !== null ? String(interval) : "",
                               );
                             }
                             if (!form.state.values.instructions.trim()) {
@@ -211,6 +284,55 @@ export function ScheduleFormSheet({
               )}
             </form.Field>
 
+            <form.Field name="careStyle">
+              {(field) => (
+                <View className="gap-2">
+                  <Label>
+                    <Label.Text>Care style</Label.Text>
+                  </Label>
+                  <View className="flex-row flex-wrap gap-2">
+                    {careStyleOptions.map((option) => {
+                      const isSelected = field.state.value === option.value;
+                      return (
+                        <Chip
+                          key={option.value}
+                          variant={isSelected ? "primary" : "secondary"}
+                          color={isSelected ? "accent" : "default"}
+                          size="sm"
+                          onPress={() => {
+                            field.handleChange(option.value);
+                            const template = selectedTemplate(
+                              templates,
+                              form.state.values.templateId,
+                            );
+                            if (template) {
+                              const interval = applyCareStyleInterval(
+                                template.defaultIntervalDays,
+                                option.value,
+                              );
+                              if (interval !== null) {
+                                form.setFieldValue(
+                                  "intervalDays",
+                                  String(interval),
+                                );
+                              }
+                            }
+                          }}
+                        >
+                          <Chip.Label>{option.label}</Chip.Label>
+                        </Chip>
+                      );
+                    })}
+                  </View>
+                  <Text className="text-muted text-xs">
+                    {careStyleOptions.find(
+                      (option) => option.value === field.state.value,
+                    )?.description ?? "Recommended default."}
+                  </Text>
+                </View>
+              )}
+            </form.Field>
+
             <form.Field name="customName">
               {(field) => (
                 <TextField className="gap-1.5">
@@ -228,9 +350,24 @@ export function ScheduleFormSheet({
             </form.Field>
 
             <View className="flex-row gap-2">
-              <form.Field name="intervalDays">
+              <form.Field
+                name="intervalDays"
+                validators={{
+                  onChange: ({ value }) => {
+                    const result =
+                      optionalPositiveIntTextSchema.safeParse(value);
+                    return result.success
+                      ? undefined
+                      : (result.error.issues[0]?.message ??
+                          "Use a whole number from 1 to 365.");
+                  },
+                }}
+              >
                 {(field) => (
-                  <TextField className="flex-1 gap-1.5">
+                  <TextField
+                    className="flex-1 gap-1.5"
+                    isInvalid={field.state.meta.errors.length > 0}
+                  >
                     <Label>
                       <Label.Text>Every (days)</Label.Text>
                     </Label>
@@ -241,14 +378,26 @@ export function ScheduleFormSheet({
                       keyboardType="number-pad"
                       maxLength={4}
                     />
+                    {field.state.meta.errors[0] ? (
+                      <FieldError>{field.state.meta.errors[0]}</FieldError>
+                    ) : null}
                   </TextField>
                 )}
               </form.Field>
-              <form.Field name="nextDueAtIso">
+              <form.Field
+                name="nextDueAtIso"
+                validators={{
+                  onChange: ({ value }) => {
+                    const result = optionalIsoDateTextSchema.safeParse(value);
+                    return result.success
+                      ? undefined
+                      : (result.error.issues[0]?.message ??
+                          "Use the format YYYY-MM-DD.");
+                  },
+                }}
+              >
                 {(field) => {
-                  const trimmed = field.state.value.trim();
-                  const isInvalid =
-                    trimmed.length > 0 && parseIsoDate(trimmed) === null;
+                  const isInvalid = field.state.meta.errors.length > 0;
                   return (
                     <TextField className="flex-1 gap-1.5" isInvalid={isInvalid}>
                       <Label>
@@ -263,7 +412,7 @@ export function ScheduleFormSheet({
                         maxLength={10}
                       />
                       {isInvalid ? (
-                        <FieldError>Use the format YYYY-MM-DD.</FieldError>
+                        <FieldError>{field.state.meta.errors[0]}</FieldError>
                       ) : null}
                     </TextField>
                   );
@@ -272,9 +421,23 @@ export function ScheduleFormSheet({
             </View>
 
             <View className="flex-row gap-2">
-              <form.Field name="preferredHour">
+              <form.Field
+                name="preferredHour"
+                validators={{
+                  onChange: ({ value }) => {
+                    const result = optionalHourTextSchema.safeParse(value);
+                    return result.success
+                      ? undefined
+                      : (result.error.issues[0]?.message ??
+                          "Hour must be 0-23.");
+                  },
+                }}
+              >
                 {(field) => (
-                  <TextField className="flex-1 gap-1.5">
+                  <TextField
+                    className="flex-1 gap-1.5"
+                    isInvalid={field.state.meta.errors.length > 0}
+                  >
                     <Label>
                       <Label.Text>Reminder hour (0–23)</Label.Text>
                     </Label>
@@ -285,12 +448,29 @@ export function ScheduleFormSheet({
                       keyboardType="number-pad"
                       maxLength={2}
                     />
+                    {field.state.meta.errors[0] ? (
+                      <FieldError>{field.state.meta.errors[0]}</FieldError>
+                    ) : null}
                   </TextField>
                 )}
               </form.Field>
-              <form.Field name="preferredMinute">
+              <form.Field
+                name="preferredMinute"
+                validators={{
+                  onChange: ({ value }) => {
+                    const result = optionalMinuteTextSchema.safeParse(value);
+                    return result.success
+                      ? undefined
+                      : (result.error.issues[0]?.message ??
+                          "Minute must be 0-59.");
+                  },
+                }}
+              >
                 {(field) => (
-                  <TextField className="flex-1 gap-1.5">
+                  <TextField
+                    className="flex-1 gap-1.5"
+                    isInvalid={field.state.meta.errors.length > 0}
+                  >
                     <Label>
                       <Label.Text>Minute (0–59)</Label.Text>
                     </Label>
@@ -301,6 +481,9 @@ export function ScheduleFormSheet({
                       keyboardType="number-pad"
                       maxLength={2}
                     />
+                    {field.state.meta.errors[0] ? (
+                      <FieldError>{field.state.meta.errors[0]}</FieldError>
+                    ) : null}
                   </TextField>
                 )}
               </form.Field>
@@ -321,6 +504,51 @@ export function ScheduleFormSheet({
                 </TextField>
               )}
             </form.Field>
+
+            <form.Subscribe selector={(state) => state.values}>
+              {(values) => {
+                const template = selectedTemplate(templates, values.templateId);
+                const interval = resolvePreviewInterval(values, template);
+                const nextDue = values.nextDueAtIso.trim()
+                  ? parseIsoDate(values.nextDueAtIso)
+                  : interval
+                    ? addDays(new Date(), interval)
+                    : null;
+                const reminder =
+                  values.preferredHour.trim() && values.preferredMinute.trim()
+                    ? `${values.preferredHour.padStart(
+                        2,
+                        "0",
+                      )}:${values.preferredMinute.padStart(2, "0")}`
+                    : "app default";
+                const previewName =
+                  template?.name ?? (values.customName.trim() || "Care");
+                return (
+                  <View className="gap-2 rounded-2xl bg-accent-soft/40 p-3">
+                    <Text className="font-medium text-foreground text-sm">
+                      Preview
+                    </Text>
+                    <Text className="text-foreground text-xs leading-4">
+                      {previewName}{" "}
+                      {interval
+                        ? `every ${interval} day${interval === 1 ? "" : "s"}`
+                        : "as a one-off task"}
+                      . Next due{" "}
+                      {nextDue ? format(nextDue, "EEE, MMM d") : "when set"}.
+                    </Text>
+                    <Text className="text-muted text-xs">
+                      Reminder time: {reminder}. Reminders are off unless
+                      enabled in Settings.
+                    </Text>
+                    {nextDue ? (
+                      <Text className="text-muted text-xs">
+                        Queue label: {relativeDueLabel(nextDue)}
+                      </Text>
+                    ) : null}
+                  </View>
+                );
+              }}
+            </form.Subscribe>
 
             <View className="mt-1 flex-row gap-2">
               {isEdit && onDelete ? (
@@ -364,7 +592,7 @@ export function ScheduleFormSheet({
             <Text className="text-center text-muted text-xs">
               Schedules stay on this device.
             </Text>
-          </View>
+          </BottomSheetScrollView>
         </BottomSheet.Content>
       </BottomSheet.Portal>
     </BottomSheet>

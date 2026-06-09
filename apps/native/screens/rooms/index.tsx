@@ -236,8 +236,8 @@ export function RoomsScreen() {
                   </Text>
                   <Text className="text-muted text-xs">
                     {plantCount} plant{plantCount === 1 ? "" : "s"} ·{" "}
-                    {shelves.length} shelf
-                    {shelves.length === 1 ? "" : "ves"}
+                    {shelves.length}{" "}
+                    {shelves.length === 1 ? "shelf" : "shelves"}
                   </Text>
                 </View>
                 <Ionicons

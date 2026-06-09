@@ -99,6 +99,23 @@ export function SettingsHubScreen() {
       <SettingsHeader title="Settings" />
       <Container className="px-6" isScrollable>
         <View className="gap-6" style={{ paddingBottom: insets.bottom + 32 }}>
+          <View className="gap-2 rounded-3xl border border-border/40 bg-surface p-4">
+            <View className="flex-row items-start gap-3">
+              <View className="size-10 items-center justify-center rounded-2xl bg-accent-soft">
+                <Ionicons name="lock-closed-outline" size={18} color={accent} />
+              </View>
+              <View className="flex-1 gap-1">
+                <Text className="font-semibold text-base text-foreground">
+                  Private by default
+                </Text>
+                <Text className="text-muted text-xs leading-4">
+                  Works offline. Your plant data stays on this device. Back up
+                  your data before changing phones.
+                </Text>
+              </View>
+            </View>
+          </View>
+
           {SECTIONS.map((section) => (
             <View key={section.title} className="gap-2">
               <Text className="px-1 font-medium text-muted text-xs uppercase tracking-wide">
