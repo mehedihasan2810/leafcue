@@ -1,10 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { PressableFeedback, useThemeColor } from "heroui-native";
-import { Text, View } from "react-native";
+import { useState } from "react";
+import { ActivityIndicator, Alert, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
+import { useDatabase } from "@/lib/db";
+import {
+  downloadScreenshotPlantPhotos,
+  resetScreenshotData,
+  seedScreenshotData,
+} from "@/lib/db/screenshot-seed";
 import { SettingsHeader } from "@/screens/settings/settings-header";
 import { useEntitlementsStore } from "@/stores/use-entitlements-store";
 
@@ -119,6 +126,8 @@ export function SettingsHubScreen() {
 
           <PlusCard accent={accent} muted={muted} />
 
+          {__DEV__ ? <ScreenshotToolsCard /> : null}
+
           {SECTIONS.map((section) => (
             <View key={section.title} className="gap-2">
               <Text className="px-1 font-medium text-muted text-xs uppercase tracking-wide">
@@ -210,6 +219,115 @@ function PlusCard({ accent, muted }: { accent: string; muted: string }) {
               }
             >
               {isPlusActive ? "Plus" : "Free"}
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={muted} />
+        </PressableFeedback>
+      </View>
+    </View>
+  );
+}
+
+function ScreenshotToolsCard() {
+  const db = useDatabase();
+  const accent = useThemeColor("accent");
+  const muted = useThemeColor("muted");
+  const [isSeeding, setIsSeeding] = useState(false);
+
+  const handleSeed = () => {
+    Alert.alert(
+      "Seed screenshot data?",
+      "This will download plant photos and add realistic sample data for App Store screenshots.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Seed",
+          style: "default",
+          onPress: async () => {
+            setIsSeeding(true);
+            try {
+              const photoUris = await downloadScreenshotPlantPhotos();
+              seedScreenshotData(db, photoUris);
+              Alert.alert("Screenshot data seeded");
+            } catch {
+              Alert.alert("Failed to seed screenshot data");
+            } finally {
+              setIsSeeding(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const handleReset = () => {
+    Alert.alert(
+      "Reset screenshot data?",
+      "This will remove all seeded sample data. Your own plants and settings are safe.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Reset",
+          style: "destructive",
+          onPress: () => {
+            try {
+              resetScreenshotData(db);
+              Alert.alert("Screenshot data reset");
+            } catch {
+              Alert.alert("Failed to reset screenshot data");
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  return (
+    <View className="gap-2">
+      <Text className="px-1 font-medium text-muted text-xs uppercase tracking-wide">
+        Screenshot tools
+      </Text>
+      <View className="rounded-3xl border border-border/40 bg-surface p-2">
+        <PressableFeedback
+          accessibilityLabel="Seed screenshot data"
+          accessibilityHint="Adds realistic local sample data for App Store screenshots."
+          onPress={handleSeed}
+          isDisabled={isSeeding}
+          className="flex-row items-center gap-3 rounded-2xl p-3 active:bg-muted/10"
+        >
+          <View className="size-10 items-center justify-center rounded-2xl bg-accent-soft">
+            {isSeeding ? (
+              <ActivityIndicator size="small" color={accent} />
+            ) : (
+              <Ionicons name="images-outline" size={18} color={accent} />
+            )}
+          </View>
+          <View className="flex-1 gap-0.5">
+            <Text className="font-medium text-base text-foreground">
+              {isSeeding ? "Downloading photos..." : "Seed screenshot data"}
+            </Text>
+            <Text className="text-muted text-xs">
+              Adds realistic local sample data for App Store screenshots.
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={muted} />
+        </PressableFeedback>
+
+        <PressableFeedback
+          accessibilityLabel="Reset screenshot data"
+          accessibilityHint="Removes all seeded sample data."
+          onPress={handleReset}
+          className="flex-row items-center gap-3 rounded-2xl p-3 active:bg-muted/10"
+        >
+          <View className="size-10 items-center justify-center rounded-2xl bg-accent-soft">
+            <Ionicons name="trash-outline" size={18} color={accent} />
+          </View>
+          <View className="flex-1 gap-0.5">
+            <Text className="font-medium text-base text-foreground">
+              Reset screenshot data
+            </Text>
+            <Text className="text-muted text-xs">
+              Removes all seeded sample data.
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color={muted} />
