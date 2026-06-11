@@ -34,7 +34,13 @@ export async function ensureAndroidChannel(): Promise<void> {
   if (Platform.OS !== "android") return;
   await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_ID, {
     name: "Care reminders",
+    description: "Plant care reminders scheduled on this device.",
     importance: Notifications.AndroidImportance.DEFAULT,
+    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+    showBadge: false,
+    sound: null,
+    enableLights: true,
+    enableVibrate: true,
     vibrationPattern: [0, 250, 250, 250],
     lightColor: "#1f9d55",
   });

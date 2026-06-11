@@ -11,6 +11,7 @@ import { BillingBootstrapper } from "@/components/billing/billing-bootstrapper";
 import { OnboardingGate } from "@/components/onboarding-gate";
 import { ThemeStoreSync } from "@/components/theme-store-sync";
 import { DatabaseProvider } from "@/lib/db/provider";
+import { NotificationResponseRouter } from "@/lib/notifications/response-routing";
 
 // Set splash screen animation options
 SplashScreen.setOptions({
@@ -118,6 +119,7 @@ export default function Layout() {
               <ToastProvider>
                 <BillingBootstrapper />
                 <OnboardingGate>
+                  <NotificationResponseRouter />
                   <StackLayout />
                 </OnboardingGate>
               </ToastProvider>

@@ -67,6 +67,7 @@ export const useReminderStore = create<ReminderStore>((set) => ({
       return false;
     }
 
+    await ensureAndroidChannel();
     let permissionStatus = await getPermissionStatus();
     if (permissionStatus !== "granted") {
       permissionStatus = await requestPermissionIfNeeded();
@@ -79,7 +80,6 @@ export const useReminderStore = create<ReminderStore>((set) => ({
       set({ settings: next, permissionStatus });
       return false;
     }
-    await ensureAndroidChannel();
     const next = updateReminderSettings(db, {
       enabled: true,
       permissionAsked: true,
