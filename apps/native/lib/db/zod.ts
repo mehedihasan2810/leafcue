@@ -585,8 +585,6 @@ export const appPreferencesSchema = z.object({
   weekStartDay: weekStartDaySchema.default("monday"),
   units: measurementUnitsSchema.default("metric"),
   hemisphere: hemisphereSchema.default("north"),
-  /** Opt-in to photo identification (the only feature that leaves the device). */
-  identifyEnabled: z.boolean().default(false),
 });
 export type AppPreferences = z.infer<typeof appPreferencesSchema>;
 export const appPreferencesKey = "app.preferences" as const;

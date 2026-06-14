@@ -41,7 +41,6 @@ function StackLayout() {
           headerShown: false,
         }}
       />
-      <Stack.Screen name="plants/identify" options={{ headerShown: false }} />
       <Stack.Screen
         name="plants/[plantId]/index"
         options={{ headerShown: false }}

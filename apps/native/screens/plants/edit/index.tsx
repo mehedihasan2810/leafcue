@@ -15,7 +15,7 @@ import {
   Switch,
   useThemeColor,
 } from "heroui-native";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Alert, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -68,11 +68,6 @@ import {
   appPreferencesSchema,
   plantInsertSchema,
 } from "@/lib/db/zod";
-import { isIdentifyConfigurable } from "@/lib/identify";
-import {
-  loadAppPreferences,
-  updateAppPreferences,
-} from "@/lib/settings/app-settings";
 import {
   applyCareStyleInterval,
   type CareStyle,
@@ -84,7 +79,6 @@ import {
   buildPlantIntakeValues,
   type PlantIntakeFormValues,
 } from "@/screens/plants/edit/plant-intake";
-import { useIdentifyStore } from "@/stores/use-identify-store";
 
 type EditPlantScreenProps = {
   mode: "create" | "edit";
@@ -440,53 +434,6 @@ export function EditPlantScreen({ mode, plantId }: EditPlantScreenProps) {
     form.reset(next);
   };
 
-  const identifyAvailable = isIdentifyConfigurable();
-  const identifyPick = useIdentifyStore((state) => state.pick);
-  const clearIdentifyPick = useIdentifyStore((state) => state.clear);
-
-  const handleIdentify = () => {
-    if (loadAppPreferences(db).identifyEnabled) {
-      router.push("/plants/identify");
-      return;
-    }
-    Alert.alert(
-      "Identify by photo?",
-      "This sends one photo to an identification service to suggest a species. Everything else stays on your device — you can turn this off anytime in Settings.",
-      [
-        { text: "Not now", style: "cancel" },
-        {
-          text: "Enable",
-          onPress: () => {
-            updateAppPreferences(db, { identifyEnabled: true });
-            router.push("/plants/identify");
-          },
-        },
-      ],
-    );
-  };
-
-  // Apply a confirmed identification when returning from the identify screen.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: run once per pick
-  useEffect(() => {
-    if (!identifyPick) return;
-    if (identifyPick.presetId !== null) {
-      handleSelectPreset(String(identifyPick.presetId));
-    } else {
-      form.setFieldValue("commonName", identifyPick.commonName);
-      if (identifyPick.scientificName) {
-        form.setFieldValue("scientificName", identifyPick.scientificName);
-      }
-      if (!form.state.values.nickname.trim()) {
-        form.setFieldValue("nickname", identifyPick.commonName);
-      }
-    }
-    if (identifyPick.photoUri) {
-      form.setFieldValue("photoUri", identifyPick.photoUri);
-    }
-    setCreateStep("basics");
-    clearIdentifyPick();
-  }, [identifyPick]);
-
   const handleArchive = () => {
     if (mode !== "edit" || plantId === undefined) return;
     Alert.alert(
@@ -648,8 +595,6 @@ export function EditPlantScreen({ mode, plantId }: EditPlantScreenProps) {
       {mode === "create" && createStep === "start" ? (
         <CreateStartStep
           presets={presets.slice(0, 6)}
-          identifyAvailable={identifyAvailable}
-          onIdentify={handleIdentify}
           onAddManual={() => setCreateStep("basics")}
           onSelectPreset={(presetId) => {
             handleSelectPreset(String(presetId));
@@ -1065,14 +1010,10 @@ function CreateStepIndicator({ currentStep }: { currentStep: CreateStep }) {
 
 function CreateStartStep({
   presets,
-  identifyAvailable,
-  onIdentify,
   onAddManual,
   onSelectPreset,
 }: {
   presets: ReadonlyArray<PlantPreset>;
-  identifyAvailable: boolean;
-  onIdentify: () => void;
   onAddManual: () => void;
   onSelectPreset: (presetId: number) => void;
 }) {
@@ -1082,27 +1023,6 @@ function CreateStartStep({
 
   return (
     <View className="gap-4">
-      {identifyAvailable ? (
-        <PressableFeedback
-          onPress={onIdentify}
-          accessibilityRole="button"
-          className="flex-row items-center gap-3 rounded-3xl border border-accent/30 bg-accent-soft/40 p-4"
-        >
-          <View className="size-12 items-center justify-center rounded-2xl bg-accent-soft">
-            <Ionicons name="camera-outline" size={24} color={accent} />
-          </View>
-          <View className="flex-1 gap-0.5">
-            <Text className="font-semibold text-base text-foreground">
-              Identify by photo
-            </Text>
-            <Text className="text-muted text-xs leading-4">
-              Snap or pick a photo and we'll suggest the species and care.
-            </Text>
-          </View>
-          <Ionicons name="chevron-forward" size={18} color={accent} />
-        </PressableFeedback>
-      ) : null}
-
       <View className="gap-2 rounded-3xl border border-border/40 bg-surface p-4">
         <View className="size-12 items-center justify-center rounded-2xl bg-accent-soft">
           <Ionicons name="leaf-outline" size={24} color={accent} />
