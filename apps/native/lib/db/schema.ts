@@ -47,6 +47,24 @@ export const wateringPreferenceValues = [
 ] as const;
 export type WateringPreference = (typeof wateringPreferenceValues)[number];
 
+export const windowOrientationValues = [
+  "N",
+  "NE",
+  "E",
+  "SE",
+  "S",
+  "SW",
+  "W",
+  "NW",
+] as const;
+export type WindowOrientation = (typeof windowOrientationValues)[number];
+
+// Hemisphere drives the care engine's seasonal adjustment. Not a DB column —
+// persisted as an app preference — but the canonical enum lives here with the
+// other shared value arrays.
+export const hemisphereValues = ["north", "south"] as const;
+export type Hemisphere = (typeof hemisphereValues)[number];
+
 export const photoTypeValues = [
   "cover",
   "journal",
@@ -188,6 +206,10 @@ export const plants = sqliteTable(
     potType: text("pot_type"),
     potSize: text("pot_size"),
     hasDrainage: integer("has_drainage", { mode: "boolean" }),
+    // Environment inputs that personalize the care engine (all optional).
+    directSunHours: integer("direct_sun_hours"),
+    windowDistanceCm: integer("window_distance_cm"),
+    windowOrientation: text("window_orientation").$type<WindowOrientation>(),
     isFavorite: integer("is_favorite", { mode: "boolean" })
       .notNull()
       .default(false),

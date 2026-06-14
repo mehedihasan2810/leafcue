@@ -1,3 +1,10 @@
+import {
+  parsePotSizeNumeric,
+  parsePresetIntervalRange,
+  SIGNIFICANT_DEVIATION,
+  SUMMER_MONTHS,
+  WINTER_MONTHS,
+} from "@/lib/care/engine";
 import { medianGapDays, resolveIntervalDays } from "@/lib/care/scheduling";
 import type {
   CareLog,
@@ -25,45 +32,6 @@ export type BuildSmartHintsInput = {
   now?: Date;
 };
 
-const POT_SIZE_NUMERIC = /(\d+(?:\.\d+)?)/;
-
-function parsePotSize(potSize: string | null): number | null {
-  if (!potSize) return null;
-  const match = potSize.match(POT_SIZE_NUMERIC);
-  if (!match) return null;
-  const value = Number(match[1]);
-  return Number.isFinite(value) ? value : null;
-}
-
-function parsePresetIntervalRange(
-  text: string | null | undefined,
-): { lower: number; upper: number } | null {
-  if (!text) return null;
-  const range = text.match(/(\d+)\s*(?:-|to|–)\s*(\d+)\s*day/i);
-  if (range) {
-    const lower = Number(range[1]);
-    const upper = Number(range[2]);
-    if (Number.isFinite(lower) && Number.isFinite(upper) && lower <= upper) {
-      return { lower, upper };
-    }
-  }
-  const single = text.match(/every\s+(\d+)\s*day/i);
-  if (single) {
-    const value = Number(single[1]);
-    if (Number.isFinite(value)) {
-      return { lower: value, upper: value };
-    }
-  }
-  const weekly = text.match(/every\s+(\d+)\s*week/i);
-  if (weekly) {
-    const weeks = Number(weekly[1]);
-    if (Number.isFinite(weeks)) {
-      return { lower: weeks * 7, upper: weeks * 7 };
-    }
-  }
-  return null;
-}
-
 function isWateringTask(template: CareTaskTemplate | null): boolean {
   return template?.key === "water";
 }
@@ -75,10 +43,6 @@ function isFertilizerTask(template: CareTaskTemplate | null): boolean {
 function isMonth(date: Date, months: ReadonlyArray<number>): boolean {
   return months.includes(date.getMonth());
 }
-
-const SUMMER_MONTHS: ReadonlyArray<number> = [5, 6, 7];
-const WINTER_MONTHS: ReadonlyArray<number> = [10, 11, 0, 1];
-const SIGNIFICANT_DEVIATION = 0.25;
 
 /**
  * Build deterministic on-device care hints for a single schedule. These are
@@ -138,7 +102,7 @@ export function buildSmartHints(input: BuildSmartHintsInput): CareHint[] {
     });
   }
 
-  const potSize = parsePotSize(plant.potSize);
+  const potSize = parsePotSizeNumeric(plant.potSize);
   if (isWateringTask(template) && potSize !== null) {
     if (potSize <= 4 && interval !== null && interval > 5) {
       hints.push({

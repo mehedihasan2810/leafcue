@@ -15,7 +15,7 @@ import {
   Switch,
   useThemeColor,
 } from "heroui-native";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Alert, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -32,6 +32,13 @@ import {
   FormTextField,
 } from "@/components/tanstack-form-fields";
 import { usePlantLimitGate } from "@/hooks/use-plant-limit-gate";
+import {
+  type CareEnvironment,
+  type ComputedInterval,
+  computeFertilizeInterval,
+  computeWateringInterval,
+  resolveBaseInterval,
+} from "@/lib/care/engine";
 import { useDatabase } from "@/lib/db";
 import {
   archivePlant as archivePlantRepo,
@@ -40,6 +47,7 @@ import {
   getPlantById,
   getPresets,
   getRooms,
+  getSetting,
   getShelves,
   updatePlant,
 } from "@/lib/db/repositories";
@@ -47,6 +55,7 @@ import {
   type CareDifficulty,
   type CareTaskTemplateKey,
   careTaskTemplates as careTaskTemplatesTable,
+  type Hemisphere,
   type LightPreference,
   rooms as roomsTable,
   shelves as shelvesTable,
@@ -54,7 +63,16 @@ import {
   type WateringPreference,
 } from "@/lib/db/schema";
 import type { CareTaskTemplate, PlantPreset } from "@/lib/db/types";
-import { plantInsertSchema } from "@/lib/db/zod";
+import {
+  appPreferencesKey,
+  appPreferencesSchema,
+  plantInsertSchema,
+} from "@/lib/db/zod";
+import { isIdentifyConfigurable } from "@/lib/identify";
+import {
+  loadAppPreferences,
+  updateAppPreferences,
+} from "@/lib/settings/app-settings";
 import {
   applyCareStyleInterval,
   type CareStyle,
@@ -66,6 +84,7 @@ import {
   buildPlantIntakeValues,
   type PlantIntakeFormValues,
 } from "@/screens/plants/edit/plant-intake";
+import { useIdentifyStore } from "@/stores/use-identify-store";
 
 type EditPlantScreenProps = {
   mode: "create" | "edit";
@@ -156,6 +175,13 @@ const wateringOptions: ReadonlyArray<FormChipOption<WateringPreference>> = [
   { value: "keep-moist", label: "Keep moist" },
 ];
 
+const sunHoursOptions: ReadonlyArray<FormChipOption<string>> = [
+  { value: "0", label: "None", icon: "moon-outline" },
+  { value: "2", label: "~2h", icon: "partly-sunny-outline" },
+  { value: "4", label: "~4h", icon: "sunny-outline" },
+  { value: "6", label: "6h+", icon: "flame-outline" },
+];
+
 const careDifficultyOptions: ReadonlyArray<FormChipOption<CareDifficulty>> = [
   { value: "easy", label: "Easy" },
   { value: "moderate", label: "Moderate" },
@@ -201,35 +227,95 @@ function templateForKey(
   return templates.find((template) => template.key === key) ?? null;
 }
 
-function resolvePreviewInterval(args: {
-  value: string;
+function careEnvironmentFromIntake(
+  values: PlantIntakeFormValues,
+  hemisphere: Hemisphere,
+  now: Date,
+): CareEnvironment {
+  const trimmedSun = values.directSunHours.trim();
+  const parsedSun = trimmedSun ? Number.parseInt(trimmedSun, 10) : Number.NaN;
+  return {
+    lightPreference: values.lightPreference,
+    wateringPreference: values.wateringPreference,
+    potSize: values.potSize.trim() || null,
+    hasDrainage: values.hasDrainage,
+    directSunHours: Number.isFinite(parsedSun) ? parsedSun : null,
+    careStyle: values.careStyle,
+    now,
+    hemisphere,
+  };
+}
+
+type ResolvedScheduleInterval = {
+  intervalDays: number | null;
+  computed: ComputedInterval | null;
+};
+
+/**
+ * Resolve the interval for a single schedule. A manual override always wins;
+ * otherwise water/fertilize run through the personalized care engine and other
+ * tasks fall back to the care-style-adjusted template default.
+ */
+function computeScheduleInterval(args: {
+  key: CareTaskTemplateKey;
+  manualValue: string;
   template: CareTaskTemplate | null;
-  style: CareStyle;
-}): number | null {
-  return (
-    parsePositiveInterval(args.value) ??
-    applyCareStyleInterval(
-      args.template?.defaultIntervalDays ?? null,
-      args.style,
-    )
-  );
+  preset: PlantPreset | null;
+  env: CareEnvironment;
+}): ResolvedScheduleInterval {
+  const manual = parsePositiveInterval(args.manualValue);
+  if (manual !== null) return { intervalDays: manual, computed: null };
+
+  const templateDefault = args.template?.defaultIntervalDays ?? null;
+
+  if (args.key === "water") {
+    const base = resolveBaseInterval(
+      templateDefault,
+      args.preset?.water ?? null,
+    );
+    if (base !== null) {
+      const computed = computeWateringInterval(base, args.env);
+      return { intervalDays: computed.intervalDays, computed };
+    }
+  } else if (args.key === "fertilize") {
+    const base = resolveBaseInterval(
+      templateDefault,
+      args.preset?.fertilizer ?? null,
+    );
+    if (base !== null) {
+      const computed = computeFertilizeInterval(base, args.env);
+      return { intervalDays: computed.intervalDays, computed };
+    }
+  }
+
+  return {
+    intervalDays: applyCareStyleInterval(templateDefault, args.env.careStyle),
+    computed: null,
+  };
 }
 
 function buildCreateScheduleDrafts(
   values: PlantIntakeFormValues,
   templates: ReadonlyArray<CareTaskTemplate>,
+  presets: ReadonlyArray<PlantPreset>,
+  hemisphere: Hemisphere,
 ): Array<{
   key: CareTaskTemplateKey;
   intervalDays: number | null;
   instructions: string | null;
 }> {
+  const env = careEnvironmentFromIntake(values, hemisphere, new Date());
+  const preset =
+    presets.find((entry) => entry.id === values.speciesPresetId) ?? null;
   return CREATE_SCHEDULES.flatMap((config) => {
     if (!values[config.enabledField]) return [];
     const template = templateForKey(templates, config.key);
-    const intervalDays = resolvePreviewInterval({
-      value: values[config.intervalField],
+    const { intervalDays } = computeScheduleInterval({
+      key: config.key,
+      manualValue: values[config.intervalField],
       template,
-      style: values.careStyle,
+      preset,
+      env,
     });
     return [
       {
@@ -262,6 +348,13 @@ export function EditPlantScreen({ mode, plantId }: EditPlantScreenProps) {
   }, [db, liveRooms.data]);
 
   const presets = useMemo(() => getPresets(db), [db]);
+
+  const hemisphere = useMemo<Hemisphere>(
+    () =>
+      getSetting(db, appPreferencesKey, appPreferencesSchema)?.hemisphere ??
+      "north",
+    [db],
+  );
 
   const templates = useMemo(() => {
     void liveTemplates.data;
@@ -305,7 +398,12 @@ export function EditPlantScreen({ mode, plantId }: EditPlantScreenProps) {
           setSubmitting(true);
           try {
             const result = createPlantWithDefaults(db, input, {
-              scheduleDrafts: buildCreateScheduleDrafts(value, templates),
+              scheduleDrafts: buildCreateScheduleDrafts(
+                value,
+                templates,
+                presets,
+                hemisphere,
+              ),
             });
             router.replace({
               pathname: "/plants/[plantId]",
@@ -341,6 +439,53 @@ export function EditPlantScreen({ mode, plantId }: EditPlantScreenProps) {
     }
     form.reset(next);
   };
+
+  const identifyAvailable = isIdentifyConfigurable();
+  const identifyPick = useIdentifyStore((state) => state.pick);
+  const clearIdentifyPick = useIdentifyStore((state) => state.clear);
+
+  const handleIdentify = () => {
+    if (loadAppPreferences(db).identifyEnabled) {
+      router.push("/plants/identify");
+      return;
+    }
+    Alert.alert(
+      "Identify by photo?",
+      "This sends one photo to an identification service to suggest a species. Everything else stays on your device — you can turn this off anytime in Settings.",
+      [
+        { text: "Not now", style: "cancel" },
+        {
+          text: "Enable",
+          onPress: () => {
+            updateAppPreferences(db, { identifyEnabled: true });
+            router.push("/plants/identify");
+          },
+        },
+      ],
+    );
+  };
+
+  // Apply a confirmed identification when returning from the identify screen.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: run once per pick
+  useEffect(() => {
+    if (!identifyPick) return;
+    if (identifyPick.presetId !== null) {
+      handleSelectPreset(String(identifyPick.presetId));
+    } else {
+      form.setFieldValue("commonName", identifyPick.commonName);
+      if (identifyPick.scientificName) {
+        form.setFieldValue("scientificName", identifyPick.scientificName);
+      }
+      if (!form.state.values.nickname.trim()) {
+        form.setFieldValue("nickname", identifyPick.commonName);
+      }
+    }
+    if (identifyPick.photoUri) {
+      form.setFieldValue("photoUri", identifyPick.photoUri);
+    }
+    setCreateStep("basics");
+    clearIdentifyPick();
+  }, [identifyPick]);
 
   const handleArchive = () => {
     if (mode !== "edit" || plantId === undefined) return;
@@ -503,6 +648,8 @@ export function EditPlantScreen({ mode, plantId }: EditPlantScreenProps) {
       {mode === "create" && createStep === "start" ? (
         <CreateStartStep
           presets={presets.slice(0, 6)}
+          identifyAvailable={identifyAvailable}
+          onIdentify={handleIdentify}
           onAddManual={() => setCreateStep("basics")}
           onSelectPreset={(presetId) => {
             handleSelectPreset(String(presetId));
@@ -710,6 +857,18 @@ export function EditPlantScreen({ mode, plantId }: EditPlantScreenProps) {
               )}
             </form.Field>
 
+            <form.Field name="directSunHours">
+              {(field) => (
+                <FormChipGroupField
+                  label="Direct sun"
+                  description="Hours of direct sun it gets — tailors watering."
+                  value={field.state.value}
+                  onValueChange={(value) => field.handleChange(value ?? "")}
+                  options={sunHoursOptions}
+                />
+              )}
+            </form.Field>
+
             <form.Field name="wateringPreference">
               {(field) => (
                 <FormChipGroupField
@@ -805,6 +964,8 @@ export function EditPlantScreen({ mode, plantId }: EditPlantScreenProps) {
         <CreateScheduleStep
           form={form}
           templates={templates}
+          presets={presets}
+          hemisphere={hemisphere}
           onPressSettings={() => router.push("/settings/reminders")}
         />
       ) : null}
@@ -904,10 +1065,14 @@ function CreateStepIndicator({ currentStep }: { currentStep: CreateStep }) {
 
 function CreateStartStep({
   presets,
+  identifyAvailable,
+  onIdentify,
   onAddManual,
   onSelectPreset,
 }: {
   presets: ReadonlyArray<PlantPreset>;
+  identifyAvailable: boolean;
+  onIdentify: () => void;
   onAddManual: () => void;
   onSelectPreset: (presetId: number) => void;
 }) {
@@ -917,6 +1082,27 @@ function CreateStartStep({
 
   return (
     <View className="gap-4">
+      {identifyAvailable ? (
+        <PressableFeedback
+          onPress={onIdentify}
+          accessibilityRole="button"
+          className="flex-row items-center gap-3 rounded-3xl border border-accent/30 bg-accent-soft/40 p-4"
+        >
+          <View className="size-12 items-center justify-center rounded-2xl bg-accent-soft">
+            <Ionicons name="camera-outline" size={24} color={accent} />
+          </View>
+          <View className="flex-1 gap-0.5">
+            <Text className="font-semibold text-base text-foreground">
+              Identify by photo
+            </Text>
+            <Text className="text-muted text-xs leading-4">
+              Snap or pick a photo and we'll suggest the species and care.
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={accent} />
+        </PressableFeedback>
+      ) : null}
+
       <View className="gap-2 rounded-3xl border border-border/40 bg-surface p-4">
         <View className="size-12 items-center justify-center rounded-2xl bg-accent-soft">
           <Ionicons name="leaf-outline" size={24} color={accent} />
@@ -977,10 +1163,14 @@ function CreateStartStep({
 function CreateScheduleStep({
   form,
   templates,
+  presets,
+  hemisphere,
   onPressSettings,
 }: {
   form: PlantIntakeFormApi;
   templates: ReadonlyArray<CareTaskTemplate>;
+  presets: ReadonlyArray<PlantPreset>;
+  hemisphere: Hemisphere;
   onPressSettings: () => void;
 }) {
   const accent = useThemeColor("accent");
@@ -1021,82 +1211,111 @@ function CreateScheduleStep({
         description="Reminders stay off unless you turn them on in Reminder Settings."
       >
         <form.Subscribe selector={(state) => state.values}>
-          {(values) => (
-            <View className="gap-3">
-              <form.Field name="scheduleWater">
-                {(enabledField) => (
-                  <form.Field name="waterIntervalDays">
-                    {(intervalField) => (
-                      <SchedulePreviewRow
-                        label={
-                          templateForKey(templates, "water")?.name ?? "Water"
-                        }
-                        icon="water-outline"
-                        isEnabled={enabledField.state.value}
-                        onEnabledChange={enabledField.handleChange}
-                        intervalValue={intervalField.state.value}
-                        onIntervalChange={intervalField.handleChange}
-                        intervalDays={resolvePreviewInterval({
-                          value: intervalField.state.value,
+          {(values) => {
+            const env = careEnvironmentFromIntake(
+              values,
+              hemisphere,
+              new Date(),
+            );
+            const preset =
+              presets.find((entry) => entry.id === values.speciesPresetId) ??
+              null;
+            return (
+              <View className="gap-3">
+                <form.Field name="scheduleWater">
+                  {(enabledField) => (
+                    <form.Field name="waterIntervalDays">
+                      {(intervalField) => {
+                        const resolved = computeScheduleInterval({
+                          key: "water",
+                          manualValue: intervalField.state.value,
                           template: templateForKey(templates, "water"),
-                          style: values.careStyle,
-                        })}
-                      />
-                    )}
-                  </form.Field>
-                )}
-              </form.Field>
+                          preset,
+                          env,
+                        });
+                        return (
+                          <SchedulePreviewRow
+                            label={
+                              templateForKey(templates, "water")?.name ??
+                              "Water"
+                            }
+                            icon="water-outline"
+                            isEnabled={enabledField.state.value}
+                            onEnabledChange={enabledField.handleChange}
+                            intervalValue={intervalField.state.value}
+                            onIntervalChange={intervalField.handleChange}
+                            intervalDays={resolved.intervalDays}
+                            rationale={resolved.computed?.rationale ?? null}
+                          />
+                        );
+                      }}
+                    </form.Field>
+                  )}
+                </form.Field>
 
-              <form.Field name="scheduleFertilize">
-                {(enabledField) => (
-                  <form.Field name="fertilizeIntervalDays">
-                    {(intervalField) => (
-                      <SchedulePreviewRow
-                        label={
-                          templateForKey(templates, "fertilize")?.name ??
-                          "Fertilize"
-                        }
-                        icon="flask-outline"
-                        isEnabled={enabledField.state.value}
-                        onEnabledChange={enabledField.handleChange}
-                        intervalValue={intervalField.state.value}
-                        onIntervalChange={intervalField.handleChange}
-                        intervalDays={resolvePreviewInterval({
-                          value: intervalField.state.value,
+                <form.Field name="scheduleFertilize">
+                  {(enabledField) => (
+                    <form.Field name="fertilizeIntervalDays">
+                      {(intervalField) => {
+                        const resolved = computeScheduleInterval({
+                          key: "fertilize",
+                          manualValue: intervalField.state.value,
                           template: templateForKey(templates, "fertilize"),
-                          style: values.careStyle,
-                        })}
-                      />
-                    )}
-                  </form.Field>
-                )}
-              </form.Field>
+                          preset,
+                          env,
+                        });
+                        return (
+                          <SchedulePreviewRow
+                            label={
+                              templateForKey(templates, "fertilize")?.name ??
+                              "Fertilize"
+                            }
+                            icon="flask-outline"
+                            isEnabled={enabledField.state.value}
+                            onEnabledChange={enabledField.handleChange}
+                            intervalValue={intervalField.state.value}
+                            onIntervalChange={intervalField.handleChange}
+                            intervalDays={resolved.intervalDays}
+                            rationale={resolved.computed?.rationale ?? null}
+                          />
+                        );
+                      }}
+                    </form.Field>
+                  )}
+                </form.Field>
 
-              <form.Field name="scheduleMist">
-                {(enabledField) => (
-                  <form.Field name="mistIntervalDays">
-                    {(intervalField) => (
-                      <SchedulePreviewRow
-                        label={
-                          templateForKey(templates, "mist")?.name ?? "Mist"
-                        }
-                        icon="rainy-outline"
-                        isEnabled={enabledField.state.value}
-                        onEnabledChange={enabledField.handleChange}
-                        intervalValue={intervalField.state.value}
-                        onIntervalChange={intervalField.handleChange}
-                        intervalDays={resolvePreviewInterval({
-                          value: intervalField.state.value,
+                <form.Field name="scheduleMist">
+                  {(enabledField) => (
+                    <form.Field name="mistIntervalDays">
+                      {(intervalField) => {
+                        const resolved = computeScheduleInterval({
+                          key: "mist",
+                          manualValue: intervalField.state.value,
                           template: templateForKey(templates, "mist"),
-                          style: values.careStyle,
-                        })}
-                      />
-                    )}
-                  </form.Field>
-                )}
-              </form.Field>
-            </View>
-          )}
+                          preset,
+                          env,
+                        });
+                        return (
+                          <SchedulePreviewRow
+                            label={
+                              templateForKey(templates, "mist")?.name ?? "Mist"
+                            }
+                            icon="rainy-outline"
+                            isEnabled={enabledField.state.value}
+                            onEnabledChange={enabledField.handleChange}
+                            intervalValue={intervalField.state.value}
+                            onIntervalChange={intervalField.handleChange}
+                            intervalDays={resolved.intervalDays}
+                            rationale={resolved.computed?.rationale ?? null}
+                          />
+                        );
+                      }}
+                    </form.Field>
+                  )}
+                </form.Field>
+              </View>
+            );
+          }}
         </form.Subscribe>
       </FormSection>
 
@@ -1147,6 +1366,7 @@ function SchedulePreviewRow({
   intervalValue,
   onIntervalChange,
   intervalDays,
+  rationale,
 }: {
   label: string;
   icon: keyof typeof Ionicons.glyphMap;
@@ -1155,9 +1375,12 @@ function SchedulePreviewRow({
   intervalValue: string;
   onIntervalChange: (value: string) => void;
   intervalDays: number | null;
+  rationale?: string[] | null;
 }) {
   const accent = useThemeColor("accent");
+  const [showWhy, setShowWhy] = useState(false);
   const dueDate = intervalDays ? addDays(new Date(), intervalDays) : null;
+  const hasRationale = isEnabled && !!rationale && rationale.length > 0;
 
   return (
     <View
@@ -1169,9 +1392,19 @@ function SchedulePreviewRow({
           <Ionicons name={icon} size={18} color={accent} />
         </View>
         <View className="flex-1 gap-0.5">
-          <Text className="font-semibold text-base text-foreground">
-            {label}
-          </Text>
+          <View className="flex-row items-center gap-2">
+            <Text className="font-semibold text-base text-foreground">
+              {label}
+            </Text>
+            {hasRationale ? (
+              <View className="flex-row items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5">
+                <Ionicons name="sparkles" size={10} color={accent} />
+                <Text className="font-medium text-[10px] text-accent">
+                  Tailored
+                </Text>
+              </View>
+            ) : null}
+          </View>
           <Text className="text-muted text-xs">
             {intervalDays
               ? `Every ${intervalDays} day${intervalDays === 1 ? "" : "s"} · Next ${format(
@@ -1186,10 +1419,42 @@ function SchedulePreviewRow({
         </Switch>
       </View>
 
+      {hasRationale ? (
+        <View className="gap-2">
+          <PressableFeedback
+            onPress={() => setShowWhy((prev) => !prev)}
+            accessibilityRole="button"
+          >
+            <View className="flex-row items-center gap-1">
+              <Text className="font-medium text-accent text-xs">
+                Why this schedule?
+              </Text>
+              <Ionicons
+                name={showWhy ? "chevron-up" : "chevron-down"}
+                size={12}
+                color={accent}
+              />
+            </View>
+          </PressableFeedback>
+          {showWhy ? (
+            <View className="gap-1 rounded-2xl bg-accent-soft/50 p-3">
+              {rationale?.map((reason) => (
+                <View key={reason} className="flex-row gap-2">
+                  <Text className="text-accent text-xs">•</Text>
+                  <Text className="flex-1 text-muted text-xs leading-4">
+                    {reason}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
+        </View>
+      ) : null}
+
       {isEnabled ? (
         <FormTextField
           label="Interval days"
-          description="Leave blank to use the previewed default."
+          description="Leave blank to use the tailored default."
           value={intervalValue}
           onChangeText={onIntervalChange}
           placeholder={intervalDays ? String(intervalDays) : "Optional"}

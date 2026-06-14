@@ -25,6 +25,7 @@ export type PlantIntakeFormValues = {
   potType: string;
   potSize: string;
   hasDrainage: boolean;
+  directSunHours: string;
   soilType: string;
   isFavorite: boolean;
   notes: string;
@@ -123,6 +124,10 @@ export function applyPlantPresetHints(
   if (!next.soilType.trim() && preset.soil) {
     next.soilType = preset.soil;
   }
+  // Smart default: humidity-loving species get misting turned on up front.
+  if (preset.humidity && /\b(high|higher|humid)\b/i.test(preset.humidity)) {
+    next.scheduleMist = true;
+  }
   return next;
 }
 
@@ -144,6 +149,8 @@ export function buildPlantIntakeValues(plant?: Plant): PlantIntakeFormValues {
       potType: plant.potType ?? "",
       potSize: plant.potSize ?? "",
       hasDrainage: plant.hasDrainage ?? true,
+      directSunHours:
+        plant.directSunHours != null ? String(plant.directSunHours) : "",
       soilType: plant.soilType ?? "",
       isFavorite: plant.isFavorite,
       notes: plant.notes ?? "",
@@ -173,6 +180,7 @@ export function buildPlantIntakeValues(plant?: Plant): PlantIntakeFormValues {
     potType: "",
     potSize: "",
     hasDrainage: true,
+    directSunHours: "",
     soilType: "",
     isFavorite: false,
     notes: "",
@@ -189,6 +197,13 @@ export function buildPlantIntakeValues(plant?: Plant): PlantIntakeFormValues {
 function nullableTrim(value: string): string | null {
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
+}
+
+function nullableInt(value: string): number | null {
+  const trimmed = value.trim();
+  if (trimmed.length === 0) return null;
+  const parsed = Number.parseInt(trimmed, 10);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 export function buildPlantIntakeInput(
@@ -217,6 +232,7 @@ export function buildPlantIntakeInput(
     potType: nullableTrim(values.potType),
     potSize: nullableTrim(values.potSize),
     hasDrainage: values.hasDrainage,
+    directSunHours: nullableInt(values.directSunHours),
     isFavorite: values.isFavorite,
   });
 }

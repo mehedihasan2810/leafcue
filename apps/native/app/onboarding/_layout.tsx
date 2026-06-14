@@ -11,8 +11,11 @@ export default function OnboardingLayout() {
     >
       <Stack.Screen name="index" />
       <Stack.Screen name="privacy" />
-      <Stack.Screen name="track" />
+      <Stack.Screen name="quiz" />
       <Stack.Screen name="room" />
+      <Stack.Screen name="add-first-plant" />
+      <Stack.Screen name="plan-reveal" />
+      <Stack.Screen name="notify" />
       <Stack.Screen name="finish" />
     </Stack>
   );

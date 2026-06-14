@@ -40,16 +40,6 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="tasks"
-        options={{
-          title: "Tasks",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="checkmark-done-outline" size={size} color={color} />
-          ),
-          headerShown: false,
-        }}
-      />
-      <Tabs.Screen
         name="calendar"
         options={{
           title: "Calendar",
@@ -76,15 +66,6 @@ export default function TabsLayout() {
             <Ionicons name="sparkles-outline" size={size} color={color} />
           ),
           headerShown: false,
-        }}
-      />
-      <Tabs.Screen
-        name="rooms"
-        options={{
-          title: "Rooms",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
-          ),
         }}
       />
     </Tabs>

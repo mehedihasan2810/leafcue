@@ -47,7 +47,7 @@ export function OnboardingPrivacyScreen() {
       illustration={<OnboardingIllustration variant="privacy" />}
       primaryLabel="That sounds great"
       primaryIcon="arrow-forward-outline"
-      onPressPrimary={() => router.push("/onboarding/track")}
+      onPressPrimary={() => router.push("/onboarding/quiz")}
       secondaryLabel="Back"
       onPressSecondary={() => router.back()}
     >

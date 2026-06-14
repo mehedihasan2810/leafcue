@@ -23,7 +23,7 @@ function routeFromNotificationResponse(
       pathname: "/plants/[plantId]";
       params: { plantId: string };
     }
-  | "/(tabs)/tasks"
+  | "/tasks"
   | null {
   if (response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) {
     return null;
@@ -42,7 +42,7 @@ function routeFromNotificationResponse(
   }
 
   if (parsed.data["leafcue.scheduleId"]) {
-    return "/(tabs)/tasks";
+    return "/tasks";
   }
 
   return null;

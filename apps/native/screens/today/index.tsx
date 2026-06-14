@@ -204,6 +204,8 @@ export function TodayScreen() {
             onPressComplete={handleComplete}
             onPressMenu={handleSnooze}
             onPressOpenPlant={handleOpenPlant}
+            actionLabel="All tasks"
+            onPressAction={() => router.push("/tasks")}
           />
 
           {plantsWithoutSchedules.length > 0 ? (
@@ -417,6 +419,8 @@ function CareQueueSection({
   onPressComplete,
   onPressMenu,
   onPressOpenPlant,
+  actionLabel,
+  onPressAction,
 }: {
   title: string;
   caption?: string;
@@ -428,12 +432,20 @@ function CareQueueSection({
   onPressComplete: (row: DueTaskRow) => void;
   onPressMenu: (row: DueTaskRow) => void;
   onPressOpenPlant: (plantId: number) => void;
+  actionLabel?: string;
+  onPressAction?: () => void;
 }) {
   const accent = useThemeColor("accent");
 
   return (
     <View className="gap-3">
-      <SectionHeader title={title} count={rows.length} caption={caption} />
+      <SectionHeader
+        title={title}
+        count={rows.length}
+        caption={caption}
+        actionLabel={actionLabel}
+        onPressAction={onPressAction}
+      />
       {rows.length === 0 ? (
         <View className="items-center gap-2 rounded-3xl border border-border/40 bg-surface p-5">
           <Ionicons name="checkmark-circle-outline" size={24} color={accent} />

@@ -49,7 +49,7 @@ export function OnboardingRoomScreen() {
       primaryLabel="Looks good"
       primaryIcon="arrow-forward-outline"
       primaryDisabled={!hasRooms}
-      onPressPrimary={() => router.push("/onboarding/finish")}
+      onPressPrimary={() => router.push("/onboarding/add-first-plant")}
       secondaryLabel="Back"
       onPressSecondary={() => router.back()}
     >

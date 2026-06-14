@@ -8,6 +8,7 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import { AppFontProvider } from "@/components/app-font-provider";
 import { BillingBootstrapper } from "@/components/billing/billing-bootstrapper";
+import { CompletionCelebration } from "@/components/completion-celebration";
 import { OnboardingGate } from "@/components/onboarding-gate";
 import { ThemeStoreSync } from "@/components/theme-store-sync";
 import { DatabaseProvider } from "@/lib/db/provider";
@@ -31,6 +32,8 @@ function StackLayout() {
         name="onboarding"
         options={{ headerShown: false, gestureEnabled: false }}
       />
+      <Stack.Screen name="tasks" options={{ headerShown: false }} />
+      <Stack.Screen name="rooms" options={{ headerShown: false }} />
       <Stack.Screen
         name="plants/new"
         options={{
@@ -38,6 +41,7 @@ function StackLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen name="plants/identify" options={{ headerShown: false }} />
       <Stack.Screen
         name="plants/[plantId]/index"
         options={{ headerShown: false }}
@@ -121,6 +125,7 @@ export default function Layout() {
                 <OnboardingGate>
                   <NotificationResponseRouter />
                   <StackLayout />
+                  <CompletionCelebration />
                 </OnboardingGate>
               </ToastProvider>
             </DatabaseProvider>

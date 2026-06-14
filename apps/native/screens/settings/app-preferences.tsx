@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { cn, PressableFeedback, useThemeColor } from "heroui-native";
+import { cn, PressableFeedback, Switch, useThemeColor } from "heroui-native";
 import { useState } from "react";
 import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -125,6 +125,34 @@ export function AppPreferencesScreen() {
                   </PressableFeedback>
                 );
               })}
+            </View>
+          </View>
+
+          <View className="gap-3">
+            <SectionHeader
+              title="Plant identification"
+              caption="The only feature that sends data off your device."
+            />
+            <View className="flex-row items-center justify-between gap-3 rounded-3xl border border-border/40 bg-surface p-4">
+              <View className="flex-1 gap-0.5">
+                <Text className="font-medium text-base text-foreground">
+                  Identify by photo
+                </Text>
+                <Text className="text-muted text-xs leading-4">
+                  Sends one photo to an identification service when you use it.
+                  Off by default.
+                </Text>
+              </View>
+              <Switch
+                isSelected={prefs.identifyEnabled}
+                onSelectedChange={(value) => {
+                  setPrefs(
+                    updateAppPreferences(db, { identifyEnabled: value }),
+                  );
+                }}
+              >
+                <Switch.Thumb />
+              </Switch>
             </View>
           </View>
         </View>

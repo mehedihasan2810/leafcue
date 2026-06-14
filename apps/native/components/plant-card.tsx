@@ -3,6 +3,8 @@ import { Image } from "expo-image";
 import { cn, PressableFeedback, useThemeColor } from "heroui-native";
 import { Text, View } from "react-native";
 
+import { PlantMoodChip } from "@/components/plant-mood-chip";
+import { getPlantMood } from "@/lib/care/plant-mood";
 import { relativeDueLabel } from "@/lib/dates";
 import type { Plant } from "@/lib/db/types";
 
@@ -39,6 +41,8 @@ export function PlantCard({
     : nextDueAt
       ? successColor
       : accentColor;
+
+  const mood = getPlantMood({ nextDueAt: nextDueAt ?? null });
 
   const handlePress = () => onPress?.(plant);
   const handleLongPress = () => onLongPress?.(plant);
@@ -93,8 +97,8 @@ export function PlantCard({
             ) : null}
           </View>
         </View>
-        <View className="items-end gap-1">
-          <Ionicons name="time-outline" size={14} color={dueColor} />
+        <View className="items-end gap-1.5">
+          <PlantMoodChip mood={mood} />
           <Text className="text-xs" style={{ color: dueColor }}>
             {dueLabel}
           </Text>
@@ -130,6 +134,7 @@ export function PlantCard({
             <Ionicons name="star" size={14} color="#f5b301" />
           </View>
         ) : null}
+        <PlantMoodChip mood={mood} className="absolute top-2 left-2" />
       </View>
 
       <View className="gap-1 px-3 pb-3">
