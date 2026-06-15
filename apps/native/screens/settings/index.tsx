@@ -160,7 +160,7 @@ export function SettingsHubScreen() {
               </View>
             </View>
           ))}
-          <DemoDataCard />
+          {__DEV__ && <DemoDataCard />}
 
           <Text className="text-center text-muted text-xs">
             LeafCue is offline-first. No accounts, no servers.
