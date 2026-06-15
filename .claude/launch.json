@@ -7,6 +7,12 @@
       "runtimeArgs": ["run", "dev"],
       "cwd": "store-assets",
       "port": 3000
+    },
+    {
+      "name": "leafcue-web",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@leafcue/web", "dev"],
+      "port": 3001
     }
   ]
 }

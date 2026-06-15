@@ -3,9 +3,7 @@
   "appName": "LeafCue",
   "themeId": "leafcue",
   "connectedCanvas": false,
-  "locales": [
-    "en"
-  ],
+  "locales": ["en"],
   "locale": "en",
   "device": "feature-graphic",
   "orientation": "portrait",

@@ -12,12 +12,12 @@ export type Platform = "ios" | "android";
 
 // Layouts the editor can render. Vary across slides for visual rhythm.
 export type SlideLayout =
-  | "hero"             // centered device, headline above
-  | "device-bottom"    // headline top, device bottom-center
-  | "device-top"       // device top, headline bottom (contrast)
-  | "two-devices"      // back + front phones, headline above
-  | "no-device"        // big headline + decorative blob, no device
-  | "split-landscape"  // landscape tablets only: caption left + device right
+  | "hero" // centered device, headline above
+  | "device-bottom" // headline top, device bottom-center
+  | "device-top" // device top, headline bottom (contrast)
+  | "two-devices" // back + front phones, headline above
+  | "no-device" // big headline + decorative blob, no device
+  | "split-landscape" // landscape tablets only: caption left + device right
   | "feature-graphic"; // 1024×500 banner with icon + name + tagline
 
 // Per-element rect in canvas pixel space. Optional rotation in degrees and zIndex.
@@ -58,11 +58,11 @@ export type TextElement = {
 export type Slide = {
   id: string;
   layout: SlideLayout;
-  label: LocalizedText;       // tiny uppercase caption above headline, per locale
-  headline: LocalizedText;    // multi-line; newlines are intentional, per locale
-  screenshot: string;         // path under /screenshots/ — may contain {locale}
+  label: LocalizedText; // tiny uppercase caption above headline, per locale
+  headline: LocalizedText; // multi-line; newlines are intentional, per locale
+  screenshot: string; // path under /screenshots/ — may contain {locale}
   screenshotSecondary?: string; // for two-devices layout — may contain {locale}
-  inverted?: boolean;         // dark background variant
+  inverted?: boolean; // dark background variant
   // Per-element overrides; when present, replaces layout default placement.
   transforms?: Partial<Record<BuiltInElementId, ElementTransform>>;
   textElements?: TextElement[];
@@ -78,10 +78,10 @@ export type ThemeId =
 export type Theme = {
   id: string;
   name: string;
-  bg: string;          // primary background
-  bgAlt: string;       // inverted background
-  fg: string;          // text on bg
-  fgAlt: string;       // text on bgAlt
+  bg: string; // primary background
+  bgAlt: string; // inverted background
+  fg: string; // text on bg
+  fgAlt: string; // text on bgAlt
   accent: string;
   muted: string;
 };
@@ -100,5 +100,5 @@ export type ProjectState = {
   orientation: Orientation;
   // Per-device slide decks so platform switching preserves work
   slidesByDevice: Record<Device, Slide[]>;
-  appIcon?: string;    // path under /public (e.g. /app-icon.png)
+  appIcon?: string; // path under /public (e.g. /app-icon.png)
 };

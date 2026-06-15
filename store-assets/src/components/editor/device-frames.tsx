@@ -1,5 +1,5 @@
 "use client";
-import * as React from "react";
+import type * as React from "react";
 import { PHONE_SCREEN } from "@/lib/constants";
 import { img } from "@/lib/image-cache";
 
@@ -39,7 +39,13 @@ export function Phone({ src, alt = "", style, hideEmpty }: FrameProps) {
           <img
             src={resolved}
             alt={alt}
-            style={{ display: "block", width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
+            style={{
+              display: "block",
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "top",
+            }}
             draggable={false}
           />
         ) : hideEmpty ? null : (
@@ -60,7 +66,8 @@ export function AndroidPhone({ src, alt = "", style, hideEmpty }: FrameProps) {
           height: "100%",
           borderRadius: "8% / 4%",
           background: "linear-gradient(160deg, #2a2a2e 0%, #18181b 100%)",
-          boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08), 0 8px 40px rgba(0,0,0,0.55)",
+          boxShadow:
+            "inset 0 0 0 1px rgba(255,255,255,0.08), 0 8px 40px rgba(0,0,0,0.55)",
           position: "relative",
           overflow: "hidden",
         }}
@@ -95,7 +102,13 @@ export function AndroidPhone({ src, alt = "", style, hideEmpty }: FrameProps) {
             <img
               src={resolved}
               alt={alt}
-              style={{ display: "block", width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
+              style={{
+                display: "block",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "top",
+              }}
               draggable={false}
             />
           ) : hideEmpty ? null : (
@@ -107,7 +120,12 @@ export function AndroidPhone({ src, alt = "", style, hideEmpty }: FrameProps) {
   );
 }
 
-export function AndroidTabletP({ src, alt = "", style, hideEmpty }: FrameProps) {
+export function AndroidTabletP({
+  src,
+  alt = "",
+  style,
+  hideEmpty,
+}: FrameProps) {
   const resolved = img(src);
   return (
     <div style={{ position: "relative", aspectRatio: "5 / 8", ...style }}>
@@ -117,7 +135,8 @@ export function AndroidTabletP({ src, alt = "", style, hideEmpty }: FrameProps) 
           height: "100%",
           borderRadius: "4.5% / 2.8%",
           background: "linear-gradient(160deg, #2a2a2e 0%, #18181b 100%)",
-          boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08), 0 8px 48px rgba(0,0,0,0.6)",
+          boxShadow:
+            "inset 0 0 0 1px rgba(255,255,255,0.08), 0 8px 48px rgba(0,0,0,0.6)",
           position: "relative",
           overflow: "hidden",
         }}
@@ -151,7 +170,13 @@ export function AndroidTabletP({ src, alt = "", style, hideEmpty }: FrameProps) 
             <img
               src={resolved}
               alt={alt}
-              style={{ display: "block", width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
+              style={{
+                display: "block",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "top",
+              }}
               draggable={false}
             />
           ) : hideEmpty ? null : (
@@ -163,7 +188,12 @@ export function AndroidTabletP({ src, alt = "", style, hideEmpty }: FrameProps) 
   );
 }
 
-export function AndroidTabletL({ src, alt = "", style, hideEmpty }: FrameProps) {
+export function AndroidTabletL({
+  src,
+  alt = "",
+  style,
+  hideEmpty,
+}: FrameProps) {
   const resolved = img(src);
   return (
     <div style={{ position: "relative", aspectRatio: "8 / 5", ...style }}>
@@ -173,7 +203,8 @@ export function AndroidTabletL({ src, alt = "", style, hideEmpty }: FrameProps) 
           height: "100%",
           borderRadius: "2.8% / 4.5%",
           background: "linear-gradient(160deg, #2a2a2e 0%, #18181b 100%)",
-          boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08), 0 8px 48px rgba(0,0,0,0.6)",
+          boxShadow:
+            "inset 0 0 0 1px rgba(255,255,255,0.08), 0 8px 48px rgba(0,0,0,0.6)",
           position: "relative",
           overflow: "hidden",
         }}
@@ -207,7 +238,13 @@ export function AndroidTabletL({ src, alt = "", style, hideEmpty }: FrameProps) 
             <img
               src={resolved}
               alt={alt}
-              style={{ display: "block", width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
+              style={{
+                display: "block",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "top",
+              }}
               draggable={false}
             />
           ) : hideEmpty ? null : (
@@ -231,7 +268,8 @@ export function IPad({ src, alt = "", style, hideEmpty }: FrameProps) {
           background: "linear-gradient(180deg, #2C2C2E 0%, #1C1C1E 100%)",
           position: "relative",
           overflow: "hidden",
-          boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.1), 0 8px 40px rgba(0,0,0,0.6)",
+          boxShadow:
+            "inset 0 0 0 1px rgba(255,255,255,0.1), 0 8px 40px rgba(0,0,0,0.6)",
         }}
       >
         <div
@@ -263,7 +301,13 @@ export function IPad({ src, alt = "", style, hideEmpty }: FrameProps) {
             <img
               src={resolved}
               alt={alt}
-              style={{ display: "block", width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
+              style={{
+                display: "block",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "top",
+              }}
               draggable={false}
             />
           ) : hideEmpty ? null : (

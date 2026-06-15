@@ -1,5 +1,5 @@
-import { DEFAULT_LOCALE } from "./locale";
 import { DEFAULT_THEME_ID, PROJECT_SCHEMA_VERSION } from "./constants";
+import { DEFAULT_LOCALE } from "./locale";
 import type { Device, ProjectState, Slide } from "./types";
 
 let _id = 0;
@@ -82,7 +82,9 @@ function tabletStarter(kind: "7" | "10"): Slide[] {
       id: nid(),
       layout: "hero",
       label: en("MEET YOUR APP"),
-      headline: en(kind === "7" ? "Pocket-sized\npower." : "Made for\nthe big screen."),
+      headline: en(
+        kind === "7" ? "Pocket-sized\npower." : "Made for\nthe big screen.",
+      ),
       screenshot: "",
     },
     {

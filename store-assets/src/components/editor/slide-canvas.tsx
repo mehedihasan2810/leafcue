@@ -1,18 +1,7 @@
 "use client";
+import { RotateCw } from "lucide-react";
 import * as React from "react";
 import { Rnd } from "react-rnd";
-import { RotateCw } from "lucide-react";
-import type {
-  BuiltInElementId,
-  Device,
-  ElementId,
-  ElementTransform,
-  Orientation,
-  SelectedElement,
-  Slide,
-  TextElement,
-  Theme,
-} from "@/lib/types";
 import {
   CANVAS,
   MK_RATIO,
@@ -24,6 +13,17 @@ import {
 import { toTextElementId } from "@/lib/elements";
 import { img } from "@/lib/image-cache";
 import { pickText, resolveScreenshot } from "@/lib/locale";
+import type {
+  BuiltInElementId,
+  Device,
+  ElementId,
+  ElementTransform,
+  Orientation,
+  SelectedElement,
+  Slide,
+  TextElement,
+  Theme,
+} from "@/lib/types";
 import {
   AndroidPhone,
   AndroidTabletL,
@@ -40,7 +40,10 @@ type FrameComp = React.ComponentType<{
 
 export function getCanvas(device: Device, orientation: Orientation) {
   const c = CANVAS[device];
-  if ((device === "android-7" || device === "android-10") && orientation === "landscape") {
+  if (
+    (device === "android-7" || device === "android-10") &&
+    orientation === "landscape"
+  ) {
     return { cW: c.wL!, cH: c.hL! };
   }
   return { cW: c.w, cH: c.h };
@@ -49,18 +52,26 @@ export function getCanvas(device: Device, orientation: Orientation) {
 // Aspect ratio (w/h) of each device frame — must match device-frames.tsx
 function getFrameAspect(device: Device, orientation: Orientation) {
   switch (device) {
-    case "iphone":      return MK_RATIO;
-    case "android":     return 9 / 19.5;
+    case "iphone":
+      return MK_RATIO;
+    case "android":
+      return 9 / 19.5;
     // iPad reuses the iPhone mockup so iPhone captures fit without distortion;
     // only the surrounding canvas is iPad-sized (2064×2752).
-    case "ipad":        return MK_RATIO;
+    case "ipad":
+      return MK_RATIO;
     case "android-7":
-    case "android-10":  return orientation === "landscape" ? 8 / 5 : 5 / 8;
-    default:            return 1;
+    case "android-10":
+      return orientation === "landscape" ? 8 / 5 : 5 / 8;
+    default:
+      return 1;
   }
 }
 
-export function getFrameForDevice(device: Device, orientation: Orientation): {
+export function getFrameForDevice(
+  device: Device,
+  orientation: Orientation,
+): {
   Comp: FrameComp;
   widthFn: (cW: number, cH: number) => number;
   smallWidthFn: (cW: number, cH: number) => number;
@@ -76,9 +87,17 @@ export function getFrameForDevice(device: Device, orientation: Orientation): {
     case "android-7":
     case "android-10":
       if (orientation === "landscape") {
-        return { Comp: AndroidTabletL, widthFn: tabletLW, smallWidthFn: (cW, cH) => tabletLW(cW, cH, 0.5) };
+        return {
+          Comp: AndroidTabletL,
+          widthFn: tabletLW,
+          smallWidthFn: (cW, cH) => tabletLW(cW, cH, 0.5),
+        };
       }
-      return { Comp: AndroidTabletP, widthFn: tabletPW, smallWidthFn: (cW, cH) => tabletPW(cW, cH, 0.62) };
+      return {
+        Comp: AndroidTabletP,
+        widthFn: tabletPW,
+        smallWidthFn: (cW, cH) => tabletPW(cW, cH, 0.62),
+      };
     default:
       return { Comp: Phone, widthFn: phoneW, smallWidthFn: phoneWSmall };
   }
@@ -114,7 +133,11 @@ type DeckEditHandlers = {
   onLabelChange?: (slideId: string, v: string) => void;
   onHeadlineChange?: (slideId: string, v: string) => void;
   onTextElementTextChange?: (slideId: string, id: string, v: string) => void;
-  onElementChange?: (slideId: string, id: ElementId, t: ElementTransform) => void;
+  onElementChange?: (
+    slideId: string,
+    id: ElementId,
+    t: ElementTransform,
+  ) => void;
   onSelectElement?: (element: SelectedElement | null) => void;
   onSelectScreen?: (slideId: string) => void;
 };
@@ -285,7 +308,15 @@ function backgroundFor(theme: Theme, inverted?: boolean) {
 
 function shade(hex: string, percent: number) {
   const c = hex.replace("#", "");
-  const num = parseInt(c.length === 3 ? c.split("").map((x) => x + x).join("") : c, 16);
+  const num = Number.parseInt(
+    c.length === 3
+      ? c
+          .split("")
+          .map((x) => x + x)
+          .join("")
+      : c,
+    16,
+  );
   let r = (num >> 16) & 0xff;
   let g = (num >> 8) & 0xff;
   let b = num & 0xff;
@@ -358,7 +389,13 @@ function getDefaultRects(
   switch (layout) {
     case "hero":
       return {
-        caption: { x: cW * 0.08, y: cH * 0.09, width: capW, height: capH, align: "center" },
+        caption: {
+          x: cW * 0.08,
+          y: cH * 0.09,
+          width: capW,
+          height: capH,
+          align: "center",
+        },
         device: {
           x: (cW - deviceW) / 2,
           y: cH - deviceH + deviceH * 0.15,
@@ -368,7 +405,13 @@ function getDefaultRects(
       };
     case "device-bottom":
       return {
-        caption: { x: cW * 0.08, y: cH * 0.08, width: capW, height: capH, align: "center" },
+        caption: {
+          x: cW * 0.08,
+          y: cH * 0.08,
+          width: capW,
+          height: capH,
+          align: "center",
+        },
         device: {
           x: (cW - deviceW) / 2,
           y: cH - deviceH - cH * 0.02,
@@ -378,7 +421,13 @@ function getDefaultRects(
       };
     case "device-top":
       return {
-        caption: { x: cW * 0.08, y: cH * 0.65, width: capW, height: capH, align: "center" },
+        caption: {
+          x: cW * 0.08,
+          y: cH * 0.65,
+          width: capW,
+          height: capH,
+          align: "center",
+        },
         device: {
           x: (cW - deviceW) / 2,
           y: -cH * 0.1,
@@ -388,7 +437,13 @@ function getDefaultRects(
       };
     case "two-devices":
       return {
-        caption: { x: cW * 0.08, y: cH * 0.08, width: capW, height: capH, align: "center" },
+        caption: {
+          x: cW * 0.08,
+          y: cH * 0.08,
+          width: capW,
+          height: capH,
+          align: "center",
+        },
         deviceSecondary: {
           x: -cW * 0.06,
           y: cH - smallH - cH * 0.05,
@@ -451,13 +506,28 @@ function rectFor(
   };
 }
 
-function getSlideGeometry(slide: Slide, device: Device, orientation: Orientation) {
+function getSlideGeometry(
+  slide: Slide,
+  device: Device,
+  orientation: Orientation,
+) {
   const { cW, cH } = getCanvas(device, orientation);
-  const { Comp: Frame, widthFn, smallWidthFn } = getFrameForDevice(device, orientation);
+  const {
+    Comp: Frame,
+    widthFn,
+    smallWidthFn,
+  } = getFrameForDevice(device, orientation);
   const frameAspect = getFrameAspect(device, orientation);
   const fwFrac = widthFn(cW, cH);
   const fwSmallFrac = smallWidthFn(cW, cH);
-  const defaults = getDefaultRects(slide.layout, cW, cH, frameAspect, fwFrac, fwSmallFrac);
+  const defaults = getDefaultRects(
+    slide.layout,
+    cW,
+    cH,
+    frameAspect,
+    fwFrac,
+    fwSmallFrac,
+  );
   return { cW, cH, Frame, frameAspect, defaults };
 }
 
@@ -469,7 +539,9 @@ export function getElementTransform(
 ): ElementTransform | undefined {
   if (id.startsWith("text:")) {
     const textId = id.slice("text:".length);
-    const textElement = slide.textElements?.find((element) => element.id === textId);
+    const textElement = slide.textElements?.find(
+      (element) => element.id === textId,
+    );
     return textElement?.transform;
   }
   const { defaults } = getSlideGeometry(slide, device, orientation);
@@ -596,7 +668,10 @@ export function DeckCanvas({
       {slides.map((slide, index) => {
         const screenX = index * cW;
         const active = activeSlideId === slide.id;
-        if (slide.layout === "feature-graphic" || device === "feature-graphic") {
+        if (
+          slide.layout === "feature-graphic" ||
+          device === "feature-graphic"
+        ) {
           return (
             <div
               key={`${slide.id}-feature`}
@@ -623,10 +698,13 @@ export function DeckCanvas({
                 appIcon={appIcon}
                 editable={editable}
                 edit={{
-                  onHeadlineChange: (v) => edit?.onHeadlineChange?.(slide.id, v),
+                  onHeadlineChange: (v) =>
+                    edit?.onHeadlineChange?.(slide.id, v),
                 }}
               />
-              {showGuides && <ScreenGuide cW={cW} cH={cH} index={index} active={active} />}
+              {showGuides && (
+                <ScreenGuide cW={cW} cH={cH} index={index} active={active} />
+              )}
             </div>
           );
         }
@@ -648,24 +726,33 @@ export function DeckCanvas({
             }}
           >
             <SlideBackground slide={slide} cW={cW} cH={cH} theme={theme} />
-            {showGuides && <ScreenGuide cW={cW} cH={cH} index={index} active={active} />}
+            {showGuides && (
+              <ScreenGuide cW={cW} cH={cH} index={index} active={active} />
+            )}
           </div>
         );
       })}
 
       {slides.map((slide, index) => {
-        if (slide.layout === "feature-graphic" || device === "feature-graphic") return null;
+        if (slide.layout === "feature-graphic" || device === "feature-graphic")
+          return null;
         const selectedElementId =
-          selectedElement?.slideId === slide.id ? selectedElement.elementId : null;
+          selectedElement?.slideId === slide.id
+            ? selectedElement.elementId
+            : null;
         const perSlideEdit: EditHandlers | undefined = editable
           ? {
               onLabelChange: (v) => edit?.onLabelChange?.(slide.id, v),
               onHeadlineChange: (v) => edit?.onHeadlineChange?.(slide.id, v),
-              onTextElementTextChange: (id, v) => edit?.onTextElementTextChange?.(slide.id, id, v),
-              onElementChange: (id, t) => edit?.onElementChange?.(slide.id, id, t),
+              onTextElementTextChange: (id, v) =>
+                edit?.onTextElementTextChange?.(slide.id, id, v),
+              onElementChange: (id, t) =>
+                edit?.onElementChange?.(slide.id, id, t),
               onSelectElement: (id) => {
                 edit?.onSelectScreen?.(slide.id);
-                edit?.onSelectElement?.(id ? { slideId: slide.id, elementId: id } : null);
+                edit?.onSelectElement?.(
+                  id ? { slideId: slide.id, elementId: id } : null,
+                );
               },
             }
           : undefined;
@@ -732,8 +819,22 @@ function SlideBackground({
         color: inverted ? theme.fgAlt : theme.fg,
       }}
     >
-      <Blob cW={cW} color={theme.accent} x={-15} y={-10} size={55} opacity={inverted ? 0.25 : 0.32} />
-      <Blob cW={cW} color={theme.accent} x={70} y={75} size={45} opacity={inverted ? 0.18 : 0.25} />
+      <Blob
+        cW={cW}
+        color={theme.accent}
+        x={-15}
+        y={-10}
+        size={55}
+        opacity={inverted ? 0.25 : 0.32}
+      />
+      <Blob
+        cW={cW}
+        color={theme.accent}
+        x={70}
+        y={75}
+        size={45}
+        opacity={inverted ? 0.18 : 0.25}
+      />
     </div>
   );
 }
@@ -759,7 +860,9 @@ function ScreenGuide({
         outline: `${active ? Math.max(4, cW * 0.003) : Math.max(2, cW * 0.0015)}px solid ${
           active ? "rgba(91, 124, 250, 0.95)" : "rgba(15, 23, 42, 0.22)"
         }`,
-        outlineOffset: active ? -Math.max(4, cW * 0.003) : -Math.max(2, cW * 0.0015),
+        outlineOffset: active
+          ? -Math.max(4, cW * 0.003)
+          : -Math.max(2, cW * 0.0015),
         boxShadow: active
           ? "inset 0 0 0 9999px rgba(91, 124, 250, 0.03)"
           : "inset 0 0 0 1px rgba(255, 255, 255, 0.22)",
@@ -772,7 +875,9 @@ function ScreenGuide({
           top: cH * 0.024,
           borderRadius: cW * 0.018,
           padding: `${cH * 0.006}px ${cW * 0.018}px`,
-          background: active ? "rgba(91, 124, 250, 0.92)" : "rgba(15, 23, 42, 0.72)",
+          background: active
+            ? "rgba(91, 124, 250, 0.92)"
+            : "rgba(15, 23, 42, 0.72)",
           color: "white",
           fontSize: Math.max(24, cW * 0.022),
           lineHeight: 1,
@@ -821,8 +926,22 @@ function FeatureGraphicCanvas({
         color: theme.fgAlt,
       }}
     >
-      <Blob cW={cW} color={theme.accent} x={-12} y={-30} size={42} opacity={0.4} />
-      <Blob cW={cW} color={theme.accent} x={58} y={45} size={50} opacity={0.34} />
+      <Blob
+        cW={cW}
+        color={theme.accent}
+        x={-12}
+        y={-30}
+        size={42}
+        opacity={0.4}
+      />
+      <Blob
+        cW={cW}
+        color={theme.accent}
+        x={58}
+        y={45}
+        size={50}
+        opacity={0.34}
+      />
 
       {/* Left: brand + tagline */}
       <div
@@ -853,7 +972,14 @@ function FeatureGraphicCanvas({
               draggable={false}
             />
           ) : null}
-          <div style={{ fontSize: cH * 0.13, fontWeight: 600, lineHeight: 1, fontFamily: serif }}>
+          <div
+            style={{
+              fontSize: cH * 0.13,
+              fontWeight: 600,
+              lineHeight: 1,
+              fontFamily: serif,
+            }}
+          >
             {appName || "App"}
           </div>
         </div>
@@ -914,7 +1040,11 @@ function FeatureGraphicCanvas({
           zIndex: 2,
         }}
       >
-        <Phone src={screenshot} hideEmpty style={{ width: "100%", height: "100%" }} />
+        <Phone
+          src={screenshot}
+          hideEmpty
+          style={{ width: "100%", height: "100%" }}
+        />
       </div>
     </div>
   );
@@ -952,8 +1082,15 @@ function SlideElements({
   allowCrossScreen: boolean;
 }) {
   const screenshot = resolveScreenshot(slide.screenshot, locale);
-  const screenshotSecondary = resolveScreenshot(slide.screenshotSecondary, locale);
-  const { cW, cH, Frame, frameAspect, defaults } = getSlideGeometry(slide, device, orientation);
+  const screenshotSecondary = resolveScreenshot(
+    slide.screenshotSecondary,
+    locale,
+  );
+  const { cW, cH, Frame, frameAspect, defaults } = getSlideGeometry(
+    slide,
+    device,
+    orientation,
+  );
   const inverted = !!slide.inverted;
   const captionRect = rectFor("caption", slide, defaults);
   const deviceRect = rectFor("device", slide, defaults);
@@ -1009,14 +1146,26 @@ function SlideElements({
         onSelect={() => edit?.onSelectElement?.("caption")}
         allowOverflow={allowCrossScreen}
       >
-        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "flex-start" }}>
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            alignItems: "flex-start",
+          }}
+        >
           {inner}
         </div>
       </Movable>
     );
   }
 
-  function renderDevice(id: "device" | "deviceSecondary", rect: Rect, src: string, extraStyle?: React.CSSProperties) {
+  function renderDevice(
+    id: "device" | "deviceSecondary",
+    rect: Rect,
+    src: string,
+    extraStyle?: React.CSSProperties,
+  ) {
     const saved = slide.transforms?.[id];
     const rotation = saved?.rotation ?? 0;
     const zIndex = saved?.zIndex ?? (id === "deviceSecondary" ? 2 : 3);
@@ -1102,7 +1251,9 @@ function SlideElements({
             value={pickText(textElement.text, locale)}
             editable={editable}
             multiline
-            onChange={(value) => edit?.onTextElementTextChange?.(textElement.id, value)}
+            onChange={(value) =>
+              edit?.onTextElementTextChange?.(textElement.id, value)
+            }
             onFocus={() => edit?.onSelectElement?.(elementId)}
             placeholder="Text"
             style={{
@@ -1112,7 +1263,9 @@ function SlideElements({
               fontWeight: textElement.fontWeight ?? 700,
               lineHeight: 1.05,
               textAlign: textElement.align ?? "center",
-              textShadow: inverted ? "0 2px 18px rgba(0,0,0,0.22)" : "0 2px 18px rgba(255,255,255,0.2)",
+              textShadow: inverted
+                ? "0 2px 18px rgba(0,0,0,0.22)"
+                : "0 2px 18px rgba(255,255,255,0.2)",
             }}
           />
         </div>
@@ -1215,7 +1368,9 @@ function Movable({
     const handleMove = (event: PointerEvent) => {
       event.preventDefault();
       const nextRotation = normalizeRotation(
-        startRotation + pointerAngle(event.clientX, event.clientY, centerX, centerY) - startAngle,
+        startRotation +
+          pointerAngle(event.clientX, event.clientY, centerX, centerY) -
+          startAngle,
       );
       rotationRef.current = nextRotation;
       onChange({
@@ -1302,8 +1457,8 @@ function Movable({
           {
             x: position.x,
             y: position.y,
-            width: parseFloat(ref.style.width),
-            height: parseFloat(ref.style.height),
+            width: Number.parseFloat(ref.style.width),
+            height: Number.parseFloat(ref.style.height),
           },
           boundsW,
           boundsH,
@@ -1329,7 +1484,9 @@ function Movable({
         title="Rotate"
         aria-label="Rotate element"
       >
-        <RotateCw style={{ width: 14 / controlScale, height: 14 / controlScale }} />
+        <RotateCw
+          style={{ width: 14 / controlScale, height: 14 / controlScale }}
+        />
       </button>
     </Rnd>
   );

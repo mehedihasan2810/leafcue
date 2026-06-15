@@ -1,24 +1,24 @@
 "use client";
-import * as React from "react";
 import {
+  closestCenter,
   DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
-  closestCenter,
   useSensor,
   useSensors,
-  type DragEndEvent,
 } from "@dnd-kit/core";
 import {
-  SortableContext,
   arrayMove,
+  SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Plus } from "lucide-react";
+import * as React from "react";
 import { Button } from "@/components/ui/button";
-import type { Device, Orientation, Slide, Theme } from "@/lib/types";
 import { newSlide } from "@/lib/defaults";
+import type { Device, Orientation, Slide, Theme } from "@/lib/types";
 import { SlideThumb } from "./slide-thumb";
 
 type Props = {
@@ -58,7 +58,9 @@ export function Sidebar({
 }: Props) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
 
   const handleDragEnd = (e: DragEndEvent) => {
@@ -73,15 +75,23 @@ export function Sidebar({
   return (
     <div className="flex h-full flex-col">
       <div className="border-b p-3">
-        <h2 className="text-sm font-semibold">Screens</h2>
-        <p className="text-xs text-muted-foreground">
-          {slides.length} screen{slides.length === 1 ? "" : "s"} · drag to reorder
+        <h2 className="font-semibold text-sm">Screens</h2>
+        <p className="text-muted-foreground text-xs">
+          {slides.length} screen{slides.length === 1 ? "" : "s"} · drag to
+          reorder
         </p>
       </div>
 
       <div className="flex-1 overflow-y-auto p-2">
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={slides.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={slides.map((s) => s.id)}
+            strategy={verticalListSortingStrategy}
+          >
             <div className="space-y-1.5">
               {slides.map((slide, i) => (
                 <SlideThumb
@@ -104,9 +114,12 @@ export function Sidebar({
               ))}
               {slides.length === 0 && (
                 <div className="rounded-lg border border-dashed p-6 text-center">
-                  <p className="text-xs font-medium text-foreground">No screens yet</p>
+                  <p className="font-medium text-foreground text-xs">
+                    No screens yet
+                  </p>
                   <p className="mt-1 text-[11px] text-muted-foreground">
-                    Click <span className="font-semibold">Add screen</span> to get started.
+                    Click <span className="font-semibold">Add screen</span> to
+                    get started.
                   </p>
                 </div>
               )}
@@ -120,7 +133,15 @@ export function Sidebar({
           type="button"
           className="w-full"
           variant="default"
-          onClick={() => onAdd(newSlide(device === "feature-graphic" ? "feature-graphic" : "device-bottom"))}
+          onClick={() =>
+            onAdd(
+              newSlide(
+                device === "feature-graphic"
+                  ? "feature-graphic"
+                  : "device-bottom",
+              ),
+            )
+          }
           disabled={disabled}
         >
           <Plus className="h-4 w-4" /> Add screen

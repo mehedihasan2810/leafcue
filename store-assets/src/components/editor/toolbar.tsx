@@ -1,6 +1,13 @@
 "use client";
+import {
+  AlertTriangle,
+  Check,
+  Cloud,
+  Download,
+  RotateCcw,
+  UnfoldHorizontal,
+} from "lucide-react";
 import * as React from "react";
-import { AlertTriangle, Check, Cloud, Download, UnfoldHorizontal, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,10 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  DEVICE_LABEL,
-  supportsLandscape,
-} from "@/lib/constants";
+import { DEVICE_LABEL, supportsLandscape } from "@/lib/constants";
 import { detectPlatform } from "@/lib/defaults";
 import type { Device, Orientation } from "@/lib/types";
 
@@ -69,7 +73,7 @@ export function Toolbar(props: Props) {
       <Input
         value={props.appName}
         onChange={(e) => props.setAppName(e.target.value)}
-        className="h-8 w-40 border-dashed text-sm font-semibold focus-visible:border-input focus-visible:border-solid focus-visible:bg-background"
+        className="h-8 w-40 border-dashed font-semibold text-sm focus-visible:border-input focus-visible:border-solid focus-visible:bg-background"
         placeholder="App name"
         aria-label="App name"
         title="App name (click to edit)"
@@ -102,15 +106,26 @@ export function Toolbar(props: Props) {
         value={platform}
         onValueChange={(p) => {
           if (props.busy) return;
-          const next = p === "ios" ? lastByPlatform.current.ios : lastByPlatform.current.android;
+          const next =
+            p === "ios"
+              ? lastByPlatform.current.ios
+              : lastByPlatform.current.android;
           props.setDevice(next);
         }}
       >
         <TabsList className="h-8 p-0.5">
-          <TabsTrigger value="ios" className="h-7 px-3 text-xs" disabled={props.busy}>
+          <TabsTrigger
+            value="ios"
+            className="h-7 px-3 text-xs"
+            disabled={props.busy}
+          >
             iOS
           </TabsTrigger>
-          <TabsTrigger value="android" className="h-7 px-3 text-xs" disabled={props.busy}>
+          <TabsTrigger
+            value="android"
+            className="h-7 px-3 text-xs"
+            disabled={props.busy}
+          >
             Android
           </TabsTrigger>
         </TabsList>
@@ -133,9 +148,15 @@ export function Toolbar(props: Props) {
           ) : (
             <>
               <SelectItem value="android">{DEVICE_LABEL.android}</SelectItem>
-              <SelectItem value="android-7">{DEVICE_LABEL["android-7"]}</SelectItem>
-              <SelectItem value="android-10">{DEVICE_LABEL["android-10"]}</SelectItem>
-              <SelectItem value="feature-graphic">{DEVICE_LABEL["feature-graphic"]}</SelectItem>
+              <SelectItem value="android-7">
+                {DEVICE_LABEL["android-7"]}
+              </SelectItem>
+              <SelectItem value="android-10">
+                {DEVICE_LABEL["android-10"]}
+              </SelectItem>
+              <SelectItem value="feature-graphic">
+                {DEVICE_LABEL["feature-graphic"]}
+              </SelectItem>
             </>
           )}
         </SelectContent>
@@ -158,7 +179,11 @@ export function Toolbar(props: Props) {
       )}
 
       {showLocale && (
-        <Select value={props.locale} onValueChange={props.setLocale} disabled={props.busy}>
+        <Select
+          value={props.locale}
+          onValueChange={props.setLocale}
+          disabled={props.busy}
+        >
           <SelectTrigger className="h-8 w-20 text-xs">
             <SelectValue />
           </SelectTrigger>
@@ -203,11 +228,18 @@ export function Toolbar(props: Props) {
           <DialogHeader>
             <DialogTitle>Reset to defaults?</DialogTitle>
             <DialogDescription>
-              Choose whether to reset just <span className="font-medium">{deviceLabel}</span> or every device deck. Your canvas edits, uploaded screenshots, and copy will be lost.
+              Choose whether to reset just{" "}
+              <span className="font-medium">{deviceLabel}</span> or every device
+              deck. Your canvas edits, uploaded screenshots, and copy will be
+              lost.
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-wrap justify-end gap-2">
-            <Button variant="ghost" size="sm" onClick={() => setResetOpen(false)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setResetOpen(false)}
+            >
               Cancel
             </Button>
             <Button
@@ -237,7 +269,13 @@ export function Toolbar(props: Props) {
   );
 }
 
-function SaveStatus({ savedAt, saveError }: { savedAt: number | null; saveError: string | null }) {
+function SaveStatus({
+  savedAt,
+  saveError,
+}: {
+  savedAt: number | null;
+  saveError: string | null;
+}) {
   const [, setTick] = React.useState(0);
   React.useEffect(() => {
     const t = setInterval(() => setTick((x) => x + 1), 60_000);
@@ -247,7 +285,7 @@ function SaveStatus({ savedAt, saveError }: { savedAt: number | null; saveError:
   if (saveError) {
     return (
       <span
-        className="flex items-center gap-1 text-xs text-destructive"
+        className="flex items-center gap-1 text-destructive text-xs"
         title={saveError}
       >
         <AlertTriangle className="h-3.5 w-3.5" /> save failed
@@ -257,7 +295,7 @@ function SaveStatus({ savedAt, saveError }: { savedAt: number | null; saveError:
 
   if (!savedAt) {
     return (
-      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+      <span className="flex items-center gap-1 text-muted-foreground text-xs">
         <Cloud className="h-3.5 w-3.5" /> not saved yet
       </span>
     );
@@ -272,7 +310,7 @@ function SaveStatus({ savedAt, saveError }: { savedAt: number | null; saveError:
           ? `saved ${Math.round(seconds / 60)}m ago`
           : `saved ${Math.round(seconds / 3600)}h ago`;
   return (
-    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+    <span className="flex items-center gap-1 text-muted-foreground text-xs">
       <Check className="h-3.5 w-3.5 text-green-500" /> {label}
     </span>
   );

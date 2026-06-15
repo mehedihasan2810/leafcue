@@ -15,7 +15,11 @@ export const metadata: Metadata = {
   description: "Design and export App Store + Google Play screenshots.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body className={`${font.className} ${serif.variable}`}>{children}</body>

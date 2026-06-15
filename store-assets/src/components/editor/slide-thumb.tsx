@@ -1,14 +1,14 @@
 "use client";
-import * as React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Copy, GripVertical, Trash2 } from "lucide-react";
+import type * as React from "react";
 import { Button } from "@/components/ui/button";
 import { LAYOUT_LABEL } from "@/lib/constants";
 import { pickText } from "@/lib/locale";
 import type { Device, Orientation, Slide, Theme } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { DeckCanvas, SlideCanvas, getCanvas } from "./slide-canvas";
+import { DeckCanvas, getCanvas, SlideCanvas } from "./slide-canvas";
 
 type Props = {
   slide: Slide;
@@ -48,7 +48,14 @@ export function SlideThumb({
 }: Props) {
   const headline = pickText(slide.headline, locale);
   const label = pickText(slide.label, locale);
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: slide.id,
   });
 
@@ -57,7 +64,9 @@ export function SlideThumb({
   const tileH = Math.max(34, Math.min(120, Math.round(THUMB_W / aspect)));
   const scale = THUMB_W / cW;
   const start = connectedCanvas ? Math.max(0, index - 1) : index;
-  const visibleSlides = connectedCanvas ? slides.slice(start, Math.min(slides.length, index + 2)) : [slide];
+  const visibleSlides = connectedCanvas
+    ? slides.slice(start, Math.min(slides.length, index + 2))
+    : [slide];
   const localIndex = index - start;
 
   const style: React.CSSProperties = {
@@ -134,16 +143,16 @@ export function SlideThumb({
           </div>
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-[10px] uppercase tracking-wide text-muted-foreground">
+          <span className="truncate text-[10px] text-muted-foreground uppercase tracking-wide">
             {`Screen ${index + 1} · ${LAYOUT_LABEL[slide.layout]}`}
           </span>
-          <span className="truncate text-sm font-medium leading-tight">
+          <span className="truncate font-medium text-sm leading-tight">
             {headline.split("\n")[0] || (
               <em className="font-normal text-muted-foreground">Untitled</em>
             )}
           </span>
           {label ? (
-            <span className="truncate text-[10px] uppercase tracking-wide text-muted-foreground">
+            <span className="truncate text-[10px] text-muted-foreground uppercase tracking-wide">
               {label}
             </span>
           ) : null}

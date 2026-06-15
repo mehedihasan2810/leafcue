@@ -1,6 +1,6 @@
 "use client";
-import * as React from "react";
 import { Image as ImageIcon, Upload, X } from "lucide-react";
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { didFail, img, setImage } from "@/lib/image-cache";
 import { resolveScreenshot } from "@/lib/locale";
@@ -82,7 +82,8 @@ export function ScreenshotPicker({ label, value, locale, onChange }: Props) {
 
   const hasValue = !!value;
   const isData = hasValue && value.startsWith("data:");
-  const resolvedValue = hasValue && !isData && locale ? resolveScreenshot(value, locale) : value;
+  const resolvedValue =
+    hasValue && !isData && locale ? resolveScreenshot(value, locale) : value;
   const previewSrc = isData ? value : hasValue ? img(resolvedValue) : "";
   // Only flag "image not found" when the path is a real URL that we tried and failed.
   const knownMissing = hasValue && !isData && didFail(resolvedValue);
@@ -98,7 +99,9 @@ export function ScreenshotPicker({ label, value, locale, onChange }: Props) {
     <div className="space-y-1">
       <div
         className={`flex items-center gap-3 rounded-md border p-2 transition-colors ${
-          dragging ? "border-primary bg-accent ring-2 ring-primary/30" : "border-input"
+          dragging
+            ? "border-primary bg-accent ring-2 ring-primary/30"
+            : "border-input"
         }`}
         onDragOver={(e) => {
           e.preventDefault();
@@ -129,7 +132,7 @@ export function ScreenshotPicker({ label, value, locale, onChange }: Props) {
           )}
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-xs font-medium">{label}</span>
+          <span className="truncate font-medium text-xs">{label}</span>
           <span className="truncate text-[10px] text-muted-foreground">
             {dragging ? "Drop to upload" : valueLabel}
           </span>
@@ -176,7 +179,9 @@ export function ScreenshotPicker({ label, value, locale, onChange }: Props) {
       {error ? (
         <p className="text-[11px] text-destructive">{error}</p>
       ) : knownMissing ? (
-        <p className="text-[11px] text-destructive">Image not found at {resolvedValue}</p>
+        <p className="text-[11px] text-destructive">
+          Image not found at {resolvedValue}
+        </p>
       ) : null}
     </div>
   );
