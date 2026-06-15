@@ -1,10 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { PressableFeedback, useThemeColor } from "heroui-native";
-import { Text, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { Alert, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
+import { useDatabase } from "@/lib/db";
+import {
+  clearDemoData,
+  isDemoDataLoaded,
+  loadDemoData,
+} from "@/lib/db/seed-demo";
 import { SettingsHeader } from "@/screens/settings/settings-header";
 import { useEntitlementsStore } from "@/stores/use-entitlements-store";
 
@@ -153,11 +160,109 @@ export function SettingsHubScreen() {
               </View>
             </View>
           ))}
+          <DemoDataCard />
+
           <Text className="text-center text-muted text-xs">
             LeafCue is offline-first. No accounts, no servers.
           </Text>
         </View>
       </Container>
+    </View>
+  );
+}
+
+function DemoDataCard() {
+  const db = useDatabase();
+  const accent = useThemeColor("accent");
+  const muted = useThemeColor("muted");
+  const [loaded, setLoaded] = useState<boolean | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const refresh = useCallback(async () => {
+    setLoaded(await isDemoDataLoaded(db));
+  }, [db]);
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  const handleLoad = useCallback(async () => {
+    setBusy(true);
+    try {
+      await loadDemoData(db);
+      await refresh();
+      Alert.alert(
+        "Demo data loaded",
+        "8 plants, care schedules, journal entries, and growth measurements have been added. Restart the app if lists don't refresh automatically.",
+      );
+    } catch (err) {
+      Alert.alert("Error", String(err));
+    } finally {
+      setBusy(false);
+    }
+  }, [db, refresh]);
+
+  const handleClear = useCallback(async () => {
+    Alert.alert(
+      "Clear demo data?",
+      "All demo plants and their data will be permanently deleted.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Clear",
+          style: "destructive",
+          onPress: async () => {
+            setBusy(true);
+            try {
+              await clearDemoData(db);
+              await refresh();
+            } catch (err) {
+              Alert.alert("Error", String(err));
+            } finally {
+              setBusy(false);
+            }
+          },
+        },
+      ],
+    );
+  }, [db, refresh]);
+
+  return (
+    <View className="gap-2">
+      <Text className="px-1 font-medium text-muted text-xs uppercase tracking-wide">
+        App Store Screenshots
+      </Text>
+      <View className="rounded-3xl border border-border/40 bg-surface p-2">
+        <PressableFeedback
+          accessibilityLabel={loaded ? "Clear demo data" : "Load demo data"}
+          onPress={loaded ? handleClear : handleLoad}
+          isDisabled={busy || loaded === null}
+          className="flex-row items-center gap-3 rounded-2xl p-3 active:bg-muted/10"
+        >
+          <View className="size-10 items-center justify-center rounded-2xl bg-accent-soft">
+            <Ionicons
+              name={loaded ? "trash-outline" : "leaf-outline"}
+              size={18}
+              color={loaded ? muted : accent}
+            />
+          </View>
+          <View className="flex-1 gap-0.5">
+            <Text className="font-medium text-base text-foreground">
+              {busy
+                ? "Working…"
+                : loaded
+                  ? "Clear demo data"
+                  : "Load demo data"}
+            </Text>
+            <Text className="text-muted text-xs">
+              {loaded
+                ? "Remove all 8 demo plants and related data."
+                : "Add 8 realistic plants with photos, schedules, and journal entries."}
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={muted} />
+        </PressableFeedback>
+      </View>
     </View>
   );
 }
