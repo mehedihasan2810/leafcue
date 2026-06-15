@@ -24,7 +24,8 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "LeafCue needs access to your camera so you can capture photos of your plants. Photos stay on this device."
+          "cameraPermission": "LeafCue needs access to your camera so you can capture photos of your plants. Photos stay on this device.",
+          "recordAudioAndroid": false
         }
       ],
       [
@@ -65,9 +66,9 @@
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.POST_NOTIFICATIONS",
-        "android.permission.RECORD_AUDIO",
         "android.permission.SCHEDULE_EXACT_ALARM"
-      ]
+      ],
+      "blockedPermissions": ["android.permission.RECORD_AUDIO"]
     },
     "extra": {
       "router": {},

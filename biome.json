@@ -22,6 +22,8 @@
       "!**/.nuxt",
       "!bts.jsonc",
       "!**/.expo",
+      "!**/expo-env.d.ts",
+      "!**/drizzle",
       "!**/Pods",
       "!**/ios/build",
       "!**/android/build",
