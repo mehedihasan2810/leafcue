@@ -20,16 +20,23 @@ import {
 } from "lucide-react";
 import { DeviceFrame } from "@/components/device-frame";
 import { StoreBadges } from "@/components/store-badges";
+import {
+  makeCanonicalLink,
+  makeJsonLdScript,
+  makePageMeta,
+  SCHEMA,
+} from "@/lib/seo";
 import { SITE } from "@/lib/site";
+
+const TITLE = "LeafCue — Calm, private plant care tracker for iPhone & Android";
+const DESCRIPTION =
+  "LeafCue is a calm, private, offline-first plant care tracker. See what each plant needs today, get gentle reminders, and keep every note on your device — no account required.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
-    meta: [
-      {
-        title:
-          "LeafCue — Calm, private plant care tracker for iPhone & Android",
-      },
-    ],
+    meta: makePageMeta({ title: TITLE, description: DESCRIPTION, path: "/" }),
+    links: [makeCanonicalLink("/")],
+    scripts: [makeJsonLdScript(SCHEMA.softwareApplication())],
   }),
   component: HomeComponent,
 });

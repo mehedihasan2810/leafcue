@@ -1,16 +1,33 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalShell } from "@/components/legal";
+import {
+  makeCanonicalLink,
+  makeJsonLdScript,
+  makePageMeta,
+  SCHEMA,
+} from "@/lib/seo";
 import { SITE } from "@/lib/site";
+
+const TITLE = "Support — LeafCue";
+const DESCRIPTION =
+  "Get help with LeafCue. Contact support, learn how reminders work, back up and move your data, and manage LeafCue Plus.";
 
 export const Route = createFileRoute("/support")({
   head: () => ({
-    meta: [
-      { title: "Support — LeafCue" },
-      {
-        name: "description",
-        content:
-          "Get help with LeafCue. Contact support, learn how reminders work, back up and move your data, and manage LeafCue Plus.",
-      },
+    meta: makePageMeta({
+      title: TITLE,
+      description: DESCRIPTION,
+      path: "/support",
+    }),
+    links: [makeCanonicalLink("/support")],
+    scripts: [
+      makeJsonLdScript(
+        SCHEMA.webPage({
+          title: TITLE,
+          description: DESCRIPTION,
+          path: "/support",
+        }),
+      ),
     ],
   }),
   component: SupportPage,

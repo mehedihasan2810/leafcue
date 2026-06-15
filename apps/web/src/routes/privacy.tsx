@@ -1,16 +1,33 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalShell } from "@/components/legal";
+import {
+  makeCanonicalLink,
+  makeJsonLdScript,
+  makePageMeta,
+  SCHEMA,
+} from "@/lib/seo";
 import { SITE } from "@/lib/site";
+
+const TITLE = "Privacy Policy — LeafCue";
+const DESCRIPTION =
+  "How LeafCue handles your data. LeafCue is local-first: your plants, photos and notes stay on your device. No account, no analytics, no third-party tracking.";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({
-    meta: [
-      { title: "Privacy Policy — LeafCue" },
-      {
-        name: "description",
-        content:
-          "How LeafCue handles your data. LeafCue is local-first: your plants, photos and notes stay on your device. No account, no analytics, no third-party tracking.",
-      },
+    meta: makePageMeta({
+      title: TITLE,
+      description: DESCRIPTION,
+      path: "/privacy",
+    }),
+    links: [makeCanonicalLink("/privacy")],
+    scripts: [
+      makeJsonLdScript(
+        SCHEMA.webPage({
+          title: TITLE,
+          description: DESCRIPTION,
+          path: "/privacy",
+        }),
+      ),
     ],
   }),
   component: PrivacyPage,
