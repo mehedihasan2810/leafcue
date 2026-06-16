@@ -1,7 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { cn, useThemeColor } from "heroui-native";
 import type { PropsWithChildren, ReactNode } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { selectIsLightTheme, useThemeStore } from "@/stores/use-theme-store";
@@ -80,13 +81,14 @@ export function HeroScreen({
       />
 
       {isScrollable ? (
-        <ScrollView
+        <KeyboardAwareScrollView
+          bottomOffset={24}
           contentContainerStyle={{ flexGrow: 1, ...containerPadding }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           {inner}
-        </ScrollView>
+        </KeyboardAwareScrollView>
       ) : (
         <View style={{ flex: 1, ...containerPadding }}>{inner}</View>
       )}
