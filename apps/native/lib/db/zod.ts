@@ -273,7 +273,7 @@ const backupPlantRowSchema = z.object({
   commonName: optionalString(120).nullable().optional(),
   scientificName: optionalString(160).nullable().optional(),
   speciesPresetId: nullableBackupIdSchema,
-  photoUri: localPhotoUriSchema.nullable().optional(),
+  photoUri: z.string().trim().max(2048).nullable().optional(),
   roomId: nullableBackupIdSchema,
   shelfId: nullableBackupIdSchema,
   notes: z.string().max(4000).nullable().optional(),
@@ -298,7 +298,7 @@ const backupPlantRowSchema = z.object({
 const backupPlantPhotoRowSchema = z.object({
   id: backupIdSchema,
   plantId: idSchema,
-  uri: localPhotoUriSchema,
+  uri: z.string().trim().min(1).max(2048),
   caption: z.string().max(500).nullable().optional(),
   takenAt: backupDateSchema,
   createdAt: backupDateSchema,
@@ -355,7 +355,7 @@ const backupJournalEntryRowSchema = z.object({
   body: trimmedString(8000),
   mood: z.string().max(40).nullable().optional(),
   entryType: journalEntryTypeSchema.optional(),
-  photoUri: localPhotoUriSchema.nullable().optional(),
+  photoUri: z.string().trim().max(2048).nullable().optional(),
   createdAt: backupDateSchema,
   updatedAt: backupDateSchema,
 });

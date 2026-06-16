@@ -309,7 +309,7 @@ function Header({
       <PressableFeedback
         onPress={onPressSettings}
         className="size-10 items-center justify-center rounded-full bg-surface"
-        accessibilityLabel="Reminder settings"
+        accessibilityLabel="Settings"
       >
         <Ionicons name="settings-outline" size={18} color={muted} />
       </PressableFeedback>

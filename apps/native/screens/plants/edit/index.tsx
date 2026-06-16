@@ -368,7 +368,15 @@ export function EditPlantScreen({ mode, plantId }: EditPlantScreenProps) {
   const form = useForm({
     defaultValues: initialValues,
     onSubmit: async ({ value }) => {
-      const input = buildPlantIntakeInput(value);
+      let input: ReturnType<typeof buildPlantIntakeInput>;
+      try {
+        input = buildPlantIntakeInput(value);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Invalid plant data";
+        Alert.alert("Couldn't save plant", message);
+        return;
+      }
 
       if (mode === "edit" && plantId !== undefined) {
         setSubmitting(true);
@@ -431,7 +439,20 @@ export function EditPlantScreen({ mode, plantId }: EditPlantScreenProps) {
     if (mode === "create" && !next.nickname.trim()) {
       next.nickname = preset.commonName;
     }
-    form.reset(next);
+    // Use setFieldValue per-field instead of form.reset so isTouched is not
+    // cleared. form.reset sets isTouched=false, and formApi.update (called
+    // on every render without deps) then sees defaultValues differ from what
+    // form.reset stored and overwrites values back to the empty initialValues.
+    form.setFieldValue("speciesPresetId", next.speciesPresetId);
+    form.setFieldValue("nickname", next.nickname);
+    form.setFieldValue("commonName", next.commonName);
+    form.setFieldValue("scientificName", next.scientificName);
+    form.setFieldValue("careDifficulty", next.careDifficulty);
+    form.setFieldValue("toxicity", next.toxicity);
+    form.setFieldValue("lightPreference", next.lightPreference);
+    form.setFieldValue("wateringPreference", next.wateringPreference);
+    form.setFieldValue("soilType", next.soilType);
+    form.setFieldValue("scheduleMist", next.scheduleMist);
   };
 
   const handleArchive = () => {

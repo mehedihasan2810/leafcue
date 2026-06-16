@@ -41,7 +41,8 @@
       "!**/.factory/skills",
       "!**/.windsurf/skills",
       "!**/.trae/skills",
-      "!packages/ui/src/components"
+      "!packages/ui/src/components",
+      "!store-assets"
     ]
   },
   "formatter": {

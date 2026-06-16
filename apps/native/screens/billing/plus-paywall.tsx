@@ -358,7 +358,7 @@ function PaywallContent({ reason }: { reason?: string }) {
     selectedPackage?.identifier === annualPackage?.identifier;
   const ctaLabel = isAnnualSelected
     ? "Continue with Yearly"
-    : "Upgrade to Plus";
+    : "Continue with Monthly";
 
   const footer = (
     <View className="gap-3">
