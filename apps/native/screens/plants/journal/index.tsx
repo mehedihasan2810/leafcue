@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
 import { Button, PressableFeedback, useThemeColor } from "heroui-native";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Alert, FlatList, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -15,10 +15,7 @@ import {
   getPlantById,
   updateJournalEntry,
 } from "@/lib/db/repositories";
-import {
-  journalEntries as journalEntriesTable,
-  plants as plantsTable,
-} from "@/lib/db/schema";
+import { plants as plantsTable } from "@/lib/db/schema";
 import type { JournalEntry } from "@/lib/db/types";
 
 import { JournalEntryCard } from "@/screens/plants/journal/_components/journal-entry-card";
@@ -35,19 +32,20 @@ export function PlantJournalScreen({ plantId }: PlantJournalScreenProps) {
   const db = useDatabase();
   const [isOpen, setOpen] = useState(false);
   const [editing, setEditing] = useState<JournalEntry | null>(null);
+  const [entries, setEntries] = useState<JournalEntry[]>(() =>
+    getJournalEntriesForPlant(db, plantId),
+  );
 
   const livePlants = useLiveQuery(db.select().from(plantsTable));
-  const liveEntries = useLiveQuery(db.select().from(journalEntriesTable));
 
   const plant = useMemo(() => {
     void livePlants.data;
     return getPlantById(db, plantId);
   }, [db, plantId, livePlants.data]);
 
-  const entries = useMemo(() => {
-    void liveEntries.data;
-    return getJournalEntriesForPlant(db, plantId);
-  }, [db, plantId, liveEntries.data]);
+  const reloadEntries = useCallback(() => {
+    setEntries(getJournalEntriesForPlant(db, plantId));
+  }, [db, plantId]);
 
   const openCreate = () => {
     setEditing(null);
@@ -85,6 +83,7 @@ export function PlantJournalScreen({ plantId }: PlantJournalScreenProps) {
           photoUri: input.photoUri ?? null,
         });
       }
+      reloadEntries();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not save entry";
@@ -105,6 +104,7 @@ export function PlantJournalScreen({ plantId }: PlantJournalScreenProps) {
           style: "destructive",
           onPress: () => {
             deleteJournalEntry(db, id);
+            reloadEntries();
             setOpen(false);
             setEditing(null);
           },

@@ -25,7 +25,10 @@ export function HeightSparkline({
         (m): m is GrowthMeasurement & { heightCm: number } =>
           m.heightCm !== null,
       )
-      .sort((a, b) => a.measuredAt.getTime() - b.measuredAt.getTime())
+      .sort((a, b) => {
+        const timeDiff = a.measuredAt.getTime() - b.measuredAt.getTime();
+        return timeDiff !== 0 ? timeDiff : a.id - b.id;
+      })
       .slice(-8);
     return filtered;
   }, [measurements]);

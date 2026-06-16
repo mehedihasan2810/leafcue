@@ -3,7 +3,7 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Button, PressableFeedback, useThemeColor } from "heroui-native";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Alert, FlatList, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -19,10 +19,7 @@ import {
   updatePlant,
   updatePlantPhotoCaption,
 } from "@/lib/db/repositories";
-import {
-  plantPhotos as plantPhotosTable,
-  plants as plantsTable,
-} from "@/lib/db/schema";
+import { plants as plantsTable } from "@/lib/db/schema";
 import type { PlantPhoto } from "@/lib/db/types";
 import { deletePersistedPhoto, pickPlantPhoto } from "@/lib/photos";
 
@@ -42,19 +39,20 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
   const [selected, setSelected] = useState<PlantPhoto | null>(null);
   const [showCompare, setShowCompare] = useState(false);
   const [viewerPhoto, setViewerPhoto] = useState<PlantPhoto | null>(null);
+  const [photos, setPhotos] = useState<PlantPhoto[]>(() =>
+    getPlantPhotos(db, plantId),
+  );
 
   const livePlants = useLiveQuery(db.select().from(plantsTable));
-  const livePhotos = useLiveQuery(db.select().from(plantPhotosTable));
 
   const plant = useMemo(() => {
     void livePlants.data;
     return getPlantById(db, plantId);
   }, [db, plantId, livePlants.data]);
 
-  const photos = useMemo(() => {
-    void livePhotos.data;
-    return getPlantPhotos(db, plantId);
-  }, [db, plantId, livePhotos.data]);
+  const reloadPhotos = useCallback(() => {
+    setPhotos(getPlantPhotos(db, plantId));
+  }, [db, plantId]);
 
   const handleAddPhoto = async () => {
     try {
@@ -65,6 +63,7 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
         uri: result.uri,
         type: photos.length === 0 ? "cover" : "journal",
       });
+      reloadPhotos();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not add photo";
@@ -76,6 +75,7 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
     if (!selected) return;
     try {
       updatePlantPhotoCaption(db, selected.id, caption);
+      reloadPhotos();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not save caption";
@@ -88,6 +88,7 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
     if (!target) return;
     try {
       setPlantPhotoAsCover(db, target.id);
+      reloadPhotos();
       if (viewerPhoto?.id === target.id) setViewerPhoto(null);
       if (selected?.id === target.id) setSelected(null);
     } catch (error) {
@@ -111,7 +112,7 @@ export function PlantPhotosScreen({ plantId }: PlantPhotosScreenProps) {
           if (plant?.photoUri === target.uri) {
             updatePlant(db, plantId, { photoUri: null });
           }
-          // Clear viewer/bottom sheet if they show the deleted photo
+          reloadPhotos();
           if (viewerPhoto?.id === target.id) setViewerPhoto(null);
           if (selected?.id === target.id) setSelected(null);
         },

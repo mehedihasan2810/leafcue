@@ -6,6 +6,7 @@ import {
   type SQLiteRunResult,
   useSQLiteContext,
 } from "expo-sqlite";
+import { useMemo } from "react";
 
 import * as schema from "@/lib/db/schema";
 
@@ -29,5 +30,6 @@ export function createDatabase(sqlite: SQLiteDatabase): LeafCueDatabase {
 }
 
 export function useDatabase(): LeafCueDatabase {
-  return createDatabase(useSQLiteContext());
+  const sqlite = useSQLiteContext();
+  return useMemo(() => createDatabase(sqlite), [sqlite]);
 }

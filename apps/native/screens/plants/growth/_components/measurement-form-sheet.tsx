@@ -12,7 +12,7 @@ import {
   useThemeColor,
 } from "heroui-native";
 import { useEffect, useMemo } from "react";
-import { Text, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 
 import { formatIsoDate, parseIsoDate } from "@/lib/dates";
 import type { GrowthMeasurement } from "@/lib/db/types";
@@ -87,6 +87,10 @@ export function MeasurementFormSheet({
         bloomCount === null &&
         !notes
       ) {
+        Alert.alert(
+          "Nothing to save",
+          "Add at least one measurement or a note.",
+        );
         return;
       }
 
