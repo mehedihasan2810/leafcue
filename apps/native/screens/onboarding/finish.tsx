@@ -4,7 +4,6 @@ import { useThemeColor } from "heroui-native";
 import { Text, View } from "react-native";
 
 import { useDatabase } from "@/lib/db";
-import { OnboardingIllustration } from "@/screens/onboarding/_components/onboarding-illustration";
 import { OnboardingShell } from "@/screens/onboarding/_components/onboarding-shell";
 import { useOnboardingStore } from "@/stores/use-onboarding-store";
 
@@ -30,7 +29,6 @@ export function OnboardingFinishScreen() {
           ? "Your first plant is in and its care plan is ready. Open Today to see what's next."
           : "LeafCue is ready whenever you are — add a plant anytime from the Today screen."
       }
-      illustration={<OnboardingIllustration variant="finish" />}
       primaryLabel="Start using LeafCue"
       primaryIcon="arrow-forward-outline"
       onPressPrimary={handleDone}

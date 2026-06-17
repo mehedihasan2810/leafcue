@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useThemeColor } from "heroui-native";
 import { Text, View } from "react-native";
-import { OnboardingIllustration } from "@/screens/onboarding/_components/onboarding-illustration";
 import { OnboardingShell } from "@/screens/onboarding/_components/onboarding-shell";
 
 const PROMISES: ReadonlyArray<{
@@ -44,7 +43,6 @@ export function OnboardingPrivacyScreen() {
       step={2}
       title="Private by design"
       subtitle="LeafCue protects your plant care notes the same way it protects you."
-      illustration={<OnboardingIllustration variant="privacy" />}
       primaryLabel="That sounds great"
       primaryIcon="arrow-forward-outline"
       onPressPrimary={() => router.push("/onboarding/quiz")}
