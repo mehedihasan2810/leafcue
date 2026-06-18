@@ -88,11 +88,11 @@ function Hero() {
         <div className="relative flex min-w-0 justify-center lg:justify-end">
           <div className="relative">
             <div className="lc-rise pointer-events-none absolute top-14 -left-28 hidden w-[13.5rem] -rotate-6 opacity-90 lg:block">
-              <DeviceFrame src="/screens/plants.png" alt="" />
+              <DeviceFrame src="/screens/plants.webp" alt="" />
             </div>
             <div className="lc-rise relative z-10">
               <DeviceFrame
-                src="/screens/today.png"
+                src="/screens/today.webp"
                 alt="LeafCue Today screen showing the day’s plant care queue"
                 priority
               />
@@ -175,7 +175,7 @@ const TOUR: TourItem[] = [
       "One-tap done, or snooze to a better day",
       "A gentle health banner when a plant needs attention",
     ],
-    img: "/screens/today.png",
+    img: "/screens/today.webp",
     alt: "LeafCue Today screen with the care queue and overdue tasks",
   },
   {
@@ -187,7 +187,7 @@ const TOUR: TourItem[] = [
       "Real photos so you recognise each plant at a glance",
       "Rooms and shelves that mirror your actual home",
     ],
-    img: "/screens/plants.png",
+    img: "/screens/plants.webp",
     alt: "LeafCue plant library showing a grid of plants with photos",
   },
   {
@@ -199,7 +199,7 @@ const TOUR: TourItem[] = [
       "Adaptive intervals that learn from your habits",
       "Every cue is explained, never a black box",
     ],
-    img: "/screens/plant-detail.png",
+    img: "/screens/plant-detail.webp",
     alt: "LeafCue plant detail showing the next care cue and care plan",
   },
   {
@@ -211,7 +211,7 @@ const TOUR: TourItem[] = [
       "Gentle local reminders, never overnight",
       "Tap any day to see and complete its tasks",
     ],
-    img: "/screens/calendar.png",
+    img: "/screens/calendar.webp",
     alt: "LeafCue calendar with the month grid and the day’s tasks",
   },
   {
@@ -223,7 +223,7 @@ const TOUR: TourItem[] = [
       "Most cared-for plants and recent milestones",
       "A nudge toward anything that’s been neglected",
     ],
-    img: "/screens/insights.png",
+    img: "/screens/insights.webp",
     alt: "LeafCue insights screen with care streak and consistency",
   },
   {
@@ -235,7 +235,7 @@ const TOUR: TourItem[] = [
       "Track height, leaves and blooms over time",
       "Log health issues and journal the good days",
     ],
-    img: "/screens/timeline.png",
+    img: "/screens/timeline.webp",
     alt: "LeafCue plant timeline with photos, growth and journal entries",
   },
 ];

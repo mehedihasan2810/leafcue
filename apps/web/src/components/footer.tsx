@@ -25,9 +25,13 @@ export default function Footer() {
         <div className="mt-12 flex flex-col gap-10 border-white/10 border-t pt-10 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-sm">
             <div className="flex items-center gap-2">
-              <span className="grid size-8 place-items-center rounded-xl bg-brand text-primary-foreground">
-                <LeafMark className="size-5" />
-              </span>
+              <img
+                src="/logo.svg"
+                alt="Logo"
+                className="size-8"
+                width={32}
+                height={32}
+              />
               <span className="font-display font-semibold text-xl tracking-tight">
                 {SITE.name}
               </span>
