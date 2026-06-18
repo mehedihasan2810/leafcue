@@ -35,9 +35,7 @@ export default function Header() {
           className="flex items-center gap-2 no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
           aria-label={`${SITE.name} home`}
         >
-          <span className="grid size-8 place-items-center rounded-xl bg-brand text-primary-foreground">
-            <LeafMark className="size-5" />
-          </span>
+          <img src="/icon.png" alt="LeafCue" width={32} height={32} />
           <span className="font-display font-semibold text-foreground text-xl tracking-tight">
             {SITE.name}
           </span>
