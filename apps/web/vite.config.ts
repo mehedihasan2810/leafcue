@@ -10,7 +10,17 @@ export default defineConfig({
     cloudflare({ viteEnvironment: { name: "ssr" } }),
     tsconfigPaths(),
     tailwindcss(),
-    tanstackStart(),
+    tanstackStart({
+      prerender: {
+        enabled: true,
+        crawlLinks: true,
+        autoStaticPathsDiscovery: true,
+      },
+      sitemap: {
+        enabled: true,
+        host: "https://leafcue.galaxyway.ai",
+      },
+    }),
     viteReact(),
   ],
   server: {

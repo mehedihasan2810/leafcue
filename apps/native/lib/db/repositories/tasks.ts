@@ -409,6 +409,49 @@ export function rescheduleTask(
   return updated;
 }
 
+/**
+ * Apply a new interval learned from the user's completion history. Keeps the
+ * existing anchor (last completed, else next due) and recomputes the next due
+ * date so the change takes effect from where the plant currently stands.
+ */
+export function applyAdaptiveInterval(
+  db: LeafCueDatabase,
+  scheduleId: number,
+  intervalDays: number,
+): PlantTaskSchedule {
+  return db.transaction((tx) => {
+    const schedule = tx
+      .select()
+      .from(plantTaskSchedules)
+      .where(eq(plantTaskSchedules.id, scheduleId))
+      .get();
+    if (!schedule) {
+      throw new Error(`Schedule ${scheduleId} not found`);
+    }
+
+    const anchor = schedule.lastCompletedAt ?? schedule.nextDueAt ?? new Date();
+    const nextDueAt = computeNextDueAt(anchor, intervalDays);
+
+    const updated = tx
+      .update(plantTaskSchedules)
+      .set({
+        intervalDays,
+        nextDueAt,
+        snoozedUntil: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(plantTaskSchedules.id, scheduleId))
+      .returning()
+      .get();
+
+    if (!updated) {
+      throw new Error(`Schedule ${scheduleId} not found`);
+    }
+
+    return updated;
+  });
+}
+
 export function skipTaskOnce(
   db: LeafCueDatabase,
   scheduleId: number,

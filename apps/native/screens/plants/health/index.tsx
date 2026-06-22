@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
 import { Button, PressableFeedback, useThemeColor } from "heroui-native";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Alert, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -18,10 +18,7 @@ import {
   updateHealthObservation,
   updateHealthObservationStatus,
 } from "@/lib/db/repositories";
-import {
-  healthObservations as healthObservationsTable,
-  plants as plantsTable,
-} from "@/lib/db/schema";
+import { plants as plantsTable } from "@/lib/db/schema";
 import type { HealthObservation } from "@/lib/db/types";
 
 import { ObservationCard } from "@/screens/plants/health/_components/observation-card";
@@ -38,21 +35,20 @@ export function PlantHealthScreen({ plantId }: PlantHealthScreenProps) {
   const db = useDatabase();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<HealthObservation | null>(null);
+  const [observations, setObservations] = useState<HealthObservation[]>(() =>
+    getHealthObservations(db, plantId),
+  );
 
   const livePlants = useLiveQuery(db.select().from(plantsTable));
-  const liveObservations = useLiveQuery(
-    db.select().from(healthObservationsTable),
-  );
 
   const plant = useMemo(() => {
     void livePlants.data;
     return getPlantById(db, plantId);
   }, [db, plantId, livePlants.data]);
 
-  const observations = useMemo(() => {
-    void liveObservations.data;
-    return getHealthObservations(db, plantId);
-  }, [db, plantId, liveObservations.data]);
+  const reloadObservations = useCallback(() => {
+    setObservations(getHealthObservations(db, plantId));
+  }, [db, plantId]);
 
   const grouped = useMemo(() => {
     const active = observations.filter((obs) => obs.status === "active");
@@ -87,6 +83,7 @@ export function PlantHealthScreen({ plantId }: PlantHealthScreenProps) {
           notes: input.notes,
         });
       }
+      reloadObservations();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not save observation";
@@ -104,6 +101,7 @@ export function PlantHealthScreen({ plantId }: PlantHealthScreenProps) {
         style: "destructive",
         onPress: () => {
           deleteHealthObservation(db, id);
+          reloadObservations();
           setOpen(false);
           setEditing(null);
         },
@@ -117,6 +115,7 @@ export function PlantHealthScreen({ plantId }: PlantHealthScreenProps) {
   ) => {
     try {
       updateHealthObservationStatus(db, observation.id, status);
+      reloadObservations();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not update status";

@@ -285,13 +285,25 @@ export function PlantLibraryScreen() {
 
             {filter === "room" ? (
               <View className="gap-2">
-                <Text className="font-medium text-muted text-xs uppercase tracking-wide">
-                  Filter by room
-                </Text>
-                {rooms.length === 0 ? (
-                  <Text className="text-muted text-sm">
-                    No rooms yet — add one in the Rooms tab.
+                <View className="flex-row items-center justify-between">
+                  <Text className="font-medium text-muted text-xs uppercase tracking-wide">
+                    Filter by room
                   </Text>
+                  <PressableFeedback
+                    onPress={() => router.push("/rooms")}
+                    accessibilityRole="button"
+                  >
+                    <Text className="font-medium text-accent text-xs">
+                      Manage rooms
+                    </Text>
+                  </PressableFeedback>
+                </View>
+                {rooms.length === 0 ? (
+                  <PressableFeedback onPress={() => router.push("/rooms")}>
+                    <Text className="text-accent text-sm">
+                      No rooms yet — tap to set up rooms.
+                    </Text>
+                  </PressableFeedback>
                 ) : (
                   <View className="flex-row flex-wrap gap-2">
                     {rooms.map((room) => {

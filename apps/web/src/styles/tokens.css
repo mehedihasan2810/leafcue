@@ -1,0 +1,53 @@
+/* Hallmark · genre: editorial · macrostructure: Workbench · theme: custom · enrichment: device-frames · nav: N9 · footer: Ft5
+ * vibe: "calm, botanical, private, hand-tended" · paper: oklch(97% 0.018 181) · accent: oklch(55% 0.18 181)
+ * display: Fraunces · body: Plus Jakarta Sans · axes: light / roman-serif / chromatic-teal ~181°
+ * Palette mirrors apps/native/global.css (LeafCue light theme) so the site matches the app 1:1.
+ * pre-emit critique: P5 H5 E5 S5 R5 V5
+ */
+
+/* LeafCue brand palette — overrides the shadcn neutral defaults from @leafcue/ui. */
+:root {
+  --background: oklch(0.9702 0.018 181);
+  --foreground: oklch(0.2103 0.018 181);
+  --card: oklch(1 0.009 181);
+  --card-foreground: oklch(0.2103 0.018 181);
+  --popover: oklch(1 0.009 181);
+  --popover-foreground: oklch(0.2103 0.018 181);
+  --primary: oklch(0.55 0.18 181);
+  --primary-foreground: oklch(0.99 0.005 181);
+  --secondary: oklch(0.94 0.018 181);
+  --secondary-foreground: oklch(0.27 0.02 181);
+  --muted: oklch(0.952 0.0144 181);
+  --muted-foreground: oklch(0.46 0.03 181);
+  --accent: oklch(0.93 0.03 181);
+  --accent-foreground: oklch(0.27 0.04 181);
+  --destructive: oklch(0.6532 0.2412 17);
+  --border: oklch(0.9 0.018 181);
+  --input: oklch(0.9 0.018 181);
+  --ring: oklch(0.55 0.18 181);
+  --radius: 0.875rem;
+}
+
+/* Register brand colours + the Fraunces / Plus Jakarta Sans pairing as Tailwind v4 theme tokens. */
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
+
+  --color-brand: oklch(0.55 0.18 181);
+  --color-brand-ink: oklch(0.43 0.12 181);
+  --color-spruce: oklch(0.255 0.04 181);
+  --color-spruce-2: oklch(0.305 0.045 181);
+  --color-spruce-foreground: oklch(0.95 0.02 181);
+  --color-spruce-muted: oklch(0.74 0.04 181);
+  --color-paper: oklch(0.9702 0.018 181);
+  --color-paper-2: oklch(0.955 0.016 181);
+  --color-paper-3: oklch(0.985 0.01 181);
+  --color-leaf: oklch(0.66 0.16 150);
+  --color-bloom: oklch(0.66 0.16 20);
+  --color-sun: oklch(0.78 0.16 64);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-short: 160ms;
+  --dur-med: 320ms;
+}

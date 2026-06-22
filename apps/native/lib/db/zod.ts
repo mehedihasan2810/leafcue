@@ -10,11 +10,13 @@ import {
   healthIssueTypeValues,
   healthSeverityValues,
   healthStatusValues,
+  hemisphereValues,
   journalEntryTypeValues,
   lightPreferenceValues,
   photoTypeValues,
   toxicityValues,
   wateringPreferenceValues,
+  windowOrientationValues,
 } from "@/lib/db/schema";
 
 export const idSchema = z.number().int().positive();
@@ -25,6 +27,8 @@ export const careDifficultySchema = z.enum(careDifficultyValues);
 export const toxicitySchema = z.enum(toxicityValues);
 export const lightPreferenceSchema = z.enum(lightPreferenceValues);
 export const wateringPreferenceSchema = z.enum(wateringPreferenceValues);
+export const windowOrientationSchema = z.enum(windowOrientationValues);
+export const hemisphereSchema = z.enum(hemisphereValues);
 export const photoTypeSchema = z.enum(photoTypeValues);
 export const journalEntryTypeSchema = z.enum(journalEntryTypeValues);
 export const healthSeveritySchema = z.enum(healthSeverityValues);
@@ -61,6 +65,9 @@ export const plantInsertSchema = z.object({
   potType: z.string().trim().max(120).nullable().optional(),
   potSize: z.string().trim().max(60).nullable().optional(),
   hasDrainage: z.boolean().nullable().optional(),
+  directSunHours: z.number().int().min(0).max(24).nullable().optional(),
+  windowDistanceCm: z.number().int().min(0).max(1000).nullable().optional(),
+  windowOrientation: windowOrientationSchema.nullable().optional(),
   isFavorite: z.boolean().optional(),
 });
 export type PlantInsertInput = z.infer<typeof plantInsertSchema>;
@@ -266,7 +273,7 @@ const backupPlantRowSchema = z.object({
   commonName: optionalString(120).nullable().optional(),
   scientificName: optionalString(160).nullable().optional(),
   speciesPresetId: nullableBackupIdSchema,
-  photoUri: localPhotoUriSchema.nullable().optional(),
+  photoUri: z.string().trim().max(2048).nullable().optional(),
   roomId: nullableBackupIdSchema,
   shelfId: nullableBackupIdSchema,
   notes: z.string().max(4000).nullable().optional(),
@@ -282,13 +289,16 @@ const backupPlantRowSchema = z.object({
   potType: optionalString(120).nullable().optional(),
   potSize: optionalString(60).nullable().optional(),
   hasDrainage: backupBooleanSchema,
+  directSunHours: backupIntegerSchema,
+  windowDistanceCm: backupIntegerSchema,
+  windowOrientation: windowOrientationSchema.nullable().optional(),
   isFavorite: backupBooleanSchema,
 });
 
 const backupPlantPhotoRowSchema = z.object({
   id: backupIdSchema,
   plantId: idSchema,
-  uri: localPhotoUriSchema,
+  uri: z.string().trim().min(1).max(2048),
   caption: z.string().max(500).nullable().optional(),
   takenAt: backupDateSchema,
   createdAt: backupDateSchema,
@@ -345,7 +355,7 @@ const backupJournalEntryRowSchema = z.object({
   body: trimmedString(8000),
   mood: z.string().max(40).nullable().optional(),
   entryType: journalEntryTypeSchema.optional(),
-  photoUri: localPhotoUriSchema.nullable().optional(),
+  photoUri: z.string().trim().max(2048).nullable().optional(),
   createdAt: backupDateSchema,
   updatedAt: backupDateSchema,
 });
@@ -530,8 +540,27 @@ export const onboardingValueSchema = z.object({
 });
 export type OnboardingValue = z.infer<typeof onboardingValueSchema>;
 
+export const onboardingExperienceValues = ["new", "some", "expert"] as const;
+export type OnboardingExperience = (typeof onboardingExperienceValues)[number];
+
+export const onboardingLightValues = ["low", "medium", "bright"] as const;
+export type OnboardingLight = (typeof onboardingLightValues)[number];
+
+/**
+ * Lightweight personalization captured during onboarding. Drives the first
+ * plant's defaults (light + care style) and the "your plan is ready" reveal.
+ */
+export const onboardingProfileSchema = z.object({
+  experience: z.enum(onboardingExperienceValues).nullable().default(null),
+  homeLight: z.enum(onboardingLightValues).nullable().default(null),
+  goals: z.array(z.string().max(40)).max(12).default([]),
+  completedActivation: z.boolean().default(false),
+});
+export type OnboardingProfile = z.infer<typeof onboardingProfileSchema>;
+
 export const onboardingKeys = {
   MAIN: "onboarding.main",
+  PROFILE: "onboarding.profile",
 } as const;
 
 export const appearanceModeValues = ["system", "light", "dark"] as const;
@@ -555,6 +584,7 @@ export const measurementUnitsSchema = z.enum(measurementUnitValues);
 export const appPreferencesSchema = z.object({
   weekStartDay: weekStartDaySchema.default("monday"),
   units: measurementUnitsSchema.default("metric"),
+  hemisphere: hemisphereSchema.default("north"),
 });
 export type AppPreferences = z.infer<typeof appPreferencesSchema>;
 export const appPreferencesKey = "app.preferences" as const;

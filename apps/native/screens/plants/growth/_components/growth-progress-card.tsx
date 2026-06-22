@@ -18,9 +18,10 @@ export function GrowthProgressCard({
   const accent = useThemeColor("accent");
   const muted = useThemeColor("muted");
 
-  const sorted = [...measurements].sort(
-    (a, b) => a.measuredAt.getTime() - b.measuredAt.getTime(),
-  );
+  const sorted = [...measurements].sort((a, b) => {
+    const timeDiff = a.measuredAt.getTime() - b.measuredAt.getTime();
+    return timeDiff !== 0 ? timeDiff : a.id - b.id;
+  });
 
   const earliest = sorted[0];
   const latest = sorted[sorted.length - 1];

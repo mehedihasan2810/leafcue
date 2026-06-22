@@ -1,6 +1,7 @@
+import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { useCallback, useState } from "react";
-
+import { pickCompletionMessage } from "@/lib/care/celebration";
 import {
   type CompleteTaskSnapshot,
   performComplete,
@@ -13,8 +14,9 @@ import {
 } from "@/lib/care/task-actions";
 import { useDatabase } from "@/lib/db";
 import type { CompleteTaskInput, DueTaskRow } from "@/lib/db/repositories";
-
+import { getInsightsSummary } from "@/lib/db/repositories";
 import type { TaskActionType } from "@/screens/tasks/_components/task-action-sheet";
+import { useCelebrationStore } from "@/stores/use-celebration-store";
 
 type DateSheetMode = "snooze" | "reschedule";
 
@@ -25,6 +27,7 @@ type UndoState = {
 
 export function useTaskHandlers() {
   const db = useDatabase();
+  const celebrate = useCelebrationStore((state) => state.celebrate);
   const [actionRow, setActionRow] = useState<DueTaskRow | null>(null);
   const [actionSheetOpen, setActionSheetOpen] = useState(false);
   const [detailsRow, setDetailsRow] = useState<DueTaskRow | null>(null);
@@ -61,15 +64,20 @@ export function useTaskHandlers() {
         row.schedule,
       );
       if (snapshot) {
-        const taskName =
-          row.schedule.customName ?? row.template?.name ?? "Care";
-        setUndo({
-          snapshot,
-          message: `${taskName} logged for ${row.plant.nickname}`,
-        });
+        const streakDays = getInsightsSummary(db).careStreakDays;
+        const message = pickCompletionMessage(
+          row.template?.key ?? null,
+          row.plant.nickname,
+          streakDays,
+        );
+        void Haptics.notificationAsync(
+          Haptics.NotificationFeedbackType.Success,
+        );
+        celebrate();
+        setUndo({ snapshot, message });
       }
     },
-    [db],
+    [db, celebrate],
   );
 
   const handleQuickComplete = useCallback(

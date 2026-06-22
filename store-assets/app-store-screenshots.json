@@ -1,0 +1,329 @@
+{
+  "schemaVersion": 2,
+  "appName": "LeafCue",
+  "themeId": "leafcue",
+  "connectedCanvas": false,
+  "locales": [
+    "en"
+  ],
+  "locale": "en",
+  "device": "feature-graphic",
+  "orientation": "portrait",
+  "appIcon": "/app-icon.png",
+  "slidesByDevice": {
+    "iphone": [
+      {
+        "id": "lc_01_hero",
+        "layout": "hero",
+        "label": {
+          "en": "STAY ON TOP OF CARE"
+        },
+        "headline": {
+          "en": "Your plants,\nnever thirsty."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/01.png"
+      },
+      {
+        "id": "lc_02_adapt",
+        "layout": "device-bottom",
+        "label": {
+          "en": "SMART SCHEDULES"
+        },
+        "headline": {
+          "en": "Care that adapts\nto your home."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/02.png",
+        "inverted": true
+      },
+      {
+        "id": "lc_03_collection",
+        "layout": "hero",
+        "label": {
+          "en": "YOUR COLLECTION"
+        },
+        "headline": {
+          "en": "A home for\nevery plant."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/03.png"
+      },
+      {
+        "id": "lc_04_detail",
+        "layout": "device-bottom",
+        "label": {
+          "en": "EVERY PLANT"
+        },
+        "headline": {
+          "en": "Know each plant\nby heart."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/04.png"
+      },
+      {
+        "id": "lc_05_add",
+        "layout": "hero",
+        "label": {
+          "en": "GET STARTED FAST"
+        },
+        "headline": {
+          "en": "Add any plant\nin seconds."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/05.png"
+      },
+      {
+        "id": "lc_06_details",
+        "layout": "device-bottom",
+        "label": {
+          "en": "ALL THE DETAILS"
+        },
+        "headline": {
+          "en": "Every care detail,\nin one place."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/06.png",
+        "inverted": true
+      },
+      {
+        "id": "lc_07_calendar",
+        "layout": "hero",
+        "label": {
+          "en": "PLAN AHEAD"
+        },
+        "headline": {
+          "en": "See the whole\nmonth ahead."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/07.png"
+      },
+      {
+        "id": "lc_08_streak",
+        "layout": "device-bottom",
+        "label": {
+          "en": "STAY MOTIVATED"
+        },
+        "headline": {
+          "en": "Build a streak\nyou'll love."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/08.png"
+      },
+      {
+        "id": "lc_09_private",
+        "layout": "hero",
+        "label": {
+          "en": "PRIVATE BY DESIGN"
+        },
+        "headline": {
+          "en": "100% private.\nNo account, ever."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/09.png",
+        "inverted": true
+      }
+    ],
+    "android": [],
+    "ipad": [
+      {
+        "id": "ipad_01_hero",
+        "layout": "two-devices",
+        "label": {
+          "en": "LEAFCUE"
+        },
+        "headline": {
+          "en": "Plant care,\nbeautifully simple."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/01.png",
+        "screenshotSecondary": "/screenshots/apple/iphone/{locale}/03.png",
+        "transforms": {
+          "deviceSecondary": {
+            "x": 99.5107246376812,
+            "y": 728.6817391304347,
+            "width": 972.6376945244957,
+            "height": 1981.44,
+            "rotation": 0,
+            "zIndex": 2
+          },
+          "device": {
+            "x": 1136.97621985549,
+            "y": 905.6871884057971,
+            "width": 875.3739250720462,
+            "height": 1783.2960000000003,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 161.13159420289855,
+            "y": 152.35710144927535,
+            "width": 1733.76,
+            "height": 770.5600000000001,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
+      },
+      {
+        "id": "ipad_02_detail",
+        "layout": "device-bottom",
+        "label": {
+          "en": "EVERY PLANT"
+        },
+        "headline": {
+          "en": "Know each plant\nby heart."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/04.png",
+        "inverted": true,
+        "transforms": {
+          "device": {
+            "x": 565.6231817232594,
+            "y": 723.4968115942029,
+            "width": 972.6376945244957,
+            "height": 1981.44,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 157.1431884057971,
+            "y": 152.35710144927535,
+            "width": 1733.76,
+            "height": 770.56,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
+      },
+      {
+        "id": "ipad_03_calendar",
+        "layout": "hero",
+        "label": {
+          "en": "PLAN AHEAD"
+        },
+        "headline": {
+          "en": "See the whole\nmonth ahead."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/07.png",
+        "transforms": {
+          "device": {
+            "x": 577.5883991145638,
+            "y": 712.8078840579708,
+            "width": 972.6376945244957,
+            "height": 1981.44,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 161.13159420289855,
+            "y": 143.98144927536228,
+            "width": 1733.76,
+            "height": 770.5600000000001,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
+      },
+      {
+        "id": "ipad_04_adapt",
+        "layout": "two-devices",
+        "label": {
+          "en": "SMART SCHEDULES"
+        },
+        "headline": {
+          "en": "Care that adapts\nto your home."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/02.png",
+        "screenshotSecondary": "/screenshots/apple/iphone/{locale}/08.png",
+        "transforms": {
+          "deviceSecondary": {
+            "x": 67.6034782608696,
+            "y": 696.7744927536231,
+            "width": 972.6376945244957,
+            "height": 1981.44,
+            "rotation": 0,
+            "zIndex": 2
+          },
+          "caption": {
+            "x": 161.13159420289855,
+            "y": 132.4150724637681,
+            "width": 1733.76,
+            "height": 770.5600000000001,
+            "rotation": 0,
+            "zIndex": 4
+          },
+          "device": {
+            "x": 1132.9878140583885,
+            "y": 901.6987826086956,
+            "width": 875.3739250720462,
+            "height": 1783.2960000000003,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
+      },
+      {
+        "id": "ipad_05_details",
+        "layout": "device-bottom",
+        "label": {
+          "en": "ALL THE DETAILS"
+        },
+        "headline": {
+          "en": "Every care detail,\nin one place."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/06.png",
+        "inverted": true,
+        "transforms": {
+          "caption": {
+            "x": 157.1431884057971,
+            "y": 148.3686956521739,
+            "width": 1733.76,
+            "height": 770.5600000000001,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
+      },
+      {
+        "id": "ipad_06_private",
+        "layout": "hero",
+        "label": {
+          "en": "PRIVATE BY DESIGN"
+        },
+        "headline": {
+          "en": "100% private.\nNo account, ever."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/09.png",
+        "transforms": {
+          "device": {
+            "x": 573.5999933174623,
+            "y": 712.8078840579708,
+            "width": 972.6376945244957,
+            "height": 1981.44,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 153.15478260869565,
+            "y": 132.01623188405793,
+            "width": 1733.76,
+            "height": 770.5600000000001,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
+      }
+    ],
+    "android-7": [],
+    "android-10": [],
+    "feature-graphic": [
+      {
+        "id": "fg_01",
+        "layout": "feature-graphic",
+        "label": {},
+        "headline": {
+          "en": "Plant care that\nadapts to you."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/01.png"
+      }
+    ]
+  },
+  "crossScreenMockupsByDevice": {
+    "iphone": [],
+    "ipad": [],
+    "android": [],
+    "android-7": [],
+    "android-10": [],
+    "feature-graphic": []
+  }
+}

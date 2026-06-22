@@ -16,8 +16,13 @@ import { getCareTaskIcon } from "@/components/care-task-icons";
 import { Container } from "@/components/container";
 import { EmptyState } from "@/components/empty-state";
 import { SectionHeader } from "@/components/section-header";
+import {
+  type IntervalSuggestion,
+  suggestIntervalAdjustment,
+} from "@/lib/care/adaptive";
 import { buildSmartHints, type CareHint } from "@/lib/care/hints";
 import {
+  performApplyAdaptiveInterval,
   performDeleteSchedule,
   performSaveSchedule,
   performToggleEnabled,
@@ -221,15 +226,32 @@ export function SchedulesScreen({ plantId }: SchedulesScreenProps) {
                     schedule,
                     recentLogs: scheduleLogs,
                   });
+                  const suggestion = suggestIntervalAdjustment({
+                    schedule,
+                    template,
+                    recentLogs: scheduleLogs,
+                  });
+                  // The actionable banner replaces the advisory median hint.
+                  const visibleHints = suggestion
+                    ? hints.filter((hint) => hint.id !== "history-median")
+                    : hints;
                   return (
                     <ScheduleCard
                       key={`schedule-${schedule.id}`}
                       schedule={schedule}
                       template={template}
-                      hints={hints}
+                      hints={visibleHints}
+                      suggestion={suggestion}
                       logs={getCareLogsForSchedule(db, schedule.id, 5)}
                       onToggle={(value) => {
                         void handleToggle(schedule, value);
+                      }}
+                      onApplySuggestion={(intervalDays) => {
+                        void performApplyAdaptiveInterval(
+                          db,
+                          schedule.id,
+                          intervalDays,
+                        );
                       }}
                       onEdit={() => openEdit(schedule)}
                     />
@@ -306,8 +328,10 @@ type ScheduleCardProps = {
   schedule: PlantTaskSchedule;
   template: CareTaskTemplate | null;
   hints: ReadonlyArray<CareHint>;
+  suggestion: IntervalSuggestion | null;
   logs: ReadonlyArray<CareLog>;
   onToggle: (next: boolean) => void;
+  onApplySuggestion: (intervalDays: number) => void;
   onEdit: () => void;
 };
 
@@ -315,8 +339,10 @@ function ScheduleCard({
   schedule,
   template,
   hints,
+  suggestion,
   logs,
   onToggle,
+  onApplySuggestion,
   onEdit,
 }: ScheduleCardProps) {
   const accent = useThemeColor("accent");
@@ -362,6 +388,27 @@ function ScheduleCard({
           {hints.map((hint) => (
             <HintRow key={hint.id} hint={hint} />
           ))}
+        </View>
+      ) : null}
+
+      {suggestion ? (
+        <View className="gap-2 rounded-2xl border border-accent/30 bg-accent-soft/50 p-3">
+          <View className="flex-row items-start gap-2">
+            <Ionicons name="sparkles" size={14} color={accent} />
+            <Text className="flex-1 text-foreground text-xs leading-4">
+              You usually do this about every {suggestion.suggestedInterval} day
+              {suggestion.suggestedInterval === 1 ? "" : "s"}, not every{" "}
+              {suggestion.currentInterval}. Match your routine?
+            </Text>
+          </View>
+          <Button
+            size="sm"
+            onPress={() => onApplySuggestion(suggestion.suggestedInterval)}
+          >
+            <Button.Label>
+              Adjust to every {suggestion.suggestedInterval} days
+            </Button.Label>
+          </Button>
         </View>
       ) : null}
 

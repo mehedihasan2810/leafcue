@@ -49,11 +49,11 @@ export function BackupSettingsScreen() {
       const outcome = await exportBackup(db);
       setStatus({ kind: "exported", outcome });
     } catch (err) {
-      setStatus({
-        kind: "error",
-        message:
-          err instanceof Error ? err.message : "Could not export backup.",
-      });
+      let message = "Could not export backup.";
+      if (err instanceof Error && !err.message.startsWith("[{")) {
+        message = err.message;
+      }
+      setStatus({ kind: "error", message });
     }
   };
 

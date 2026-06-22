@@ -202,6 +202,9 @@ export function insertBackupTables(
         potType: row.potType ?? null,
         potSize: row.potSize ?? null,
         hasDrainage: row.hasDrainage ?? null,
+        directSunHours: row.directSunHours ?? null,
+        windowDistanceCm: row.windowDistanceCm ?? null,
+        windowOrientation: row.windowOrientation ?? null,
         isFavorite: row.isFavorite ?? false,
       })
       .returning({ id: plants.id })

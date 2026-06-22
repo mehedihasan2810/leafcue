@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
 import { Button, PressableFeedback, useThemeColor } from "heroui-native";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Alert, FlatList, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -15,10 +15,7 @@ import {
   getGrowthMeasurements,
   getPlantById,
 } from "@/lib/db/repositories";
-import {
-  growthMeasurements as growthMeasurementsTable,
-  plants as plantsTable,
-} from "@/lib/db/schema";
+import { plants as plantsTable } from "@/lib/db/schema";
 import type { GrowthMeasurement } from "@/lib/db/types";
 
 import { GrowthProgressCard } from "@/screens/plants/growth/_components/growth-progress-card";
@@ -36,21 +33,20 @@ export function PlantGrowthScreen({ plantId }: PlantGrowthScreenProps) {
   const danger = useThemeColor("danger");
   const db = useDatabase();
   const [open, setOpen] = useState(false);
+  const [measurements, setMeasurements] = useState<GrowthMeasurement[]>(() =>
+    getGrowthMeasurements(db, plantId),
+  );
 
   const livePlants = useLiveQuery(db.select().from(plantsTable));
-  const liveMeasurements = useLiveQuery(
-    db.select().from(growthMeasurementsTable),
-  );
 
   const plant = useMemo(() => {
     void livePlants.data;
     return getPlantById(db, plantId);
   }, [db, plantId, livePlants.data]);
 
-  const measurements = useMemo(() => {
-    void liveMeasurements.data;
-    return getGrowthMeasurements(db, plantId);
-  }, [db, plantId, liveMeasurements.data]);
+  const reloadMeasurements = useCallback(() => {
+    setMeasurements(getGrowthMeasurements(db, plantId));
+  }, [db, plantId]);
 
   const handleSubmit = async (input: {
     heightCm: number | null;
@@ -64,6 +60,7 @@ export function PlantGrowthScreen({ plantId }: PlantGrowthScreenProps) {
         plantId,
         ...input,
       });
+      reloadMeasurements();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not save measurement";
@@ -77,7 +74,10 @@ export function PlantGrowthScreen({ plantId }: PlantGrowthScreenProps) {
       {
         text: "Delete",
         style: "destructive",
-        onPress: () => deleteGrowthMeasurement(db, measurement.id),
+        onPress: () => {
+          deleteGrowthMeasurement(db, measurement.id);
+          reloadMeasurements();
+        },
       },
     ]);
   };

@@ -159,17 +159,6 @@ function HeroHeader() {
   const accent = useThemeColor("accent");
   return (
     <View className="gap-4">
-      <View className="flex-row gap-2">
-        <View className="size-12 items-center justify-center rounded-2xl bg-accent-soft">
-          <Ionicons name="leaf-outline" size={22} color={accent} />
-        </View>
-        <View className="size-12 items-center justify-center rounded-2xl bg-accent-soft">
-          <Ionicons name="sparkles-outline" size={22} color={accent} />
-        </View>
-        <View className="size-12 items-center justify-center rounded-2xl bg-accent-soft">
-          <Ionicons name="calendar-outline" size={22} color={accent} />
-        </View>
-      </View>
       <View className="gap-2">
         <Text className="font-display text-4xl text-foreground leading-tight">
           Grow without limits
@@ -358,7 +347,7 @@ function PaywallContent({ reason }: { reason?: string }) {
     selectedPackage?.identifier === annualPackage?.identifier;
   const ctaLabel = isAnnualSelected
     ? "Continue with Yearly"
-    : "Upgrade to Plus";
+    : "Continue with Monthly";
 
   const footer = (
     <View className="gap-3">

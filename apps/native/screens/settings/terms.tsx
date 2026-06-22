@@ -1,9 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useThemeColor } from "heroui-native";
+import { PressableFeedback, useThemeColor } from "heroui-native";
 import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
+import { LINKS, openExternal } from "@/lib/links";
 import { SettingsHeader } from "@/screens/settings/settings-header";
 
 const POINTS: ReadonlyArray<{
@@ -80,6 +81,21 @@ export function TermsScreen() {
               </View>
             ))}
           </View>
+
+          <PressableFeedback
+            onPress={() => openExternal(LINKS.terms)}
+            className="mt-1 flex-row items-center justify-between rounded-3xl border border-border/40 bg-surface p-4 active:opacity-70"
+          >
+            <View className="flex-1 gap-1 pr-3">
+              <Text className="font-medium text-foreground text-sm">
+                Read the full Terms of Service
+              </Text>
+              <Text className="text-muted text-xs">
+                Opens leafcue.galaxyway.ai/terms in your browser.
+              </Text>
+            </View>
+            <Ionicons name="open-outline" size={18} color={accent} />
+          </PressableFeedback>
         </View>
       </Container>
     </View>

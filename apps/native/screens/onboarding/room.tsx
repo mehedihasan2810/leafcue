@@ -13,7 +13,6 @@ import { Text, View } from "react-native";
 import { useDatabase } from "@/lib/db";
 import { createRoom, deleteRoom } from "@/lib/db/repositories";
 import { rooms } from "@/lib/db/schema";
-import { OnboardingIllustration } from "@/screens/onboarding/_components/onboarding-illustration";
 import { OnboardingShell } from "@/screens/onboarding/_components/onboarding-shell";
 
 export function OnboardingRoomScreen() {
@@ -45,11 +44,10 @@ export function OnboardingRoomScreen() {
       step={4}
       title="Where do your plants live?"
       subtitle="Tap to remove rooms you don't need, or add your own. You can edit them later."
-      illustration={<OnboardingIllustration variant="room" />}
       primaryLabel="Looks good"
       primaryIcon="arrow-forward-outline"
       primaryDisabled={!hasRooms}
-      onPressPrimary={() => router.push("/onboarding/finish")}
+      onPressPrimary={() => router.push("/onboarding/add-first-plant")}
       secondaryLabel="Back"
       onPressSecondary={() => router.back()}
     >

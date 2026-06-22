@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useForm } from "@tanstack/react-form";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { router } from "expo-router";
 import {
   Button,
   cn,
@@ -173,11 +174,22 @@ export function RoomsScreen() {
           className="flex-row items-start justify-between"
           style={{ paddingTop: insets.top > 0 ? 0 : 4 }}
         >
-          <View className="gap-1">
-            <Text className="font-display text-2xl text-foreground">Rooms</Text>
-            <Text className="text-muted text-sm">
-              Group plants by room and shelf to keep care routines tidy.
-            </Text>
+          <View className="flex-1 flex-row items-start gap-2">
+            <PressableFeedback
+              onPress={() => router.back()}
+              className="size-10 items-center justify-center rounded-full bg-surface"
+              accessibilityLabel="Back"
+            >
+              <Ionicons name="chevron-back" size={20} color={accent} />
+            </PressableFeedback>
+            <View className="gap-1">
+              <Text className="font-display text-2xl text-foreground">
+                Rooms
+              </Text>
+              <Text className="text-muted text-sm">
+                Group plants by room and shelf to keep care routines tidy.
+              </Text>
+            </View>
           </View>
           <SettingsButton />
         </View>
@@ -199,16 +211,26 @@ export function RoomsScreen() {
         className="flex-row items-start justify-between"
         style={{ paddingTop: insets.top > 0 ? 0 : 4 }}
       >
-        <View className="gap-1">
-          <Text className="font-display text-2xl text-foreground">Rooms</Text>
-          <Text className="text-muted text-sm">
-            {rooms.length} room{rooms.length === 1 ? "" : "s"} ·{" "}
-            {Array.from(plantCounts.values()).reduce((a, b) => a + b, 0)} plant
-            {Array.from(plantCounts.values()).reduce((a, b) => a + b, 0) === 1
-              ? ""
-              : "s"}{" "}
-            assigned
-          </Text>
+        <View className="flex-1 flex-row items-start gap-2">
+          <PressableFeedback
+            onPress={() => router.back()}
+            className="size-10 items-center justify-center rounded-full bg-surface"
+            accessibilityLabel="Back"
+          >
+            <Ionicons name="chevron-back" size={20} color={accent} />
+          </PressableFeedback>
+          <View className="gap-1">
+            <Text className="font-display text-2xl text-foreground">Rooms</Text>
+            <Text className="text-muted text-sm">
+              {rooms.length} room{rooms.length === 1 ? "" : "s"} ·{" "}
+              {Array.from(plantCounts.values()).reduce((a, b) => a + b, 0)}{" "}
+              plant
+              {Array.from(plantCounts.values()).reduce((a, b) => a + b, 0) === 1
+                ? ""
+                : "s"}{" "}
+              assigned
+            </Text>
+          </View>
         </View>
         <SettingsButton />
       </View>

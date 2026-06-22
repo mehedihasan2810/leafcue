@@ -62,7 +62,12 @@ export function StatPill({
           {label}
         </Text>
       </View>
-      <Text className={cn("font-bold text-2xl", toneToText[tone])}>
+      <Text
+        className={cn("font-bold text-2xl", toneToText[tone])}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.6}
+      >
         {value}
       </Text>
     </View>

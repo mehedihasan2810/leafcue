@@ -8,10 +8,11 @@ import { HeroScreen } from "@/components/hero-screen";
 import { useDatabase } from "@/lib/db";
 import { useOnboardingStore } from "@/stores/use-onboarding-store";
 
-export const ONBOARDING_STEPS = 5;
+export const ONBOARDING_STEPS = 8;
 
 type OnboardingShellProps = PropsWithChildren<{
   step: number;
+  totalSteps?: number;
   title: string;
   subtitle?: string;
   illustration?: ReactNode;
@@ -26,6 +27,7 @@ type OnboardingShellProps = PropsWithChildren<{
 
 export function OnboardingShell({
   step,
+  totalSteps = ONBOARDING_STEPS,
   title,
   subtitle,
   illustration,
@@ -42,22 +44,16 @@ export function OnboardingShell({
   const db = useDatabase();
   const completeOnboarding = useOnboardingStore((state) => state.complete);
 
-  const skipLabel = step <= 3 ? "Skip intro" : "Skip setup";
+  const skipLabel = "Skip for now";
 
   const handleSkip = () => {
-    if (step <= 3) {
-      router.replace("/onboarding/room");
-      return;
-    }
-    if (step === 4) {
-      completeOnboarding(db);
-      router.replace("/(tabs)");
-    }
+    completeOnboarding(db);
+    router.replace("/(tabs)");
   };
 
   const eyebrow = (
     <View className="w-full flex-row items-center justify-between">
-      <ProgressDots step={step} totalSteps={ONBOARDING_STEPS} />
+      <ProgressDots step={step} totalSteps={totalSteps} />
       {showSkip ? (
         <PressableFeedback onPress={handleSkip}>
           <Text className="font-medium text-muted text-sm">{skipLabel}</Text>

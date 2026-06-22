@@ -22,6 +22,8 @@
       "!**/.nuxt",
       "!bts.jsonc",
       "!**/.expo",
+      "!**/expo-env.d.ts",
+      "!**/drizzle",
       "!**/Pods",
       "!**/ios/build",
       "!**/android/build",
@@ -39,7 +41,8 @@
       "!**/.factory/skills",
       "!**/.windsurf/skills",
       "!**/.trae/skills",
-      "!packages/ui/src/components"
+      "!packages/ui/src/components",
+      "!store-assets"
     ]
   },
   "formatter": {

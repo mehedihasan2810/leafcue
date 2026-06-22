@@ -2,6 +2,7 @@ import { Alert } from "react-native";
 
 import type { LeafCueDatabase } from "@/lib/db";
 import {
+  applyAdaptiveInterval,
   type CompleteTaskInput,
   completeTask,
   createSchedule,
@@ -202,5 +203,18 @@ export async function performToggleEnabled(
     await resyncScheduleById(db, scheduleId);
   } catch (error) {
     reportError(nextEnabled ? "enable" : "disable", error);
+  }
+}
+
+export async function performApplyAdaptiveInterval(
+  db: LeafCueDatabase,
+  scheduleId: number,
+  intervalDays: number,
+): Promise<void> {
+  try {
+    applyAdaptiveInterval(db, scheduleId, intervalDays);
+    await resyncScheduleById(db, scheduleId);
+  } catch (error) {
+    reportError("update schedule", error);
   }
 }

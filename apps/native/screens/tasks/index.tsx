@@ -86,7 +86,18 @@ export function TasksScreen() {
       >
         <View className="gap-4">
           <View className="flex-row items-center justify-between">
-            <Text className="font-display text-2xl text-foreground">Tasks</Text>
+            <View className="flex-row items-center gap-2">
+              <PressableFeedback
+                onPress={() => router.back()}
+                className="size-10 items-center justify-center rounded-full bg-surface"
+                accessibilityLabel="Back"
+              >
+                <Ionicons name="chevron-back" size={20} color={accent} />
+              </PressableFeedback>
+              <Text className="font-display text-2xl text-foreground">
+                Tasks
+              </Text>
+            </View>
             <View className="flex-row items-center gap-2">
               <PressableFeedback
                 onPress={handleOpenReminders}
