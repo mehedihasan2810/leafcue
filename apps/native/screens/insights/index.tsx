@@ -72,11 +72,43 @@ export function InsightsScreen() {
 
   if (summary.totalPlants === 0) {
     return (
+      <View className="flex-1 bg-background">
+        <Container
+          isScrollable
+          scrollViewProps={{
+            contentContainerStyle: {
+              paddingTop: insets.top + 4,
+              paddingHorizontal: 16,
+              paddingBottom: insets.bottom + 96,
+            },
+          }}
+        >
+          <View className="gap-4">
+            <Header />
+            <EmptyState
+              icon="bar-chart-outline"
+              title="Insights show up here"
+              description="Add plants and start logging care to see streaks, consistency, and what needs attention."
+              ctaLabel="Add a plant"
+              onPressCta={() =>
+                requestActivePlantSlot({
+                  onAllow: () => router.push("/plants/new"),
+                })
+              }
+            />
+          </View>
+        </Container>
+      </View>
+    );
+  }
+
+  return (
+    <View className="flex-1 bg-background">
       <Container
         isScrollable
         scrollViewProps={{
           contentContainerStyle: {
-            paddingTop: insets.top + 4,
+            paddingTop: insets.top,
             paddingHorizontal: 16,
             paddingBottom: insets.bottom + 96,
           },
@@ -84,129 +116,101 @@ export function InsightsScreen() {
       >
         <View className="gap-4">
           <Header />
-          <EmptyState
-            icon="bar-chart-outline"
-            title="Insights show up here"
-            description="Add plants and start logging care to see streaks, consistency, and what needs attention."
-            ctaLabel="Add a plant"
-            onPressCta={() =>
-              requestActivePlantSlot({
-                onAllow: () => router.push("/plants/new"),
-              })
-            }
-          />
+          <StreakCard days={summary.careStreakDays} />
+          <ConsistencyCard consistency={summary.wateringConsistency} />
+
+          {summary.mostCaredForPlants.length > 0 ? (
+            <InsightsCard
+              title="Most cared-for"
+              description="Top plants by logged care actions in the last 90 days."
+            >
+              {summary.mostCaredForPlants.map((row) => (
+                <PlantRow
+                  key={`mostcared-${row.plant.id}`}
+                  plant={row.plant}
+                  caption="Care actions"
+                  trailingValue={String(row.count)}
+                  onPress={() => goToPlant(row.plant.id)}
+                />
+              ))}
+            </InsightsCard>
+          ) : null}
+
+          {summary.mostOverdueRightNow.length > 0 ? (
+            <InsightsCard
+              title="Most overdue right now"
+              description="Plants with multiple overdue cues."
+            >
+              {summary.mostOverdueRightNow.map((row) => (
+                <PlantRow
+                  key={`overdue-${row.plant.id}`}
+                  plant={row.plant}
+                  caption="Overdue tasks"
+                  trailingValue={String(row.count)}
+                  onPress={() => goToPlant(row.plant.id)}
+                />
+              ))}
+            </InsightsCard>
+          ) : null}
+
+          {summary.recentGrowthMilestones.length > 0 ? (
+            <InsightsCard
+              title="Recent growth milestones"
+              description="Notes and measurements from the last 30 days."
+            >
+              {summary.recentGrowthMilestones.map((row) => (
+                <PlantRow
+                  key={`growth-${row.measurement.id}`}
+                  plant={row.plant}
+                  caption={
+                    row.measurement.notes
+                      ? row.measurement.notes
+                      : row.measurement.heightCm !== null
+                        ? `${row.measurement.heightCm} cm`
+                        : "New measurement"
+                  }
+                  trailingValue={format(row.measurement.measuredAt, "MMM d")}
+                  onPress={() => goToGrowth(row.plant.id)}
+                />
+              ))}
+            </InsightsCard>
+          ) : null}
+
+          {summary.plantsWithActiveIssues.length > 0 ? (
+            <InsightsCard
+              title="Active health issues"
+              description="Open observations across your plants."
+            >
+              {summary.plantsWithActiveIssues.map((row) => (
+                <PlantRow
+                  key={`issue-${row.observation.id}`}
+                  plant={row.plant}
+                  caption={getHealthIssueLabel(row.observation.issueType)}
+                  trailingValue={row.observation.severity}
+                  onPress={() => goToHealth(row.plant.id)}
+                />
+              ))}
+            </InsightsCard>
+          ) : null}
+
+          {summary.recentlyNeglectedPlants.length > 0 ? (
+            <InsightsCard
+              title="Could use attention"
+              description="No care actions logged in the last 14 days."
+            >
+              {summary.recentlyNeglectedPlants.map((plant) => (
+                <PlantRow
+                  key={`neglected-${plant.id}`}
+                  plant={plant}
+                  caption="Hasn't been logged recently"
+                  onPress={() => goToPlant(plant.id)}
+                />
+              ))}
+            </InsightsCard>
+          ) : null}
         </View>
       </Container>
-    );
-  }
-
-  return (
-    <Container
-      isScrollable
-      scrollViewProps={{
-        contentContainerStyle: {
-          paddingTop: insets.top + 4,
-          paddingHorizontal: 16,
-          paddingBottom: insets.bottom + 96,
-        },
-      }}
-    >
-      <View className="gap-4">
-        <Header />
-        <StreakCard days={summary.careStreakDays} />
-        <ConsistencyCard consistency={summary.wateringConsistency} />
-
-        {summary.mostCaredForPlants.length > 0 ? (
-          <InsightsCard
-            title="Most cared-for"
-            description="Top plants by logged care actions in the last 90 days."
-          >
-            {summary.mostCaredForPlants.map((row) => (
-              <PlantRow
-                key={`mostcared-${row.plant.id}`}
-                plant={row.plant}
-                caption="Care actions"
-                trailingValue={String(row.count)}
-                onPress={() => goToPlant(row.plant.id)}
-              />
-            ))}
-          </InsightsCard>
-        ) : null}
-
-        {summary.mostOverdueRightNow.length > 0 ? (
-          <InsightsCard
-            title="Most overdue right now"
-            description="Plants with multiple overdue cues."
-          >
-            {summary.mostOverdueRightNow.map((row) => (
-              <PlantRow
-                key={`overdue-${row.plant.id}`}
-                plant={row.plant}
-                caption="Overdue tasks"
-                trailingValue={String(row.count)}
-                onPress={() => goToPlant(row.plant.id)}
-              />
-            ))}
-          </InsightsCard>
-        ) : null}
-
-        {summary.recentGrowthMilestones.length > 0 ? (
-          <InsightsCard
-            title="Recent growth milestones"
-            description="Notes and measurements from the last 30 days."
-          >
-            {summary.recentGrowthMilestones.map((row) => (
-              <PlantRow
-                key={`growth-${row.measurement.id}`}
-                plant={row.plant}
-                caption={
-                  row.measurement.notes
-                    ? row.measurement.notes
-                    : row.measurement.heightCm !== null
-                      ? `${row.measurement.heightCm} cm`
-                      : "New measurement"
-                }
-                trailingValue={format(row.measurement.measuredAt, "MMM d")}
-                onPress={() => goToGrowth(row.plant.id)}
-              />
-            ))}
-          </InsightsCard>
-        ) : null}
-
-        {summary.plantsWithActiveIssues.length > 0 ? (
-          <InsightsCard
-            title="Active health issues"
-            description="Open observations across your plants."
-          >
-            {summary.plantsWithActiveIssues.map((row) => (
-              <PlantRow
-                key={`issue-${row.observation.id}`}
-                plant={row.plant}
-                caption={getHealthIssueLabel(row.observation.issueType)}
-                trailingValue={row.observation.severity}
-                onPress={() => goToHealth(row.plant.id)}
-              />
-            ))}
-          </InsightsCard>
-        ) : null}
-
-        {summary.recentlyNeglectedPlants.length > 0 ? (
-          <InsightsCard
-            title="Could use attention"
-            description="No care actions logged in the last 14 days."
-          >
-            {summary.recentlyNeglectedPlants.map((plant) => (
-              <PlantRow
-                key={`neglected-${plant.id}`}
-                plant={plant}
-                caption="Hasn't been logged recently"
-                onPress={() => goToPlant(plant.id)}
-              />
-            ))}
-          </InsightsCard>
-        ) : null}
-      </View>
-    </Container>
+    </View>
   );
 }
 

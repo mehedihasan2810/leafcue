@@ -115,7 +115,7 @@ export function TodayScreen() {
         isScrollable
         scrollViewProps={{
           contentContainerStyle: {
-            paddingTop: insets.top + 4,
+            paddingTop: insets.top ,
             paddingHorizontal: 16,
             paddingBottom: insets.bottom + 96,
           },
@@ -145,7 +145,7 @@ export function TodayScreen() {
         isScrollable
         scrollViewProps={{
           contentContainerStyle: {
-            paddingTop: insets.top + 4,
+            paddingTop: insets.top ,
             paddingHorizontal: 16,
             paddingBottom: insets.bottom + 96,
           },

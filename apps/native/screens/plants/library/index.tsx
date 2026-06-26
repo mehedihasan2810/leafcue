@@ -201,7 +201,7 @@ export function PlantLibraryScreen() {
     return (
       <View
         className="flex-1 bg-background"
-        style={{ paddingTop: insets.top + 4, paddingHorizontal: 16 }}
+        style={{ paddingTop: insets.top, paddingHorizontal: 16 }}
       >
         <EmptyState
           icon="leaf-outline"
@@ -222,10 +222,10 @@ export function PlantLibraryScreen() {
         keyExtractor={(plant) => `plant-${plant.id}`}
         numColumns={viewMode === "grid" ? 2 : 1}
         columnWrapperStyle={
-          viewMode === "grid" ? { gap: 12, paddingHorizontal: 24 } : undefined
+          viewMode === "grid" ? { gap: 12, paddingHorizontal: 16 } : undefined
         }
         contentContainerStyle={{
-          paddingTop: insets.top + 4,
+          paddingTop: insets.top,
           paddingBottom: insets.bottom + 96,
           gap: 12,
         }}
