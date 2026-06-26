@@ -13,7 +13,7 @@ export function OnboardingWelcomeScreen() {
       step={1}
       title="Welcome to LeafCue"
       subtitle="A calm, private place to keep your plants thriving — no accounts, no clouds, just gentle reminders."
-      illustration={<OnboardingIllustration variant="welcome" />}
+      illustration={<OnboardingIllustration />}
       primaryLabel="Get started"
       primaryIcon="arrow-forward-outline"
       onPressPrimary={() => router.push("/onboarding/privacy")}
