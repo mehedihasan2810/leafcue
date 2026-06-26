@@ -34,11 +34,21 @@ function seedCareTaskTemplates(db: LeafCueDbOrTx): number {
   return builtInCareTaskTemplates.length;
 }
 
-function seedPlantPresets(db: LeafCueDbOrTx): number {
-  if (!tableIsEmpty(db, plantPresets)) return 0;
+function presetCount(db: LeafCueDbOrTx): number {
+  const row = db
+    .select({ count: sql<number>`count(*)` })
+    .from(plantPresets)
+    .get();
+  return row?.count ?? 0;
+}
 
+function seedPlantPresets(db: LeafCueDbOrTx): number {
+  const before = presetCount(db);
   const now = new Date();
 
+  // Upsert the curated library on every launch so existing installs pick up
+  // presets added in newer versions. Conflicts on (common name, scientific
+  // name) are skipped, so this stays idempotent and cheap.
   db.insert(plantPresets)
     .values(
       builtInPlantPresets.map((preset) => ({
@@ -56,9 +66,10 @@ function seedPlantPresets(db: LeafCueDbOrTx): number {
         createdAt: now,
       })),
     )
+    .onConflictDoNothing()
     .run();
 
-  return builtInPlantPresets.length;
+  return presetCount(db) - before;
 }
 
 export function seedDefaultRoomsIfEmpty(db: LeafCueDbOrTx): number {
