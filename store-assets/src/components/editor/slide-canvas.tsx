@@ -18,6 +18,8 @@ import type {
   Device,
   ElementId,
   ElementTransform,
+  FeatureBadgeGroup,
+  FeatureBadgeIcon,
   Orientation,
   SelectedElement,
   Slide,
@@ -359,6 +361,184 @@ function Blob({
         pointerEvents: "none",
       }}
     />
+  );
+}
+
+// ---------- Feature badges (floating privacy/value pills) ----------
+
+function withAlpha(hex: string, alpha: number) {
+  const c = hex.replace("#", "");
+  const full =
+    c.length === 3
+      ? c
+          .split("")
+          .map((x) => x + x)
+          .join("")
+      : c;
+  const num = Number.parseInt(full, 16);
+  const r = (num >> 16) & 0xff;
+  const g = (num >> 8) & 0xff;
+  const b = num & 0xff;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// Stroke-path geometry per icon (lucide-derived). Rendered as inline SVG so the
+// html-to-image exporter rasterizes them identically to the live preview.
+const BADGE_ICON_PATHS: Record<FeatureBadgeIcon, string[]> = {
+  shield: [
+    "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.7a1 1 0 0 1 1.3 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z",
+    "m9 12 2 2 4-4",
+  ],
+  "user-off": [
+    "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2",
+    "M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z",
+    "M17 8l5 5",
+    "M22 8l-5 5",
+  ],
+  "wifi-off": [
+    "M12 20h.01",
+    "M8.5 16.4a5 5 0 0 1 7 0",
+    "M5 12.9a10 10 0 0 1 5.2-2.7",
+    "M19 12.9a10 10 0 0 0-2-1.5",
+    "M2 8.8a15 15 0 0 1 4.2-2.6",
+    "M22 8.8a15 15 0 0 0-11.3-3.8",
+    "m2 2 20 20",
+  ],
+  smartphone: ["M5 4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z", "M12 18h.01"],
+  "eye-off": [
+    "M10.7 5.1A10.7 10.7 0 0 1 22 11.7a1 1 0 0 1 0 .7 10.7 10.7 0 0 1-1.4 2.5",
+    "M14.1 14.2a3 3 0 0 1-4.3-4.3",
+    "M17.5 17.5A10.8 10.8 0 0 1 2 12.3a1 1 0 0 1 0-.7 10.8 10.8 0 0 1 4.4-5.1",
+    "m2 2 20 20",
+  ],
+  ban: ["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z", "m4.9 4.9 14.2 14.2"],
+  leaf: [
+    "M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8a10 10 0 0 1-10 10z",
+    "M2 21c0-3 1.9-6.4 5-9",
+  ],
+};
+
+function BadgeIcon({ icon, size }: { icon: FeatureBadgeIcon; size: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ flexShrink: 0 }}
+      aria-hidden
+    >
+      {BADGE_ICON_PATHS[icon].map((d) => (
+        <path key={d} d={d} />
+      ))}
+    </svg>
+  );
+}
+
+function BadgeCluster({
+  group,
+  cW,
+  cH,
+  theme,
+  locale,
+  inverted,
+  screenX,
+}: {
+  group: FeatureBadgeGroup;
+  cW: number;
+  cH: number;
+  theme: Theme;
+  locale: string;
+  inverted?: boolean;
+  screenX: number;
+}) {
+  const unit = Math.min(cW, cH);
+  const anchorY = group.anchorY ?? 0.3;
+  const maxWidth = (group.maxWidthFrac ?? 0.9) * cW;
+  const column = group.direction === "column";
+
+  const fg = inverted ? theme.fgAlt : theme.fg;
+  const pillBg = inverted ? "rgba(255,255,255,0.13)" : "rgba(255,255,255,0.9)";
+  const pillBorder = inverted
+    ? "rgba(255,255,255,0.3)"
+    : withAlpha(theme.accent, 0.22);
+  const shadow = inverted
+    ? `0 ${unit * 0.012}px ${unit * 0.032}px rgba(0,0,0,0.35)`
+    : `0 ${unit * 0.012}px ${unit * 0.03}px ${withAlpha(theme.fg, 0.14)}`;
+  const iconColor = theme.accent;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: screenX,
+        top: 0,
+        width: cW,
+        height: cH,
+        pointerEvents: "none",
+        zIndex: 6,
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: anchorY * cH,
+          left: 0,
+          width: cW,
+          transform: "translateY(-50%)",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: column ? "column" : "row",
+            flexWrap: column ? "nowrap" : "wrap",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: unit * 0.018,
+            maxWidth,
+          }}
+        >
+          {group.badges.map((badge) => (
+            <div
+              key={badge.icon + pickText(badge.text, locale)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: unit * 0.014,
+                background: pillBg,
+                border: `${Math.max(1, unit * 0.0014)}px solid ${pillBorder}`,
+                borderRadius: 999,
+                padding: `${unit * 0.016}px ${unit * 0.026}px`,
+                boxShadow: shadow,
+                color: fg,
+                whiteSpace: "nowrap",
+              }}
+            >
+              <span style={{ color: iconColor, display: "inline-flex" }}>
+                <BadgeIcon icon={badge.icon} size={unit * 0.036} />
+              </span>
+              <span
+                style={{
+                  fontSize: unit * 0.0265,
+                  fontWeight: 600,
+                  letterSpacing: -unit * 0.0002,
+                  lineHeight: 1,
+                }}
+              >
+                {pickText(badge.text, locale)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -1285,6 +1465,17 @@ function SlideElements({
       {deviceRect && renderDevice("device", deviceRect, screenshot)}
       {renderCaption()}
       {(slide.textElements || []).map(renderTextElement)}
+      {slide.featureBadges && slide.featureBadges.badges.length > 0 && (
+        <BadgeCluster
+          group={slide.featureBadges}
+          cW={cW}
+          cH={cH}
+          theme={theme}
+          locale={locale}
+          inverted={inverted}
+          screenX={screenX}
+        />
+      )}
     </>
   );
 }

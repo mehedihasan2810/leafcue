@@ -55,6 +55,33 @@ export type TextElement = {
   align?: "left" | "center" | "right";
 };
 
+// Small inline icons available to feature badges. Mapped to vector paths in
+// the renderer (slide-canvas.tsx) so they export cleanly via html-to-image.
+export type FeatureBadgeIcon =
+  | "shield"
+  | "user-off"
+  | "wifi-off"
+  | "smartphone"
+  | "eye-off"
+  | "ban"
+  | "leaf";
+
+// A single frosted "feature pill" — an icon plus a short, localized claim.
+export type FeatureBadge = {
+  icon: FeatureBadgeIcon;
+  text: LocalizedText;
+};
+
+// A floating cluster of feature pills, overlaid on a slide as decorative
+// marketing copy (e.g. "100% private", "Works offline"). Purely presentational
+// — not individually selectable in the editor; tune placement via the fields.
+export type FeatureBadgeGroup = {
+  badges: FeatureBadge[];
+  anchorY?: number; // 0..1 vertical center of the cluster (default 0.3)
+  maxWidthFrac?: number; // 0..1 max width before pills wrap (default 0.9)
+  direction?: "row" | "column"; // default "row"
+};
+
 export type Slide = {
   id: string;
   layout: SlideLayout;
@@ -66,6 +93,8 @@ export type Slide = {
   // Per-element overrides; when present, replaces layout default placement.
   transforms?: Partial<Record<BuiltInElementId, ElementTransform>>;
   textElements?: TextElement[];
+  // Decorative floating feature pills (e.g. privacy claims). Render-only.
+  featureBadges?: FeatureBadgeGroup;
 };
 
 export type ThemeId =

@@ -21,7 +21,49 @@
         "headline": {
           "en": "Your plants,\nnever thirsty."
         },
-        "screenshot": "/screenshots/apple/iphone/{locale}/01.png"
+        "screenshot": "/screenshots/apple/iphone/{locale}/01.png",
+        "featureBadges": {
+          "anchorY": 0.305,
+          "maxWidthFrac": 0.92,
+          "badges": [
+            {
+              "icon": "shield",
+              "text": {
+                "en": "100% private"
+              }
+            },
+            {
+              "icon": "user-off",
+              "text": {
+                "en": "No account"
+              }
+            },
+            {
+              "icon": "wifi-off",
+              "text": {
+                "en": "Works offline"
+              }
+            }
+          ]
+        },
+        "transforms": {
+          "caption": {
+            "x": 58.38439034084133,
+            "y": 237.82242714456106,
+            "width": 1055,
+            "height": 487,
+            "rotation": 0,
+            "zIndex": 4
+          },
+          "device": {
+            "x": 113.21040556688,
+            "y": 1030.65131707317,
+            "width": 950.0182132564839,
+            "height": 1935.3599999999997,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
       },
       {
         "id": "lc_02_adapt",
@@ -33,7 +75,31 @@
           "en": "Care that adapts\nto your home."
         },
         "screenshot": "/screenshots/apple/iphone/{locale}/02.png",
-        "inverted": true
+        "inverted": true,
+        "featureBadges": {
+          "anchorY": 0.205,
+          "maxWidthFrac": 0.92,
+          "badges": [
+            {
+              "icon": "smartphone",
+              "text": {
+                "en": "Data stays on device"
+              }
+            },
+            {
+              "icon": "eye-off",
+              "text": {
+                "en": "No tracking"
+              }
+            },
+            {
+              "icon": "ban",
+              "text": {
+                "en": "No ads"
+              }
+            }
+          ]
+        }
       },
       {
         "id": "lc_03_collection",
