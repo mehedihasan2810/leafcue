@@ -1,9 +1,8 @@
 /**
  * Single source of truth for LeafCue marketing-site constants.
  *
- * STORE LINKS: the App Store URL is a PLACEHOLDER until the listing is live —
- * swap `APP_STORE_URL` for the real `https://apps.apple.com/app/idXXXXXXXXX` link.
- * The Play Store URL uses the real package id and should resolve once published.
+ * STORE LINKS: both listings are live — the App Store link uses the published
+ * app id (6778321045) and the Play Store link uses the real package id.
  */
 
 export const SITE = {
@@ -14,9 +13,9 @@ export const SITE = {
   url: "https://leafcue.galaxyway.ai",
   company: "GALAXYWAY AI LTD",
   contactEmail: "info@galaxyway.ai",
-  // App Store listing not yet published — clearly-marked placeholder.
-  appStoreUrl: "https://apps.apple.com/app/leafcue/id0000000000",
-  // Real package id; resolves once the Play listing is live.
+  // Live App Store listing.
+  appStoreUrl: "https://apps.apple.com/app/leafcue/id6778321045",
+  // Live Play Store listing.
   playStoreUrl:
     "https://play.google.com/store/apps/details?id=com.galaxywayai.leafcue",
 } as const;
