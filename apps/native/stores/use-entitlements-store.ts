@@ -5,20 +5,15 @@
  * only mirrors a UI snapshot of the latest CustomerInfo/offerings so screens can
  * render synchronously. There is no persistent local `isPro` flag.
  */
-import type {
-  CustomerInfo,
-  PurchasesOffering,
-  PurchasesOfferings,
-  PurchasesPackage,
+import {
+  type CustomerInfo,
+  PACKAGE_TYPE,
+  type PurchasesOffering,
+  type PurchasesOfferings,
+  type PurchasesPackage,
 } from "react-native-purchases";
 import { create } from "zustand";
 
-import {
-  ANNUAL_PACKAGE_ID,
-  ANNUAL_PRODUCT_ID,
-  MONTHLY_PACKAGE_ID,
-  MONTHLY_PRODUCT_ID,
-} from "@/lib/billing/constants";
 import {
   configureRevenueCatIfPossible,
   getRevenueCatConfigurationStatus,
@@ -43,8 +38,12 @@ type EntitlementsState = {
   customerInfo: CustomerInfo | null;
   offerings: PurchasesOfferings | null;
   currentOffering: PurchasesOffering | null;
-  monthlyPackage: PurchasesPackage | null;
-  annualPackage: PurchasesPackage | null;
+  /**
+   * Every package in the current offering, in display order. The paywall
+   * renders whatever is here — durations, intro offers, and free trials all
+   * flow straight from RevenueCat without code changes.
+   */
+  availablePackages: PurchasesPackage[];
   selectedPackageIdentifier: string | null;
   customerInfoCheckedAt: number | null;
   offeringsCheckedAt: number | null;
@@ -58,21 +57,31 @@ type EntitlementsState = {
   applyCustomerInfo: (customerInfo: CustomerInfo) => void;
 };
 
-/** Find a package by RevenueCat predefined id, falling back to the product id. */
-function findPackage(
-  offering: PurchasesOffering | null,
-  packageId: string,
-  productId: string,
-): PurchasesPackage | null {
-  if (!offering) return null;
-  const byPackageId = offering.availablePackages.find(
-    (pkg) => pkg.identifier === packageId,
+/** Display rank: lifetime and longer commitments first, weekly last. */
+const PACKAGE_SORT_RANK: Record<PACKAGE_TYPE, number> = {
+  [PACKAGE_TYPE.LIFETIME]: 0,
+  [PACKAGE_TYPE.ANNUAL]: 1,
+  [PACKAGE_TYPE.SIX_MONTH]: 2,
+  [PACKAGE_TYPE.THREE_MONTH]: 3,
+  [PACKAGE_TYPE.TWO_MONTH]: 4,
+  [PACKAGE_TYPE.MONTHLY]: 5,
+  [PACKAGE_TYPE.WEEKLY]: 6,
+  [PACKAGE_TYPE.CUSTOM]: 7,
+  [PACKAGE_TYPE.UNKNOWN]: 8,
+};
+
+/**
+ * Order packages for display. Whatever durations the offering contains render
+ * in this order, so adding or removing a plan in RevenueCat needs no code
+ * change.
+ */
+function sortPackages(
+  packages: readonly PurchasesPackage[],
+): PurchasesPackage[] {
+  return [...packages].sort(
+    (a, b) =>
+      PACKAGE_SORT_RANK[a.packageType] - PACKAGE_SORT_RANK[b.packageType],
   );
-  if (byPackageId) return byPackageId;
-  const byProductId = offering.availablePackages.find(
-    (pkg) => pkg.product.identifier === productId,
-  );
-  return byProductId ?? null;
 }
 
 function errorMessage(error: unknown): string {
@@ -85,8 +94,7 @@ export const useEntitlementsStore = create<EntitlementsState>()((set, get) => ({
   customerInfo: null,
   offerings: null,
   currentOffering: null,
-  monthlyPackage: null,
-  annualPackage: null,
+  availablePackages: [],
   selectedPackageIdentifier: null,
   customerInfoCheckedAt: null,
   offeringsCheckedAt: null,
@@ -142,30 +150,29 @@ export const useEntitlementsStore = create<EntitlementsState>()((set, get) => ({
       if (!offerings) return null;
 
       const currentOffering = offerings.current;
-      const annualPackage = findPackage(
-        currentOffering,
-        ANNUAL_PACKAGE_ID,
-        ANNUAL_PRODUCT_ID,
-      );
-      const monthlyPackage = findPackage(
-        currentOffering,
-        MONTHLY_PACKAGE_ID,
-        MONTHLY_PRODUCT_ID,
+      const availablePackages = sortPackages(
+        currentOffering?.availablePackages ?? [],
       );
 
-      // Prefer annual as the default selection when available.
+      // Keep the user's prior choice if it still exists; otherwise default to
+      // the annual plan, then fall back to the first available package.
       const previousSelection = get().selectedPackageIdentifier;
-      const selectedPackageIdentifier =
-        previousSelection ??
-        annualPackage?.identifier ??
-        monthlyPackage?.identifier ??
-        null;
+      const previousStillAvailable =
+        previousSelection != null &&
+        availablePackages.some((pkg) => pkg.identifier === previousSelection);
+      const annualPackage = availablePackages.find(
+        (pkg) => pkg.packageType === PACKAGE_TYPE.ANNUAL,
+      );
+      const selectedPackageIdentifier = previousStillAvailable
+        ? previousSelection
+        : (annualPackage?.identifier ??
+          availablePackages[0]?.identifier ??
+          null);
 
       set({
         offerings,
         currentOffering,
-        annualPackage,
-        monthlyPackage,
+        availablePackages,
         selectedPackageIdentifier,
         offeringsCheckedAt: Date.now(),
       });
@@ -212,7 +219,7 @@ export const useEntitlementsStore = create<EntitlementsState>()((set, get) => ({
 
 /** Derived: do we have a usable offering with at least one package to show? */
 export function selectHasUsableOffering(state: EntitlementsState): boolean {
-  return state.monthlyPackage !== null || state.annualPackage !== null;
+  return state.availablePackages.length > 0;
 }
 
 /** Derived: is billing reachable enough to present a working paywall? */

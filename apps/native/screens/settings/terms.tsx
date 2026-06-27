@@ -4,6 +4,7 @@ import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Container } from "@/components/container";
+import { FREE_ACTIVE_PLANT_LIMIT } from "@/lib/billing/constants";
 import { LINKS, openExternal } from "@/lib/links";
 import { SettingsHeader } from "@/screens/settings/settings-header";
 
@@ -15,17 +16,17 @@ const POINTS: ReadonlyArray<{
   {
     icon: "leaf-outline",
     title: "LeafCue is free to use",
-    body: "Core plant care — adding up to 20 active plants, unlimited archived plants, care tasks, schedules, reminders, logging, journal, photos, health, growth, rooms, and shelves — is free, with no account and no ads.",
+    body: `Core plant care — adding up to ${FREE_ACTIVE_PLANT_LIMIT} active plants, unlimited archived plants, care tasks, schedules, reminders, logging, journal, photos, health, growth, rooms, and shelves — is free, with no account and no ads.`,
   },
   {
     icon: "sparkles-outline",
     title: "LeafCue Plus is optional",
-    body: "LeafCue Plus is an optional auto-renewing subscription that unlocks unlimited active plants and future power-user features. You can use LeafCue without it.",
+    body: "LeafCue Plus unlocks unlimited active plants and future power-user features. Choose an optional auto-renewing monthly or yearly subscription, or a one-time Lifetime purchase. You can use LeafCue without it.",
   },
   {
     icon: "card-outline",
     title: "Billing and renewal",
-    body: "Subscriptions are billed through your App Store or Google Play account and renew automatically unless canceled at least 24 hours before the end of the current period. Manage or cancel anytime in your store account settings.",
+    body: "Subscriptions are billed through your App Store or Google Play account and renew automatically unless canceled at least 24 hours before the end of the current period. The Lifetime option is a single one-time charge with nothing to renew. Manage or cancel anytime in your store account settings.",
   },
   {
     icon: "phone-portrait-outline",

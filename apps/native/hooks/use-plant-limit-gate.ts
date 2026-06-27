@@ -2,7 +2,10 @@ import { router } from "expo-router";
 import { useCallback } from "react";
 import { Alert } from "react-native";
 
-import type { PaywallReason } from "@/lib/billing/constants";
+import {
+  FREE_ACTIVE_PLANT_LIMIT,
+  type PaywallReason,
+} from "@/lib/billing/constants";
 import {
   evaluatePlantLimit,
   isAtOrAboveFreeLimit,
@@ -14,8 +17,7 @@ import {
   useEntitlementsStore,
 } from "@/stores/use-entitlements-store";
 
-const OFFLINE_DIALOG_TITLE =
-  "You've reached the free limit of 20 active plants.";
+const OFFLINE_DIALOG_TITLE = `You've reached the free limit of ${FREE_ACTIVE_PLANT_LIMIT} active plants.`;
 const OFFLINE_DIALOG_MESSAGE =
   "Connect to the internet to check LeafCue Plus, restore purchases, or upgrade.\nYour existing plant data is still available offline.";
 

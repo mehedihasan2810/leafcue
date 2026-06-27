@@ -16,6 +16,7 @@ export default function OnboardingLayout() {
       <Stack.Screen name="add-first-plant" />
       <Stack.Screen name="plan-reveal" />
       <Stack.Screen name="notify" />
+      <Stack.Screen name="plus" />
       <Stack.Screen name="finish" />
     </Stack>
   );

@@ -43,7 +43,7 @@ export function OnboardingNotifyScreen() {
       await setEnabled(db, true);
     } finally {
       setSubmitting(false);
-      router.push("/onboarding/finish");
+      router.push("/onboarding/plus");
     }
   };
 
@@ -57,7 +57,7 @@ export function OnboardingNotifyScreen() {
       primaryDisabled={submitting}
       onPressPrimary={handleEnable}
       secondaryLabel="Maybe later"
-      onPressSecondary={() => router.push("/onboarding/finish")}
+      onPressSecondary={() => router.push("/onboarding/plus")}
     >
       <View className="gap-3">
         {SAMPLES.map((sample) => (
