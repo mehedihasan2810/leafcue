@@ -8,7 +8,7 @@ import {
   Spinner,
   useThemeColor,
 } from "heroui-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Platform, ScrollView, Text, View } from "react-native";
 import { PACKAGE_TYPE, PRODUCT_CATEGORY } from "react-native-purchases";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -220,6 +220,34 @@ export function PlusPaywallScreen({
   const params = useLocalSearchParams<{ reason?: string }>();
   const isPlusActive = useEntitlementsStore((state) => state.isPlusActive);
   const status = useEntitlementsStore((state) => state.status);
+  const configure = useEntitlementsStore((state) => state.configure);
+  const refreshOfferings = useEntitlementsStore(
+    (state) => state.refreshOfferings,
+  );
+  const refreshCustomerInfo = useEntitlementsStore(
+    (state) => state.refreshCustomerInfo,
+  );
+  const hasUsableOffering = useEntitlementsStore(selectHasUsableOffering);
+
+  // When the paywall is opened directly (e.g. from Settings), the offerings
+  // store may not be populated yet. Trigger a refresh on mount so the paywall
+  // always shows real plans when a network connection is available.
+  useEffect(() => {
+    if (status === "idle") {
+      void configure();
+      return;
+    }
+    if (status === "ready" && !hasUsableOffering) {
+      void refreshCustomerInfo();
+      void refreshOfferings();
+    }
+  }, [
+    status,
+    hasUsableOffering,
+    configure,
+    refreshCustomerInfo,
+    refreshOfferings,
+  ]);
 
   const close = onClose ?? (() => router.back());
 
