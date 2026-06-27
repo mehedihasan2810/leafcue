@@ -88,22 +88,24 @@ function TermsPage() {
 
       <h2>5. LeafCue Plus subscriptions</h2>
       <p>
-        LeafCue is free to use. LeafCue Plus is an optional, auto-renewing
-        subscription that unlocks unlimited active plants and additional
-        power-user features. The following apply:
+        LeafCue is free to use. LeafCue Plus unlocks unlimited active plants and
+        additional power-user features. It is available as an optional
+        auto-renewing subscription or a one-time Lifetime purchase. The
+        following apply:
       </p>
       <ul>
         <li>
-          <strong>Billing.</strong> Subscriptions are purchased and billed
-          through the Apple App Store or Google Play. Current pricing and
-          billing periods (such as monthly or annual) are shown in the app at
-          the point of purchase.
+          <strong>Billing.</strong> Purchases are made and billed through the
+          Apple App Store or Google Play. Current pricing and options (a monthly
+          or annual subscription, or a one-time Lifetime purchase) are shown in
+          the app at the point of purchase.
         </li>
         <li>
           <strong>Auto-renewal.</strong> Subscriptions renew automatically
           unless cancelled at least 24 hours before the end of the current
-          period. You manage and cancel subscriptions in your App Store or
-          Google Play account settings, not within LeafCue.
+          period. The one-time Lifetime purchase does not renew. You manage and
+          cancel subscriptions in your App Store or Google Play account
+          settings, not within LeafCue.
         </li>
         <li>
           <strong>Refunds.</strong> Refunds are handled by Apple or Google under

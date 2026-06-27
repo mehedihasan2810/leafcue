@@ -496,10 +496,10 @@ function PlusSection() {
           />
           <PlanCard
             label="LeafCue Plus"
-            heading="Optional subscription"
+            heading="Optional upgrade"
             list={PLUS_LIST}
             tone="brand"
-            note="See current pricing in the app — monthly or annual. Cancel anytime."
+            note="See current pricing in the app — a monthly or annual subscription, or a one-time Lifetime purchase."
           />
         </div>
       </div>
@@ -588,7 +588,7 @@ const FAQS = [
   },
   {
     q: "Is LeafCue free?",
-    a: "The full app is free. LeafCue Plus is an optional subscription that unlocks unlimited active plants and future power-user features — you can use LeafCue happily without it.",
+    a: "The full app is free. LeafCue Plus is an optional upgrade — a monthly or annual subscription, or a one-time Lifetime purchase — that unlocks unlimited active plants and future power-user features. You can use LeafCue happily without it.",
   },
   {
     q: "What happens if LeafCue Plus expires?",

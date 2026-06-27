@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { LeafMark } from "@/components/header";
 import { StoreBadges } from "@/components/store-badges";
 import { SITE } from "@/lib/site";
 

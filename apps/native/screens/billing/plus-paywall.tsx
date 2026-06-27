@@ -377,7 +377,9 @@ function PlanCard({
         >
           <View
             className={`rounded-full px-2 py-0.5 ${
-              badge.tone === "value" ? "bg-accent" : "bg-background border border-accent"
+              badge.tone === "value"
+                ? "bg-accent"
+                : "border border-accent bg-background"
             }`}
           >
             <Text

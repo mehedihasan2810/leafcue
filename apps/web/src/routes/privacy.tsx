@@ -111,14 +111,15 @@ function PrivacyPage() {
 
       <h2>Subscriptions and payments</h2>
       <p>
-        LeafCue offers an optional subscription, LeafCue Plus. Purchases and
-        renewals are processed by the Apple App Store or Google Play, not by us.
-        We never see or store your payment card details. To manage entitlements
-        (to know whether LeafCue Plus is active on your device) we use a
-        subscription-management provider, which may process a pseudonymous app
-        user identifier and the purchase receipt issued by the app store. This
-        is used solely to unlock the features you have paid for and is not used
-        to build a profile of you.
+        LeafCue offers an optional upgrade, LeafCue Plus (a subscription or a
+        one-time Lifetime purchase). Purchases and renewals are processed by the
+        Apple App Store or Google Play, not by us. We never see or store your
+        payment card details. To manage entitlements (to know whether LeafCue
+        Plus is active on your device) we use a subscription-management
+        provider, which may process a pseudonymous app user identifier and the
+        purchase receipt issued by the app store. This is used solely to unlock
+        the features you have paid for and is not used to build a profile of
+        you.
       </p>
 
       <h2>This website</h2>

@@ -88,11 +88,12 @@ function SupportPage() {
 
       <h2>LeafCue Plus and purchases</h2>
       <p>
-        LeafCue Plus is an optional subscription billed through the App Store or
-        Google Play. To manage or cancel it, use your App Store or Google Play
-        account settings. If you’ve subscribed but don’t see Plus features — for
-        example after reinstalling or switching devices — use the “Restore
-        purchases” option in the app. If your subscription ends, all your
+        LeafCue Plus is an optional upgrade — a monthly or annual subscription,
+        or a one-time Lifetime purchase — billed through the App Store or Google
+        Play. To manage or cancel a subscription, use your App Store or Google
+        Play account settings. If you’ve purchased Plus but don’t see its
+        features — for example after reinstalling or switching devices — use the
+        “Restore purchases” option in the app. If a subscription ends, all your
         existing plants and data remain available.
       </p>
 
