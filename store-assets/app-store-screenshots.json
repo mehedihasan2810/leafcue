@@ -7,7 +7,7 @@
     "en"
   ],
   "locale": "en",
-  "device": "feature-graphic",
+  "device": "iphone",
   "orientation": "portrait",
   "appIcon": "/app-icon.png",
   "slidesByDevice": {
@@ -45,6 +45,32 @@
               }
             }
           ]
+        },
+        "transforms": {
+          "caption": {
+            "x": 87.0673187007749,
+            "y": 106.70048201380438,
+            "width": 1055,
+            "height": 343,
+            "rotation": 0,
+            "zIndex": 4
+          },
+          "badges": {
+            "x": 49.67999999999995,
+            "y": 442.1004878048774,
+            "width": 1142.64,
+            "height": 149.04,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 137.79575952113305,
+            "y": 604.5050061244272,
+            "width": 984,
+            "height": 2005,
+            "rotation": 0,
+            "zIndex": 3
+          }
         }
       },
       {
@@ -81,6 +107,32 @@
               }
             }
           ]
+        },
+        "transforms": {
+          "caption": {
+            "x": 95.26241013441629,
+            "y": 116.6985433864262,
+            "width": 1072,
+            "height": 368,
+            "rotation": 0,
+            "zIndex": 4
+          },
+          "badges": {
+            "x": 53.7775609756097,
+            "y": 456.03219512195164,
+            "width": 1142.64,
+            "height": 149.04,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 141.89328253142236,
+            "y": 633.319050126735,
+            "width": 968,
+            "height": 1972,
+            "rotation": 0,
+            "zIndex": 3
+          }
         }
       },
       {
