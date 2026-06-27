@@ -439,6 +439,9 @@ function BadgeIcon({ icon, size }: { icon: FeatureBadgeIcon; size: number }) {
   );
 }
 
+// Renders the pills to fill its movable frame. Positioning/sizing is owned by
+// the surrounding Movable (see renderBadges); this component only lays the pills
+// out and styles them for the slide's light/dark variant.
 function BadgeCluster({
   group,
   cW,
@@ -446,7 +449,6 @@ function BadgeCluster({
   theme,
   locale,
   inverted,
-  screenX,
 }: {
   group: FeatureBadgeGroup;
   cW: number;
@@ -454,11 +456,8 @@ function BadgeCluster({
   theme: Theme;
   locale: string;
   inverted?: boolean;
-  screenX: number;
 }) {
   const unit = Math.min(cW, cH);
-  const anchorY = group.anchorY ?? 0.3;
-  const maxWidth = (group.maxWidthFrac ?? 0.9) * cW;
   const column = group.direction === "column";
 
   const fg = inverted ? theme.fgAlt : theme.fg;
@@ -474,72 +473,78 @@ function BadgeCluster({
   return (
     <div
       style={{
-        position: "absolute",
-        left: screenX,
-        top: 0,
-        width: cW,
-        height: cH,
-        pointerEvents: "none",
-        zIndex: 6,
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
       <div
         style={{
-          position: "absolute",
-          top: anchorY * cH,
-          left: 0,
-          width: cW,
-          transform: "translateY(-50%)",
           display: "flex",
+          flexDirection: column ? "column" : "row",
+          flexWrap: column ? "nowrap" : "wrap",
+          alignItems: "center",
           justifyContent: "center",
+          gap: unit * 0.018,
+          width: "100%",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: column ? "column" : "row",
-            flexWrap: column ? "nowrap" : "wrap",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: unit * 0.018,
-            maxWidth,
-          }}
-        >
-          {group.badges.map((badge) => (
-            <div
-              key={badge.icon + pickText(badge.text, locale)}
+        {group.badges.map((badge) => (
+          <div
+            key={badge.icon + pickText(badge.text, locale)}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: unit * 0.014,
+              background: pillBg,
+              border: `${Math.max(1, unit * 0.0014)}px solid ${pillBorder}`,
+              borderRadius: 999,
+              padding: `${unit * 0.016}px ${unit * 0.026}px`,
+              boxShadow: shadow,
+              color: fg,
+              whiteSpace: "nowrap",
+            }}
+          >
+            <span style={{ color: iconColor, display: "inline-flex" }}>
+              <BadgeIcon icon={badge.icon} size={unit * 0.036} />
+            </span>
+            <span
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: unit * 0.014,
-                background: pillBg,
-                border: `${Math.max(1, unit * 0.0014)}px solid ${pillBorder}`,
-                borderRadius: 999,
-                padding: `${unit * 0.016}px ${unit * 0.026}px`,
-                boxShadow: shadow,
-                color: fg,
-                whiteSpace: "nowrap",
+                fontSize: unit * 0.0265,
+                fontWeight: 600,
+                letterSpacing: -unit * 0.0002,
+                lineHeight: 1,
               }}
             >
-              <span style={{ color: iconColor, display: "inline-flex" }}>
-                <BadgeIcon icon={badge.icon} size={unit * 0.036} />
-              </span>
-              <span
-                style={{
-                  fontSize: unit * 0.0265,
-                  fontWeight: 600,
-                  letterSpacing: -unit * 0.0002,
-                  lineHeight: 1,
-                }}
-              >
-                {pickText(badge.text, locale)}
-              </span>
-            </div>
-          ))}
-        </div>
+              {pickText(badge.text, locale)}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );
+}
+
+// Default frame for the badge cluster, derived from the group's anchorY /
+// maxWidthFrac. Acts as the placement until the user drags it (which writes an
+// override into slide.transforms.badges).
+function badgesDefaultRect(
+  group: FeatureBadgeGroup,
+  cW: number,
+  cH: number,
+): Rect {
+  const unit = Math.min(cW, cH);
+  const width = (group.maxWidthFrac ?? 0.9) * cW;
+  const anchorY = group.anchorY ?? 0.3;
+  const height = unit * (group.direction === "column" ? 0.34 : 0.12);
+  return {
+    x: (cW - width) / 2,
+    y: anchorY * cH - height / 2,
+    width,
+    height,
+  };
 }
 
 // ---------- Default element rects per layout ----------
@@ -549,6 +554,7 @@ type LayoutRects = {
   caption?: Rect & { align?: "center" | "left" };
   device?: Rect;
   deviceSecondary?: Rect;
+  badges?: Rect;
 };
 
 function getDefaultRects(
@@ -708,6 +714,9 @@ function getSlideGeometry(
     fwFrac,
     fwSmallFrac,
   );
+  if (slide.featureBadges && slide.featureBadges.badges.length > 0) {
+    defaults.badges = badgesDefaultRect(slide.featureBadges, cW, cH);
+  }
   return { cW, cH, Frame, frameAspect, defaults };
 }
 
@@ -741,6 +750,7 @@ export function getElementTransform(
 function defaultElementZ(id: BuiltInElementId): number {
   if (id === "deviceSecondary") return 2;
   if (id === "device") return 3;
+  if (id === "badges") return 5;
   return 4;
 }
 
@@ -1275,6 +1285,7 @@ function SlideElements({
   const captionRect = rectFor("caption", slide, defaults);
   const deviceRect = rectFor("device", slide, defaults);
   const secondaryRect = rectFor("deviceSecondary", slide, defaults);
+  const badgesRect = rectFor("badges", slide, defaults);
 
   function toGlobal(rect: Rect): Rect {
     return { ...rect, x: rect.x + screenX };
@@ -1382,6 +1393,46 @@ function SlideElements({
     );
   }
 
+  function renderBadges() {
+    if (!badgesRect || !slide.featureBadges) return null;
+    const saved = slide.transforms?.badges;
+    const rotation = saved?.rotation ?? 0;
+    const zIndex = saved?.zIndex ?? defaultElementZ("badges");
+    return (
+      <Movable
+        rect={toGlobal(badgesRect)}
+        boundsW={boundsW}
+        boundsH={boundsH}
+        editable={editable}
+        previewScale={previewScale}
+        rotation={rotation}
+        onChange={(t) =>
+          edit?.onElementChange?.(
+            "badges",
+            toLocal({
+              ...t,
+              rotation: t.rotation ?? rotation,
+              zIndex: t.zIndex ?? zIndex,
+            }),
+          )
+        }
+        zIndex={zIndex}
+        allowOverflow={allowCrossScreen}
+        selected={selectedElementId === "badges"}
+        onSelect={() => edit?.onSelectElement?.("badges")}
+      >
+        <BadgeCluster
+          group={slide.featureBadges}
+          cW={cW}
+          cH={cH}
+          theme={theme}
+          locale={locale}
+          inverted={inverted}
+        />
+      </Movable>
+    );
+  }
+
   function renderTextElement(textElement: TextElement, index: number) {
     const elementId = toTextElementId(textElement.id);
     const rect = textElement.transform;
@@ -1464,18 +1515,8 @@ function SlideElements({
         )}
       {deviceRect && renderDevice("device", deviceRect, screenshot)}
       {renderCaption()}
+      {renderBadges()}
       {(slide.textElements || []).map(renderTextElement)}
-      {slide.featureBadges && slide.featureBadges.badges.length > 0 && (
-        <BadgeCluster
-          group={slide.featureBadges}
-          cW={cW}
-          cH={cH}
-          theme={theme}
-          locale={locale}
-          inverted={inverted}
-          screenX={screenX}
-        />
-      )}
     </>
   );
 }

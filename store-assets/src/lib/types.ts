@@ -30,7 +30,11 @@ export type ElementTransform = {
   zIndex?: number;
 };
 
-export type BuiltInElementId = "caption" | "device" | "deviceSecondary";
+export type BuiltInElementId =
+  | "caption"
+  | "device"
+  | "deviceSecondary"
+  | "badges";
 export type TextElementId = `text:${string}`;
 export type ElementId = BuiltInElementId | TextElementId;
 

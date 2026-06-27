@@ -1,6 +1,6 @@
 import { SITE } from "./site";
 
-export const OG_IMAGE = `${SITE.url}/og.png` as const;
+export const OG_IMAGE = `${SITE.url}/og.webp` as const;
 export const OG_IMAGE_ALT =
   "LeafCue — quiet care for growing things. A calm, private plant care tracker, shown on two phones." as const;
 
@@ -8,7 +8,7 @@ export const OG_DEFAULTS = {
   image: OG_IMAGE,
   imageWidth: "1200",
   imageHeight: "630",
-  imageType: "image/png",
+  imageType: "image/webp",
   imageAlt: OG_IMAGE_ALT,
   type: "website" as const,
   siteName: SITE.name,

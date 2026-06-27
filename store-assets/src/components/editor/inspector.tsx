@@ -60,6 +60,7 @@ const ELEMENT_LABEL: Record<BuiltInElementId, string> = {
   caption: "Headline",
   device: "Device",
   deviceSecondary: "Back device",
+  badges: "Feature badges",
 };
 
 export function Inspector({
@@ -258,6 +259,8 @@ function ElementTransformControls({
   const present: ElementId[] = ["caption"];
   if (slide.layout !== "no-device") present.push("device");
   if (slide.layout === "two-devices") present.push("deviceSecondary");
+  if (slide.featureBadges && slide.featureBadges.badges.length > 0)
+    present.push("badges");
   for (const element of slide.textElements || [])
     present.push(toTextElementId(element.id));
 
@@ -671,5 +674,6 @@ function defaultZ(id: ElementId): number {
   if (isTextElementId(id)) return 5;
   if (id === "deviceSecondary") return 2;
   if (id === "device") return 3;
+  if (id === "badges") return 5;
   return 4; // caption on top
 }
